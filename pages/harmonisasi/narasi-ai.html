@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tinjauan Narasi AI · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+</head><body>
+<x-dc>
+<div class="pg">
+
+<!-- ================= DAFTAR ================= -->
+<sc-if value="{{isList}}">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> Ruang Kerja Analis <span>›</span> <b>Tinjauan Narasi AI</b></div>
+      <h1>Tinjauan Narasi AI</h1>
+      <p class="d">Ringkasan, poin penting, dampak, insight, dan saran untuk Presiden yang dihasilkan AI di lima modul dashboard. Hasil asli AI tetap read-only; setiap suntingan disimpan sebagai versi analis dan hanya versi yang disetujui yang tayang.</p>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <sc-for list="{{kpis}}" as="k">
+      <div class="kpi {{k.cls}}">
+        <div class="top"><span class="boid">{{k.id}}</span><span class="ilu">Ilustrasi</span></div>
+        <div class="l">{{k.label}}</div>
+        <div class="v {{k.vcls}}">{{k.v}}</div>
+        <sc-if value="{{k.hasBar}}"><div class="bar"><i style="width: {{k.barW}}"></i></div></sc-if>
+        <div class="s">{{k.sub}}</div>
+        <details class="how"><summary>Rumus &amp; cara membaca</summary><div class="bx"><span><b>Rumus:</b> {{k.f}}</span><span><b>Cara membaca:</b> {{k.baca}}</span></div></details>
+      </div>
+    </sc-for>
+  </div>
+
+  <div class="card sec">
+    <div class="flt">
+      <div class="fr"><span class="lb">Status</span>
+        <sc-for list="{{stChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for>
+      </div>
+      <div class="fr"><span class="lb">Modul</span>
+        <sc-for list="{{modChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for>
+      </div>
+      <div class="fr"><input class="in" type="search" placeholder="Cari judul, isi, cakupan, atau ID…" value="{{qs}}" sc-camel-on-input="{{onQ}}" aria-label="Cari keluaran AI"><span class="sp sm mut">{{countT}}</span></div>
+    </div>
+    <div class="tw">
+      <sc-raw-table class="tb">
+        <sc-raw-thead><sc-raw-tr><sc-raw-th>Keluaran AI</sc-raw-th><sc-raw-th>Modul · cakupan</sc-raw-th><sc-raw-th>Keyakinan</sc-raw-th><sc-raw-th>Versi</sc-raw-th><sc-raw-th>Status</sc-raw-th><sc-raw-th>Persetujuan</sc-raw-th><sc-raw-th></sc-raw-th></sc-raw-tr></sc-raw-thead>
+        <sc-raw-tbody>
+          <sc-for list="{{rows}}" as="r">
+            <sc-raw-tr class="clk" sc-camel-on-click="{{r.open}}">
+              <sc-raw-td><div class="t">{{r.judul}}</div><div class="row xs mut" style="margin-top:4px"><span class="mono">{{r.id}}</span><span>·</span><span>{{r.widget}}</span><span class="pl pl-ai">✦ AI</span><sc-if value="{{r.edited}}"><span class="pl pl-edit">Diubah analis</span></sc-if></div></sc-raw-td>
+              <sc-raw-td><div class="sm">{{r.modulL}}</div><div class="xs mut">{{r.cakupan}}</div></sc-raw-td>
+              <sc-raw-td class="nowrap">{{r.yakin}}</sc-raw-td>
+              <sc-raw-td class="nowrap">v{{r.ver}}</sc-raw-td>
+              <sc-raw-td><span class="pl {{r.stCls}}">{{r.stL}}</span></sc-raw-td>
+              <sc-raw-td class="sm">{{r.apL}}</sc-raw-td>
+              <sc-raw-td class="right"><button type="button" class="lnk" sc-camel-on-click="{{r.open}}">{{r.act}} →</button></sc-raw-td>
+            </sc-raw-tr>
+          </sc-for>
+        </sc-raw-tbody>
+      </sc-raw-table>
+      <sc-if value="{{empty}}"><div class="empty">Tidak ada keluaran AI pada filter ini.</div></sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ================= DETAIL ================= -->
+<sc-if value="{{isDetail}}">
+  <button type="button" class="back" sc-camel-on-click="{{d.back}}">← Kembali ke daftar</button>
+  <div class="crumb">Harmonisasi Investasi <span>›</span> Tinjauan Narasi AI <span>›</span> <b class="mono">{{d.id}}</b></div>
+  <div class="dh">
+    <div style="flex:1;min-width:280px">
+      <h1>{{d.judul}}</h1>
+      <div class="meta"><span>Modul {{d.modulNo}} · {{d.modulL}}</span><span>Widget: {{d.widget}}</span><span>Cakupan: {{d.cakupan}}</span><span>Dibuat {{d.dibuat}}</span><span>Prompt {{d.prompt}}</span></div>
+    </div>
+    <div class="row"><span class="pl pl-ai">✦ AI Generated</span><span class="pl {{d.stCls}}">{{d.stL}}</span><span class="tag">v{{d.ver}}</span><span class="tag">Keyakinan {{d.yakin}}</span></div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <sc-for list="{{d.tabs}}" as="t"><button type="button" role="tab" class="tab {{t.cls}}" sc-camel-on-click="{{t.pick}}">{{t.l}}</button></sc-for>
+  </div>
+
+  <sc-if value="{{d.isCmp}}">
+    <div class="cmp">
+      <div class="card pad">
+        <div class="cmp-h"><h3>Hasil asli AI</h3><span class="tag">Read-only · v1</span></div>
+        <div class="fld"><span class="lb">Judul</span><div class="ro">{{d.ai.judul}}</div></div>
+        <div class="fld" style="margin-bottom:0"><span class="lb">Narasi</span><div class="ro">{{d.ai.teks}}</div></div>
+      </div>
+      <div class="card pad">
+        <div class="cmp-h"><h3>Versi analis</h3><span class="tag">{{d.editT}}</span><span class="sp xs mut">{{d.lockT}}</span></div>
+        <div class="fld"><label for="ej">Judul <sc-if value="{{d.chJ}}"><span class="chg">Diubah</span></sc-if></label>
+          <sc-if value="{{d.editable}}"><input id="ej" class="ip" value="{{d.ed.judul}}" sc-camel-on-input="{{d.onJ}}"></sc-if>
+          <sc-if value="{{d.locked}}"><div class="ro">{{d.ed.judul}}</div></sc-if>
+        </div>
+        <div class="fld" style="margin-bottom:0"><label for="et">Narasi <sc-if value="{{d.chT}}"><span class="chg">Diubah</span></sc-if></label>
+          <sc-if value="{{d.editable}}"><textarea id="et" class="ta" style="min-height:150px" value="{{d.ed.teks}}" sc-camel-on-input="{{d.onT}}"></textarea></sc-if>
+          <sc-if value="{{d.locked}}"><div class="ro">{{d.ed.teks}}</div></sc-if>
+        </div>
+        <sc-if value="{{d.dirty}}"><div class="note warn" style="margin-top:12px">Ada perubahan yang belum disimpan. Simpan draf agar tercatat sebagai versi baru.</div></sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{d.isPv}}">
+    <div class="card pad sec">
+      <div class="row" style="margin-bottom:14px"><span class="sm b">Tampilkan versi:</span>
+        <sc-for list="{{d.pvChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}}</button></sc-for>
+      </div>
+      <div class="pv">
+        <div class="pv-card">
+          <div class="k">{{d.widget}} · {{d.cakupan}}</div>
+          <h4>{{d.pv.judul}}</h4>
+          <p>{{d.pv.teks}}</p>
+          <div class="src">Sumber: {{d.srcLine}} · Generated by AI · Disetujui analis</div>
+        </div>
+      </div>
+      <p class="sm mut" style="margin-top:10px">Pratinjau mengikuti gaya kartu di halaman {{d.modulL}}. Hanya versi yang disetujui yang tampil di Dashboard Presiden; draf dan versi yang menunggu persetujuan tidak ditayangkan.</p>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{d.isSrc}}">
+    <div class="card sec">
+      <div class="card-h"><div><h3>Sumber data yang dirujuk AI</h3><div class="s">Sumber dicantumkan pada kartu dashboard saat tayang</div></div></div>
+      <div class="card-b">
+        <sc-for list="{{d.srcs}}" as="s"><div class="li"><div class="t">{{s}}</div><div class="xs mut">Tercatat pada prompt {{d.prompt}}</div></div></sc-for>
+        <sc-if value="{{d.noSrc}}"><div class="empty">Belum ada sumber tercatat.</div></sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{d.isAud}}">
+    <div class="card pad sec">
+      <h3 style="font-size:14px;margin-bottom:12px">Riwayat versi &amp; audit</h3>
+      <ul class="tl">
+        <sc-for list="{{d.audit}}" as="a"><li class="{{a.cls}}"><div class="w">{{a.w}}</div><div class="m">{{a.m}}</div><sc-if value="{{a.hasD}}"><div class="m">{{a.d}}</div></sc-if><sc-if value="{{a.hasWhy}}"><div class="m">{{a.why}}</div></sc-if></li></sc-for>
+        <li class="ai"><div class="w">Draf dibuat oleh AI</div><div class="m">Sistem AI · {{d.dibuat}}</div></li>
+      </ul>
+    </div>
+  </sc-if>
+
+  <div class="act">
+    <span class="info">{{d.actNote}}</span>
+    <sc-for list="{{d.acts}}" as="b"><button type="button" class="btn {{b.cls}}" sc-camel-on-click="{{b.run}}">{{b.l}}</button></sc-for>
+  </div>
+</sc-if>
+
+<sc-if value="{{isMissing}}"><div class="card empty">Keluaran AI tidak ditemukan. <button type="button" class="lnk" sc-camel-on-click="{{backList}}">Kembali ke daftar</button></div></sc-if>
+
+<sc-if value="{{isList}}"><div class="foot"><span>{{dataL}}</span><span>Indikator BO-10 &amp; BO-11 · Back Office 2026</span></div></sc-if>
+</div>
+
+<!-- modal alasan -->
+<sc-if value="{{m.on}}">
+  <div class="mdl" sc-camel-on-click="{{m.close}}">
+    <div class="mdl-b" role="dialog" aria-modal="true" aria-labelledby="mdlT" sc-camel-on-click="{{m.stop}}">
+      <div class="mdl-h"><h3 id="mdlT">{{m.t}}</h3></div>
+      <div class="mdl-c"><div class="fld" style="margin:0"><label for="mw">Alasan <span class="req">*</span></label><textarea id="mw" class="ta" value="{{m.why}}" sc-camel-on-input="{{m.onWhy}}" placeholder="Tuliskan alasan agar tercatat di audit trail"></textarea><span class="hint">Wajib diisi. Alasan tampil di riwayat audit dan notifikasi.</span></div></div>
+      <div class="mdl-f"><button type="button" class="btn" sc-camel-on-click="{{m.close}}">Batal</button><button type="button" class="btn {{m.cls}} {{m.dis}}" sc-camel-on-click="{{m.ok}}">{{m.okL}}</button></div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { sel: null, tab: 'cmp', fSt: 'antre', fMod: 'all', qs: '', draft: {}, pv: 'an', mdl: null };
+
+  componentDidMount() {
+    BO.mount(this);
+    const id = BO.param('id');
+    if (id && id.indexOf('f:') === 0) this.setState({ fSt: id.slice(2) });
+    else if (id) this.setState({ sel: id });
+  }
+  componentWillUnmount() { BO.unmount(this); }
+  componentDidUpdate(pp, ps) { if (ps && ps.sel !== this.state.sel) { try { window.scrollTo(0, 0); } catch (e) {} } }
+  onOpen(id) { if (id && id.indexOf('f:') === 0) this.setState({ sel: null, fSt: id.slice(2) }); else this.setState({ sel: id, tab: 'cmp' }); }
+
+  open(id) { this.setState({ sel: id, tab: 'cmp', pv: 'an' }); BO.route('harmonisasi/narasi-ai/' + id); }
+  close() { this.setState({ sel: null }); BO.route('harmonisasi/narasi-ai'); }
+
+  renderVals() {
+    const st = this.state, U = BO_UC.harmonisasi, ST = U.ST_AI, role = BO.role().key;
+    const all = BO.list('harmonisasi', 'keluaranAI');
+    const ord = { review: 0, approval: 1, published: 2, taken: 3 };
+    const qs = (st.qs || '').toLowerCase();
+    const inSt = (a, f) => f === 'all' || (f === 'antre' ? (a.status === 'review' || a.status === 'approval') : a.status === f);
+    const inQ = (a) => !qs || [a.id, U.aiTeks(a).judul, U.aiTeks(a).teks, a.cakupan, a.widget, U.modulL(a.modul)].join(' ').toLowerCase().indexOf(qs) >= 0;
+    const base = all.filter(inQ);
+    const rowsAll = base.filter((a) => inSt(a, st.fSt) && (st.fMod === 'all' || a.modul === st.fMod))
+      .sort((a, b) => (ord[a.status] - ord[b.status]) || (a.dibuat < b.dibuat ? 1 : -1));
+    const H = BO.data('harmonisasi');
+
+    const vals = {
+      isList: !st.sel, isDetail: false, isMissing: false, dataL: H.meta.label,
+      backList: () => this.close(),
+      kpis: U.kpiVals(['BO-10', 'BO-11']),
+      qs: st.qs, onQ: (e) => this.setState({ qs: e.target.value }),
+      stChips: [['antre', 'Antrean'], ['review', 'Menunggu tinjauan'], ['approval', 'Menunggu persetujuan'], ['published', 'Tayang'], ['taken', 'Ditarik'], ['all', 'Semua']].map((c) => ({
+        l: c[1], n: String(base.filter((a) => inSt(a, c[0])).length), cls: st.fSt === c[0] ? 'on' : '', pick: () => this.setState({ fSt: c[0] }) })),
+      modChips: [['all', 'Semua']].concat(H.modul.map((m, i) => [m[0], (i + 1) + ' · ' + U.modulS(m[0])])).map((c) => ({
+        l: c[1], n: String(base.filter((a) => inSt(a, st.fSt) && (c[0] === 'all' || a.modul === c[0])).length), cls: st.fMod === c[0] ? 'on' : '', pick: () => this.setState({ fMod: c[0] }) })),
+      rows: rowsAll.map((a) => ({
+        id: a.id, judul: U.aiTeks(a).judul, widget: a.widget, modulL: (U.modulNo(a.modul)) + ' · ' + U.modulL(a.modul), cakupan: a.cakupan,
+        yakin: Math.round(a.yakin * 100) + '%', ver: a.ver, stL: ST[a.status][0], stCls: ST[a.status][1], edited: !!a.ed,
+        apL: a.status === 'published' ? (U.aiSah(a) ? '✓ Disetujui v' + a.disetujuiVer : '⚠ Versi tidak sesuai') : a.status === 'approval' ? 'Diajukan v' + a.ver : a.disetujuiVer ? 'Pernah disetujui v' + a.disetujuiVer : '—',
+        act: a.status === 'review' ? 'Tinjau' : a.status === 'approval' ? 'Putuskan' : 'Lihat',
+        open: () => this.open(a.id)
+      })),
+      empty: rowsAll.length === 0, countT: rowsAll.length + ' keluaran AI',
+      d: {}, m: { on: false }
+    };
+
+    if (st.sel) {
+      const a = BO.get('harmonisasi', 'keluaranAI', st.sel);
+      vals.isList = false;
+      if (!a) { vals.isMissing = true; return vals; }
+      vals.isDetail = true;
+      const saved = a.ed || { judul: a.ai.judul, teks: a.ai.teks };
+      const ed = st.draft[a.id] || saved;
+      const dirty = !!st.draft[a.id] && (ed.judul !== saved.judul || ed.teks !== saved.teks);
+      const editable = a.status === 'review' && role === 'analis';
+      const setEd = (k) => (e) => { const v = e.target.value; BO.draftSet(this, a.id, saved, { [k]: v }); };
+      const clearDraft = () => { const D = Object.assign({}, st.draft); delete D[a.id]; return D; };
+      const lbl = (s) => ST[s][0] + ' · v' + a.ver;
+
+      const saveDraft = (quiet) => {
+        if (!dirty) return a.ver;
+        const nv = a.ver + 1;
+        BO.update('harmonisasi', 'keluaranAI', a.id, { ed: { judul: ed.judul, teks: ed.teks }, ver: nv }, { aksi: 'Versi analis disimpan', sebelum: 'v' + a.ver, sesudah: 'v' + nv, alasan: 'Penyuntingan narasi' });
+        this.setState({ draft: clearDraft() });
+        if (!quiet) BO.toast('Draf versi analis tersimpan sebagai v' + nv, 'ok');
+        return nv;
+      };
+      const setSt = (s, aksi, why, extra, msg) => {
+        BO.update('harmonisasi', 'keluaranAI', a.id, Object.assign({ status: s }, extra || {}), { aksi: aksi, sebelum: lbl(a.status), sesudah: ST[s][0] + ' · v' + ((extra && extra.ver) || a.ver), alasan: why });
+        BO.toast(msg, s === 'published' ? 'ok' : '');
+      };
+      const ask = (t, okL, cls, run) => this.setState({ mdl: { t: t, okL: okL, cls: cls, run: run, why: '' } });
+
+      const acts = [];
+      let note = '';
+      if (a.status === 'review') {
+        if (role === 'analis') {
+          note = dirty ? 'Perubahan belum disimpan.' : 'Tinjau narasi, sunting bila perlu, lalu ajukan untuk persetujuan.';
+          acts.push({ l: 'Simpan draf', cls: dirty ? '' : 'dis', run: () => saveDraft(false) });
+          acts.push({ l: 'Kembalikan ke versi AI', cls: a.ed || dirty ? '' : 'dis', run: () => { if (a.ed) BO.update('harmonisasi', 'keluaranAI', a.id, { ed: null, ver: a.ver + 1 }, { aksi: 'Dikembalikan ke versi AI', sebelum: 'v' + a.ver, sesudah: 'v' + (a.ver + 1), alasan: 'Suntingan analis dibatalkan' }); this.setState({ draft: clearDraft() }); BO.toast('Narasi dikembalikan ke hasil asli AI'); } });
+          acts.push({ l: 'Ajukan persetujuan', cls: 'btn-p', run: () => { const nv = saveDraft(true); BO.update('harmonisasi', 'keluaranAI', a.id, { status: 'approval', diajukan: BO.role().nama }, { aksi: 'Diajukan untuk persetujuan', sebelum: 'Menunggu tinjauan · v' + nv, sesudah: 'Menunggu persetujuan · v' + nv, alasan: 'Tinjauan analis selesai' }); BO.toast('Diajukan untuk persetujuan (v' + nv + ')'); } });
+        } else note = 'Menunggu tinjauan analis. Ganti peran ke Analis untuk menyunting.';
+      } else if (a.status === 'approval') {
+        if (role === 'approver') {
+          note = 'Persetujuan dicatat untuk v' + a.ver + '. Jika disunting lagi, persetujuan harus diulang.';
+          acts.push({ l: 'Kembalikan ke analis', cls: 'btn-r', run: () => ask('Kembalikan ke analis', 'Kembalikan', 'btn-r', (why) => setSt('review', 'Dikembalikan ke analis', why, null, 'Keluaran AI dikembalikan ke analis')) });
+          acts.push({ l: 'Setujui & tayangkan', cls: 'btn-g', run: () => setSt('published', 'Disetujui & ditayangkan', 'Sesuai versi v' + a.ver, { disetujuiVer: a.ver, disetujuiOleh: BO.role().nama }, 'Tayang di ' + U.modulL(a.modul) + ' (v' + a.ver + ')') });
+        } else {
+          note = 'Menunggu keputusan Approver. Ganti peran ke Approver untuk memutuskan.';
+          acts.push({ l: 'Tarik pengajuan', cls: '', run: () => setSt('review', 'Pengajuan ditarik analis', 'Perlu penyuntingan tambahan', null, 'Pengajuan ditarik kembali ke tinjauan') });
+        }
+      } else if (a.status === 'published') {
+        note = 'Tayang di Dashboard Presiden · disetujui v' + a.disetujuiVer + (a.disetujuiOleh ? ' oleh ' + a.disetujuiOleh : '') + '.';
+        if (role === 'approver') acts.push({ l: 'Tarik dari dashboard', cls: 'btn-r', run: () => ask('Tarik dari dashboard', 'Tarik', 'btn-r', (why) => setSt('taken', 'Ditarik dari dashboard', why, { alasanTarik: why }, 'Keluaran AI ditarik dari dashboard')) });
+      } else if (a.status === 'taken') {
+        note = 'Ditarik dari dashboard' + (a.alasanTarik ? ': ' + a.alasanTarik : '.');
+        acts.push({ l: 'Pulihkan ke antrean tinjauan', cls: 'btn-p', run: () => setSt('review', 'Dipulihkan ke antrean tinjauan', 'Perlu pembaruan narasi', null, 'Masuk lagi ke antrean tinjauan') });
+      }
+
+      const pvT = st.pv === 'ai' ? a.ai : ed;
+      vals.d = {
+        id: a.id, judul: ed.judul, modulL: U.modulL(a.modul), modulNo: U.modulNo(a.modul), widget: a.widget, cakupan: a.cakupan, dibuat: BO.dt(a.dibuat), prompt: a.prompt,
+        stL: ST[a.status][0], stCls: ST[a.status][1], ver: a.ver, yakin: Math.round(a.yakin * 100) + '%',
+        back: () => this.close(),
+        tabs: [['cmp', 'Hasil AI ↔ Versi analis'], ['pv', 'Pratinjau di dashboard'], ['src', 'Sumber'], ['aud', 'Riwayat & audit']].map((t) => ({ l: t[1], cls: st.tab === t[0] ? 'on' : '', pick: () => this.setState({ tab: t[0] }) })),
+        isCmp: st.tab === 'cmp', isPv: st.tab === 'pv', isSrc: st.tab === 'src', isAud: st.tab === 'aud',
+        ai: a.ai, ed: ed, editable: editable, locked: !editable, dirty: dirty,
+        chJ: ed.judul !== a.ai.judul, chT: ed.teks !== a.ai.teks,
+        editT: (ed.judul !== a.ai.judul || ed.teks !== a.ai.teks) ? 'Disunting analis' : 'Sama dengan hasil AI',
+        lockT: editable ? 'Dapat disunting' : 'Terkunci · ' + ST[a.status][0].toLowerCase(),
+        onJ: setEd('judul'), onT: setEd('teks'),
+        pvChips: [['an', 'Versi analis'], ['ai', 'Hasil asli AI']].map((c) => ({ l: c[1], cls: st.pv === c[0] ? 'on' : '', pick: () => this.setState({ pv: c[0] }) })),
+        pv: pvT, srcLine: (a.sumber || []).join(', ') || '—', srcs: a.sumber || [], noSrc: !(a.sumber || []).length,
+        audit: U.auditOf('keluaranAI', a.id),
+        acts: acts, actNote: note
+      };
+    }
+
+    if (st.mdl) {
+      const M = st.mdl, ok = (M.why || '').trim().length > 2;
+      vals.m = {
+        on: true, t: M.t, okL: M.okL, cls: M.cls, why: M.why, dis: ok ? '' : 'dis',
+        onWhy: (e) => this.setState({ mdl: Object.assign({}, M, { why: e.target.value }) }),
+        close: () => this.setState({ mdl: null }), stop: (e) => e.stopPropagation(),
+        ok: () => { if (!ok) return; M.run(M.why.trim()); this.setState({ mdl: null }); }
+      };
+    }
+    return vals;
+  }
+}
+</script>
+</body></html>

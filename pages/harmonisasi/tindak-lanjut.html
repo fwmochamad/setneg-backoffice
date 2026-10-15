@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tindak Lanjut · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+</head><body>
+<x-dc>
+<div class="pg">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> Ruang Kerja Analis <span>›</span> <b>Tindak Lanjut</b></div>
+      <h1>Pencatatan Tindak Lanjut Temuan</h1>
+      <p class="d">Status, penanggung jawab (PIC), unit pelaksana, dan riwayat penanganan setiap temuan ketidakselarasan. Data ini mengisi daftar temuan dan riwayat tindak lanjut di Modul 5.</p>
+    </div>
+  </div>
+  <div class="kpis">
+    <sc-for list="{{kpis}}" as="k">
+      <div class="kpi {{k.cls}}">
+        <div class="top"><span class="boid">{{k.id}}</span><span class="ilu">Ilustrasi</span></div>
+        <div class="l">{{k.label}}</div><div class="v">{{k.v}}</div>
+        <sc-if value="{{k.hasBar}}"><div class="bar"><i style="width: {{k.barW}}"></i></div></sc-if>
+        <div class="s">{{k.sub}}</div>
+        <details class="how"><summary>Rumus &amp; cara membaca</summary><div class="bx"><span><b>Rumus:</b> {{k.f}}</span><span><b>Cara membaca:</b> {{k.baca}}</span></div></details>
+      </div>
+    </sc-for>
+    <div class="kpi t-slate">
+      <div class="top"><span class="tag">Informasi</span></div>
+      <div class="l">Sebaran status tindak lanjut</div>
+      <div class="stats" style="margin-top:4px"><sc-for list="{{stStat}}" as="s"><div class="stat" style="min-width:90px;padding:8px 10px"><div class="v" style="font-size:17px">{{s.v}}</div><div class="l">{{s.l}}</div></div></sc-for></div>
+      <div class="s">Bukan persentase penyelesaian (lihat cara membaca BO-08).</div>
+    </div>
+  </div>
+
+  <div class="split sec">
+    <div class="card">
+      <div class="flt">
+        <div class="fr"><span class="lb">Status</span><sc-for list="{{stChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+        <div class="fr"><span class="lb">Pencatatan</span><sc-for list="{{lkChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+      </div>
+      <div class="tw">
+        <sc-raw-table class="tb" style="min-width:620px">
+          <sc-raw-thead><sc-raw-tr><sc-raw-th>Temuan</sc-raw-th><sc-raw-th>Status</sc-raw-th><sc-raw-th>PIC</sc-raw-th><sc-raw-th>Target</sc-raw-th></sc-raw-tr></sc-raw-thead>
+          <sc-raw-tbody>
+            <sc-for list="{{rows}}" as="r">
+              <sc-raw-tr class="clk {{r.selCls}}" sc-camel-on-click="{{r.open}}">
+                <sc-raw-td><div class="t">{{r.judul}}</div><div class="xs mut"><span class="mono">{{r.id}}</span> · {{r.temuanId}} · {{r.jenisL}}</div></sc-raw-td>
+                <sc-raw-td><span class="pl {{r.stCls}}">{{r.stL}}</span></sc-raw-td>
+                <sc-raw-td class="sm"><sc-if value="{{r.hasPic}}"><span>{{r.pic}}</span></sc-if><sc-if value="{{r.noPic}}"><span class="pl pl-warn">PIC belum terisi</span></sc-if></sc-raw-td>
+                <sc-raw-td class="sm nowrap">{{r.target}}</sc-raw-td>
+              </sc-raw-tr>
+            </sc-for>
+          </sc-raw-tbody>
+        </sc-raw-table>
+        <sc-if value="{{empty}}"><div class="empty">Tidak ada tindak lanjut pada filter ini.</div></sc-if>
+      </div>
+    </div>
+
+    <div class="card pad sticky">
+      <sc-if value="{{noSel}}"><div class="empty">Pilih tindak lanjut di sebelah kiri untuk mencatat status dan PIC.</div></sc-if>
+      <sc-if value="{{hasSel}}">
+        <div class="row" style="margin-bottom:6px"><span class="mono xs mut">{{d.id}} · {{d.temuanId}}</span><span class="pl {{d.lkCls}}">{{d.lkL}}</span></div>
+        <h3 style="font-size:16px;line-height:1.35">{{d.judul}}</h3>
+        <p class="sm mut" style="margin:4px 0 14px">{{d.regL}} · {{d.jenisL}}</p>
+
+        <div class="fld"><span class="lb">Status tindak lanjut <span class="req">*</span></span><div class="row"><sc-for list="{{d.stChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}}</button></sc-for></div></div>
+        <div class="fld"><label for="pic">Penanggung jawab resmi (PIC) <span class="req">*</span></label><input id="pic" class="ip" value="{{d.f.pic}}" sc-camel-on-input="{{d.on.pic}}" disabled="{{d.ro}}" placeholder="Instansi penanggung jawab, mis. Pemerintah Kabupaten Kudus"></div>
+        <div class="g2" style="gap:0 12px">
+          <div class="fld"><label for="unit">Unit pelaksana</label><input id="unit" class="ip" value="{{d.f.unit}}" sc-camel-on-input="{{d.on.unit}}" disabled="{{d.ro}}"></div>
+          <div class="fld"><label for="pb">Pembina</label><input id="pb" class="ip" value="{{d.f.pembina}}" sc-camel-on-input="{{d.on.pembina}}" disabled="{{d.ro}}"></div>
+        </div>
+        <div class="g2" style="gap:0 12px">
+          <div class="fld"><label for="mulai">Mulai</label><input id="mulai" class="ip" type="date" value="{{d.f.mulai}}" sc-camel-on-input="{{d.on.mulai}}" disabled="{{d.ro}}"></div>
+          <div class="fld"><label for="tgt">Target selesai</label><input id="tgt" class="ip" type="date" value="{{d.f.target}}" sc-camel-on-input="{{d.on.target}}" disabled="{{d.ro}}"></div>
+        </div>
+        <div class="fld"><label for="cat">Catatan riwayat (opsional)</label><input id="cat" class="ip" value="{{d.f.catatan}}" sc-camel-on-input="{{d.on.catatan}}" disabled="{{d.ro}}" placeholder="mis. Rapat koordinasi dengan Kemendagri"></div>
+        <div class="row" style="margin-bottom:16px"><span class="sm mut" style="flex:1">{{d.note}}</span><sc-for list="{{d.acts}}" as="b"><button type="button" class="btn {{b.cls}}" sc-camel-on-click="{{b.run}}">{{b.l}}</button></sc-for></div>
+
+        <h4 style="font-size:13px;margin-bottom:10px">Riwayat tindak lanjut</h4>
+        <ul class="tl"><sc-for list="{{d.riwayat}}" as="h"><li class="{{h.cls}}"><div class="w">{{h.t}}</div><div class="m">{{h.d}}</div></li></sc-for></ul>
+        <sc-if value="{{d.noRiw}}"><p class="sm mut">Belum ada riwayat.</p></sc-if>
+      </sc-if>
+    </div>
+  </div>
+  <div class="foot"><span>{{dataL}}</span><span>Indikator BO-08 · Back Office 2026</span></div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { sel: null, fSt: 'all', fLk: 'all', draft: {} };
+  componentDidMount() { BO.mount(this); this.onOpen(BO.param('id')); }
+  componentWillUnmount() { BO.unmount(this); }
+  onOpen(id) { if (id === 'f:kurang') this.setState({ fLk: 'kurang', sel: null }); else if (id) this.setState({ sel: id }); }
+  open(id) { this.setState({ sel: id }); BO.route('harmonisasi/tindak-lanjut/' + id); }
+
+  renderVals() {
+    const st = this.state, U = BO_UC.harmonisasi, H = BO.data('harmonisasi'), role = BO.role().key, ST = U.ST_TL;
+    const all = BO.list('harmonisasi', 'tindakLanjut');
+    const fs = (t, f) => f === 'all' || t.status === f, fl = (t, f) => f === 'all' || (f === 'kurang' ? !U.tlLengkap(t) : U.tlLengkap(t));
+    const ordS = { belum: 0, proses: 1, tunggu: 2, selesai: 3 };
+    const rowsAll = all.filter((t) => fs(t, st.fSt) && fl(t, st.fLk)).sort((a, b) => (U.tlLengkap(a) - U.tlLengkap(b)) || (ordS[a.status] - ordS[b.status]));
+    const vals = {
+      dataL: H.meta.label, kpis: U.kpiVals(['BO-08']),
+      stStat: H.statusTL.map((s) => ({ v: all.filter((t) => t.status === s[0]).length, l: s[1] })),
+      stChips: [['all', 'Semua']].concat(H.statusTL).map((c) => ({ l: c[1], n: String(all.filter((t) => fs(t, c[0]) && fl(t, st.fLk)).length), cls: st.fSt === c[0] ? 'on' : '', pick: () => this.setState({ fSt: c[0] }) })),
+      lkChips: [['all', 'Semua'], ['kurang', 'Belum lengkap'], ['lengkap', 'Lengkap']].map((c) => ({ l: c[1], n: String(all.filter((t) => fl(t, c[0]) && fs(t, st.fSt)).length), cls: st.fLk === c[0] ? 'on' : '', pick: () => this.setState({ fLk: c[0] }) })),
+      rows: rowsAll.map((t) => ({ id: t.id, temuanId: t.temuanId, judul: t.judul, jenisL: U.jenisL(t.jenis), stL: ST[t.status][0], stCls: ST[t.status][1], pic: t.pic, hasPic: !!t.pic, noPic: !t.pic, target: t.target ? BO.date(t.target) : '—', selCls: st.sel === t.id ? 'sel' : '', open: () => this.open(t.id) })),
+      empty: !rowsAll.length, noSel: true, hasSel: false, d: { f: {}, on: {} }
+    };
+    const t = st.sel ? BO.get('harmonisasi', 'tindakLanjut', st.sel) : null;
+    if (t) {
+      vals.noSel = false; vals.hasSel = true;
+      const FIELDS = ['status', 'pic', 'unit', 'pembina', 'mulai', 'target'];
+      const saved = { status: t.status, pic: t.pic || '', unit: t.unit || '', pembina: t.pembina || '', mulai: t.mulai || '', target: t.target || '', catatan: '' };
+      const f = st.draft[t.id] || saved;
+      const ro = role !== 'analis';
+      const setF = (k, v) => { if (!ro) BO.draftSet(this, t.id, saved, { [k]: v }); };
+      const on = {}; FIELDS.concat(['catatan']).forEach((k) => { on[k] = (e) => { const v = e.target.value; setF(k, v); }; });
+      const changed = FIELDS.filter((k) => f[k] !== saved[k]);
+      const dirty = changed.length > 0 || f.catatan.trim().length > 0;
+      const lengkap = U.tlLengkap({ status: f.status, pic: f.pic });
+      const acts = []; let note = '';
+      if (ro) note = 'Pencatatan dilakukan Analis.';
+      else {
+        note = dirty ? (lengkap ? 'Perubahan belum disimpan.' : 'PIC resmi wajib diisi agar pencatatan lengkap.') : '';
+        acts.push({ l: 'Simpan', cls: dirty ? 'btn-p' : 'btn-p dis', run: () => {
+          const ev = [];
+          if (f.status !== t.status) ev.push([BO.now().slice(0, 10), 'Status: ' + ST[t.status][0] + ' → ' + ST[f.status][0]]);
+          if (f.pic !== (t.pic || '')) ev.push([BO.now().slice(0, 10), 'PIC ditetapkan: ' + (f.pic || '—')]);
+          if (f.catatan.trim()) ev.push([BO.now().slice(0, 10), f.catatan.trim()]);
+          const patch = { status: f.status, pic: f.pic.trim() || null, unit: f.unit, pembina: f.pembina, mulai: f.mulai, target: f.target, ver: (t.ver || 1) + 1, riwayat: (t.riwayat || []).concat(ev) };
+          BO.update('harmonisasi', 'tindakLanjut', t.id, patch, { aksi: 'Pencatatan tindak lanjut diperbarui', sebelum: ST[t.status][0] + ' · PIC ' + (t.pic || '—'), sesudah: ST[f.status][0] + ' · PIC ' + (f.pic.trim() || '—'), alasan: f.catatan.trim() || ('Field diubah: ' + changed.join(', ')) });
+          const D = Object.assign({}, st.draft); delete D[t.id]; this.setState({ draft: D });
+          BO.toast('Tindak lanjut ' + t.id + ' tersimpan', 'ok');
+        } });
+      }
+      const reg = U.reg(t.regId);
+      vals.d = {
+        id: t.id, temuanId: t.temuanId, judul: t.judul, regL: reg ? reg.nomor : '—', jenisL: U.jenisL(t.jenis),
+        lkL: lengkap ? 'Status & PIC lengkap' : 'Belum lengkap', lkCls: lengkap ? 'pl-pub' : 'pl-warn',
+        stChips: H.statusTL.map((s) => ({ l: s[1], cls: f.status === s[0] ? 'on' : '', pick: () => setF('status', s[0]) })),
+        f: f, on: on, ro: ro, acts: acts, note: note,
+        riwayat: (t.riwayat || []).slice().reverse().map((h, i) => ({ t: h[1], d: BO.date(h[0]), cls: i === 0 && t.status === 'selesai' ? 'ok' : '' })), noRiw: !(t.riwayat || []).length
+      };
+    }
+    return vals;
+  }
+}
+</script>
+</body></html>

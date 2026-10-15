@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifikasi · Backoffice</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/bo-usecases.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+<style>
+  .nt{display:flex;gap:12px;align-items:flex-start;width:100%;padding:14px 20px;border:0;border-bottom:1px solid var(--line2);background:#fff;text-align:left}
+  .nt:hover{background:#FAFCFF}
+  .nt.unread{background:#F8FBFF}
+  .nt .dot{width:9px;height:9px;border-radius:50%;margin-top:6px;flex:none;background:transparent}
+  .nt.unread .dot{background:var(--pri)}
+  .nt .t{font-weight:600}
+  .nt.unread .t{color:var(--ink)}
+</style>
+</head><body>
+<x-dc>
+<div class="pg">
+  <div class="ph">
+    <div>
+      <div class="crumb">{{ucNama}} <span>›</span> Administrasi <span>›</span> <b>Notifikasi</b></div>
+      <h1>Notifikasi</h1>
+      <p class="d">Pengajuan, keputusan, dan perubahan yang dilakukan sistem AI atau peran lain dalam use case ini. Notifikasi untuk {{roleL}}.</p>
+    </div>
+    <div class="r"><button type="button" class="btn {{allDis}}" sc-camel-on-click="{{readAll}}">Tandai semua dibaca</button></div>
+  </div>
+  <div class="card">
+    <div class="flt"><div class="fr"><sc-for list="{{chips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div></div>
+    <sc-for list="{{rows}}" as="n">
+      <button type="button" class="nt {{n.cls}}" sc-camel-on-click="{{n.open}}">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="col" style="gap:3px;flex:1;min-width:0">
+          <span class="t">{{n.aksi}}</span>
+          <span class="sm">{{n.objL}}</span>
+          <span class="xs mut">{{n.aktor}} · {{n.at}}</span>
+          <sc-if value="{{n.hasWhy}}"><span class="xs mut">Alasan: {{n.alasan}}</span></sc-if>
+        </span>
+        <sc-if value="{{n.hasGo}}"><span class="lnk sm">Buka →</span></sc-if>
+      </button>
+    </sc-for>
+    <sc-if value="{{empty}}"><div class="empty">Belum ada notifikasi.</div></sc-if>
+  </div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { f: 'all' };
+  componentDidMount() { BO.mount(this); }
+  componentWillUnmount() { BO.unmount(this); }
+
+  renderVals() {
+    const st = this.state, uc = BO.param('uc') || 'harmonisasi', role = BO.role();
+    const U = (window.BO_UC || {})[uc] || null;
+    const ucDef = (window.BO_USECASES || []).filter((u) => u.key === uc)[0] || { nama: uc };
+    const all = BO.notifs(uc);
+    const unread = all.filter((a) => !BO.isRead(a.id));
+    const list = st.f === 'unread' ? unread : all;
+    return {
+      ucNama: ucDef.nama, roleL: role.nama + ' (' + role.peran + ')',
+      allDis: unread.length ? '' : 'dis', readAll: () => BO.markRead(all.map((a) => a.id)),
+      chips: [['all', 'Semua', all.length], ['unread', 'Belum dibaca', unread.length]].map((c) => ({ l: c[1], n: String(c[2]), cls: st.f === c[0] ? 'on' : '', pick: () => this.setState({ f: c[0] }) })),
+      rows: list.map((a) => {
+        const path = U ? U.objPath(a.ent, a.obj) : null;
+        return { cls: BO.isRead(a.id) ? '' : 'unread', aksi: a.aksi, objL: (U ? (U.entL[a.ent] || a.ent) + ' · ' + U.objL(a.ent, a.obj) : a.obj), aktor: a.aktor, at: BO.dt(a.at), alasan: a.alasan, hasWhy: !!a.alasan && a.alasan !== '—', hasGo: !!path,
+          open: () => { BO.markRead([a.id]); if (path) BO.nav(path); } };
+      }),
+      empty: !list.length
+    };
+  }
+}
+</script>
+</body></html>

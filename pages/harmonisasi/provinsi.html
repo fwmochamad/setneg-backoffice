@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kurasi Profil Provinsi · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+<style>
+  .pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .pc{display:flex;flex-direction:column;gap:8px;padding:16px;text-align:left;border:1px solid var(--line);border-radius:var(--r);background:#fff;box-shadow:var(--sh)}
+  .pc:hover{border-color:#93C5FD;box-shadow:0 8px 20px rgba(15,23,42,.08)}
+  .pc h3{font-size:15px}
+  .pc .p{font-size:12px;color:var(--mut);line-height:1.45;min-height:52px}
+  .itb input{min-height:32px;padding:5px 8px}
+</style>
+</head><body>
+<x-dc>
+<div class="pg">
+<sc-if value="{{isList}}">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> Ruang Kerja Analis <span>›</span> <b>Kurasi Profil Provinsi</b></div>
+      <h1>Kurasi Profil &amp; Indikator Kesiapan Provinsi</h1>
+      <p class="d">Profil wilayah, indikator kesiapan, dan proyek siap investasi untuk provinsi dalam cakupan. Hasil kurasi tampil di Modul 2 · Peluang Investasi Daerah dan Modul 3 · Demografi &amp; Mobilitas Penduduk.</p>
+    </div>
+  </div>
+  <div class="kpis">
+    <sc-for list="{{kpis}}" as="k">
+      <div class="kpi {{k.cls}}">
+        <div class="top"><span class="boid">{{k.id}}</span><span class="ilu">Ilustrasi</span></div>
+        <div class="l">{{k.label}}</div><div class="v">{{k.v}}</div>
+        <sc-if value="{{k.hasBar}}"><div class="bar"><i style="width: {{k.barW}}"></i></div></sc-if>
+        <div class="s">{{k.sub}}</div>
+        <details class="how"><summary>Rumus &amp; cara membaca</summary><div class="bx"><span><b>Rumus:</b> {{k.f}}</span><span><b>Cara membaca:</b> {{k.baca}}</span></div></details>
+      </div>
+    </sc-for>
+  </div>
+  <div class="sec-h sec"><h2>Provinsi dalam cakupan</h2><span class="s">{{cakupanT}}</span></div>
+  <div class="pcards">
+    <sc-for list="{{cards}}" as="c">
+      <button type="button" class="pc" sc-camel-on-click="{{c.open}}">
+        <span class="row"><span class="pl {{c.stCls}}">{{c.stL}}</span><span class="sp xs mut">v{{c.ver}}</span></span>
+        <h3>{{c.nama}}</h3>
+        <span class="p">{{c.ringkasan}}</span>
+        <span class="bar"><i style="width: {{c.pctW}}; background: {{c.tone}}"></i></span>
+        <span class="xs mut">Checklist {{c.done}} dari {{c.total}} · diubah {{c.diubah}}</span>
+      </button>
+    </sc-for>
+  </div>
+  <div class="foot"><span>{{dataL}}</span><span>Indikator BO-09 · Back Office 2026</span></div>
+</sc-if>
+
+<sc-if value="{{isDetail}}">
+  <button type="button" class="back" sc-camel-on-click="{{d.back}}">← Kembali ke daftar provinsi</button>
+  <div class="crumb">Harmonisasi Investasi <span>›</span> Kurasi Profil Provinsi <span>›</span> <b>{{d.nama}}</b></div>
+  <div class="dh">
+    <div style="flex:1;min-width:260px"><h1>{{d.nama}}</h1><div class="meta"><span>Tampil di Modul 2 · Peluang Investasi Daerah</span><span>Kurator: {{d.kurator}}</span><span>Diubah {{d.diubah}}</span></div></div>
+    <div class="row"><span class="pl {{d.stCls}}">{{d.stL}}</span><span class="tag">Versi v{{d.ver}}</span></div>
+  </div>
+
+  <div class="split sec">
+    <div class="col" style="gap:16px">
+      <div class="card pad">
+        <h3 style="font-size:14px;margin-bottom:12px">Profil wilayah</h3>
+        <div class="fld" style="margin:0"><label for="rk">Ringkasan profil (tampil di kartu provinsi)</label>
+          <textarea id="rk" class="ta" value="{{d.f.ringkasan}}" sc-camel-on-input="{{d.onRk}}" disabled="{{d.ro}}"></textarea></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><div><h3>Indikator kesiapan wilayah</h3><div class="s">Setiap nilai wajib mencantumkan sumber dan periode</div></div></div>
+        <div class="tw itb">
+          <sc-raw-table class="tb" style="min-width:640px">
+            <sc-raw-thead><sc-raw-tr><sc-raw-th>Indikator</sc-raw-th><sc-raw-th>Nilai</sc-raw-th><sc-raw-th>Sumber</sc-raw-th><sc-raw-th>Periode</sc-raw-th></sc-raw-tr></sc-raw-thead>
+            <sc-raw-tbody>
+              <sc-for list="{{d.ind}}" as="i">
+                <sc-raw-tr>
+                  <sc-raw-td><div class="b sm">{{i.l}}</div><div class="xs mut">{{i.sat}}</div></sc-raw-td>
+                  <sc-raw-td style="width:120px"><input class="ip" value="{{i.v}}" sc-camel-on-input="{{i.onV}}" disabled="{{d.ro}}" aria-label="Nilai {{i.l}}"></sc-raw-td>
+                  <sc-raw-td><input class="ip" value="{{i.sumber}}" sc-camel-on-input="{{i.onS}}" disabled="{{d.ro}}" aria-label="Sumber {{i.l}}"></sc-raw-td>
+                  <sc-raw-td style="width:130px"><input class="ip" value="{{i.periode}}" sc-camel-on-input="{{i.onP}}" disabled="{{d.ro}}" aria-label="Periode {{i.l}}"></sc-raw-td>
+                </sc-raw-tr>
+              </sc-for>
+            </sc-raw-tbody>
+          </sc-raw-table>
+        </div>
+      </div>
+    </div>
+    <div class="col" style="gap:16px">
+      <div class="card pad">
+        <h3 style="font-size:14px;margin-bottom:4px">Checklist kurasi ({{d.done}}/{{d.total}})</h3>
+        <p class="sm mut" style="margin-bottom:12px">Provinsi dihitung selesai dikurasi (BO-09) hanya jika seluruh checklist terpenuhi.</p>
+        <sc-for list="{{d.cek}}" as="c"><button type="button" class="chk {{c.cls}}" sc-camel-on-click="{{c.tog}}" aria-pressed="{{c.on}}"><span class="bx">✓</span><span>{{c.l}}</span></button></sc-for>
+      </div>
+      <div class="card pad">
+        <h3 style="font-size:14px;margin-bottom:12px">Riwayat kurasi</h3>
+        <ul class="tl"><sc-for list="{{d.audit}}" as="a"><li class="{{a.cls}}"><div class="w">{{a.w}}</div><div class="m">{{a.m}}</div><sc-if value="{{a.hasD}}"><div class="m">{{a.d}}</div></sc-if></li></sc-for></ul>
+        <sc-if value="{{d.noAud}}"><p class="sm mut">Belum ada aksi tercatat pada sesi ini.</p></sc-if>
+      </div>
+    </div>
+  </div>
+  <div class="act"><span class="info">{{d.note}}</span><sc-for list="{{d.acts}}" as="b"><button type="button" class="btn {{b.cls}}" sc-camel-on-click="{{b.run}}">{{b.l}}</button></sc-for></div>
+</sc-if>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { sel: null, draft: {} };
+  componentDidMount() { BO.mount(this); const id = BO.param('id'); if (id && id.indexOf('f:') !== 0) this.setState({ sel: id }); }
+  componentWillUnmount() { BO.unmount(this); }
+  componentDidUpdate(pp, ps) { if (ps && ps.sel !== this.state.sel) { try { window.scrollTo(0, 0); } catch (e) {} } }
+  onOpen(id) { this.setState({ sel: id && id.indexOf('f:') !== 0 ? id : null }); }
+  open(id) { this.setState({ sel: id }); BO.route('harmonisasi/provinsi/' + id); }
+  close() { this.setState({ sel: null }); BO.route('harmonisasi/provinsi'); }
+
+  renderVals() {
+    const st = this.state, U = BO_UC.harmonisasi, H = BO.data('harmonisasi'), role = BO.role().key, ST = U.ST_PV;
+    const all = BO.list('harmonisasi', 'provinsi');
+    const vals = {
+      isList: !st.sel, isDetail: false, dataL: H.meta.label, kpis: U.kpiVals(['BO-09']),
+      cakupanT: all.length + ' provinsi · subset sesuai cakupan, bukan seluruh 38 provinsi',
+      cards: all.slice().sort((a, b) => (a.status === b.status ? 0 : a.status === 'proses' ? -1 : 1)).map((p) => { const c = U.pvChecklist(p); return { nama: p.nama, ringkasan: p.ringkasan, ver: p.ver, stL: ST[p.status][0], stCls: ST[p.status][1], done: c.done, total: c.total, pctW: Math.round(c.done / c.total * 100) + '%', tone: c.done === c.total ? '#15803D' : '#2563EB', diubah: BO.date(p.diubah), open: () => this.open(p.id) }; }),
+      d: { f: {} }
+    };
+    const p = st.sel ? BO.get('harmonisasi', 'provinsi', st.sel) : null;
+    if (p) {
+      vals.isList = false; vals.isDetail = true;
+      const saved = { ringkasan: p.ringkasan, indikator: p.indikator.map((i) => Object.assign({}, i)), checklist: Object.assign({}, p.checklist || {}) };
+      const f = st.draft[p.id] || saved;
+      const dirty = !!st.draft[p.id] && JSON.stringify(f) !== JSON.stringify(saved);
+      const ro = role !== 'analis';
+      const setF = (patch) => { if (!ro) BO.draftSet(this, p.id, saved, patch); };
+      const setInd = (idx, k) => (e) => { const v = e.target.value; setF((c) => { const a = c.indikator.map((i) => Object.assign({}, i)); a[idx][k] = v; return { indikator: a }; }); };
+      const items = H.checklistProvinsi, done = items.filter((i) => f.checklist[i[0]]).length;
+      const indOk = f.indikator.every((i) => String(i.v).trim() && String(i.sumber).trim() && String(i.periode).trim());
+      const clear = () => { const D = Object.assign({}, st.draft); delete D[p.id]; this.setState({ draft: D }); };
+      const save = (extra, log) => { const nv = p.ver + 1; BO.update('harmonisasi', 'provinsi', p.id, Object.assign({ ringkasan: f.ringkasan, indikator: f.indikator, checklist: f.checklist, ver: nv, diubah: BO.now(), kurator: BO.role().nama }, extra || {}), log(nv)); clear(); return nv; };
+      const acts = []; let note = '';
+      if (ro) note = 'Kurasi dilakukan Analis.';
+      else if (p.status === 'selesai') {
+        note = dirty ? 'Mengubah profil yang sudah selesai akan membuka kembali kurasi.' : 'Selesai dikurasi. Perubahan berikutnya membuka kurasi ulang.';
+        acts.push({ l: 'Simpan & buka kurasi ulang', cls: dirty ? 'btn-p' : 'btn-p dis', run: () => { const nv = save({ status: 'proses' }, (nv) => ({ aksi: 'Profil diperbarui · kurasi dibuka ulang', sebelum: 'Selesai dikurasi · v' + p.ver, sesudah: 'Dalam kurasi · v' + nv, alasan: 'Pembaruan profil/indikator' })); BO.toast('Tersimpan (v' + nv + ') · kurasi dibuka ulang'); } });
+      } else {
+        note = done < items.length ? 'Lengkapi ' + (items.length - done) + ' butir checklist untuk menandai selesai.' : (!indOk ? 'Lengkapi nilai, sumber, dan periode semua indikator.' : 'Checklist lengkap. Siap ditandai selesai.');
+        acts.push({ l: 'Simpan draf', cls: dirty ? '' : 'dis', run: () => { const nv = save(null, (nv) => ({ aksi: 'Draf kurasi disimpan', sebelum: 'v' + p.ver + ' · checklist ' + U.pvChecklist(p).done + '/' + items.length, sesudah: 'v' + nv + ' · checklist ' + done + '/' + items.length, alasan: 'Pembaruan kurasi' })); BO.toast('Draf kurasi tersimpan (v' + nv + ')', 'ok'); } });
+        acts.push({ l: 'Tandai selesai dikurasi', cls: done === items.length && indOk ? 'btn-g' : 'btn-g dis', run: () => { save({ status: 'selesai' }, (nv) => ({ aksi: 'Kurasi profil provinsi selesai', sebelum: 'Dalam kurasi · v' + p.ver, sesudah: 'Selesai dikurasi · v' + nv, alasan: 'Checklist lengkap' })); BO.toast(p.nama + ' selesai dikurasi', 'ok'); } });
+      }
+      const aud = U.auditOf('provinsi', p.id);
+      vals.d = {
+        nama: p.nama, ver: p.ver, kurator: p.kurator || '—', diubah: BO.dt(p.diubah), stL: ST[p.status][0], stCls: ST[p.status][1],
+        back: () => this.close(), f: f, ro: ro, onRk: (e) => { const v = e.target.value; setF({ ringkasan: v }); },
+        ind: f.indikator.map((i, idx) => ({ l: i.l, sat: i.sat, v: String(i.v), sumber: i.sumber, periode: i.periode, onV: setInd(idx, 'v'), onS: setInd(idx, 'sumber'), onP: setInd(idx, 'periode') })),
+        cek: items.map((i) => ({ l: i[1], on: String(!!f.checklist[i[0]]), cls: (f.checklist[i[0]] ? 'on' : '') + (ro ? ' ro-chk' : ''), tog: () => setF((c) => ({ checklist: Object.assign({}, c.checklist, { [i[0]]: !c.checklist[i[0]] }) })) })),
+        done: done, total: items.length, audit: aud, noAud: !aud.length, acts: acts, note: note
+      };
+    }
+    return vals;
+  }
+}
+</script>
+</body></html>

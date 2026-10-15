@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Master Sektor &amp; Kriteria · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+<style>
+  .sek{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .sek .chk{margin:0}
+  .kr{padding:14px;border:1px solid var(--line);border-radius:12px;margin-bottom:12px;background:#fff}
+  .kr.off{background:var(--soft);opacity:.75}
+  @media(max-width:900px){.sek{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head><body>
+<x-dc>
+<div class="pg">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> CMS Harmonisasi <span>›</span> <b>Master Sektor &amp; Kriteria</b></div>
+      <h1>Master Sektor &amp; Kriteria Penilaian</h1>
+      <p class="d">Daftar sektor dan kriteria penilaian keselarasan yang digunakan klasifikasi otomatis dan penilaian. Setiap perubahan disimpan sebagai versi baru oleh Approver.</p>
+    </div>
+  </div>
+  <div class="kpis"><sc-for list="{{kpis}}" as="k"><div class="kpi {{k.cls}}"><div class="top"><span class="boid">{{k.id}}</span></div><div class="l">{{k.label}}</div><div class="v txt">{{k.v}}</div><div class="s">{{k.sub}}</div><details class="how"><summary>Cara membaca</summary><div class="bx"><span>{{k.f}}</span><span>{{k.baca}}</span></div></details></div></sc-for></div>
+  <div class="note warn sec"><b>Label versi masih placeholder.</b> Guideline Back Office 2026 mencontohkan "Master sektor versi A; kriteria penilaian versi B". Nilai/versi aktual harus ditetapkan pimpinan sebelum dipakai di produksi.</div>
+  <sc-if value="{{isAnalis}}"><div class="note sec">Anda masuk sebagai Analis: konfigurasi dapat dilihat. Penetapan versi baru dilakukan oleh Approver.</div></sc-if>
+
+  <div class="g2 sec" style="align-items:start">
+    <div class="card">
+      <div class="card-h"><div><h3>Master sektor</h3><div class="s">{{ms.dasar}}</div></div><div class="r"><span class="pl pl-pub">Aktif · {{ms.versi}}</span></div></div>
+      <div class="card-b">
+        <div class="sek"><sc-for list="{{ms.items}}" as="s"><button type="button" class="chk {{s.cls}}" sc-camel-on-click="{{s.tog}}" aria-pressed="{{s.on}}"><span class="bx">✓</span><span><b class="mono">{{s.k}}</b> {{s.l}}</span></button></sc-for></div>
+        <p class="sm mut" style="margin-top:10px">{{ms.aktifT}}</p>
+        <sc-if value="{{ms.dirty}}"><div class="row" style="margin-top:12px"><span class="sm mut" style="flex:1">{{ms.diffT}}</span><button type="button" class="btn" sc-camel-on-click="{{ms.reset}}">Batalkan</button><button type="button" class="btn btn-p" sc-camel-on-click="{{ms.save}}">Tetapkan sebagai {{ms.nextV}}</button></div></sc-if>
+        <h4 style="font-size:13px;margin:18px 0 8px">Riwayat versi</h4>
+        <sc-for list="{{ms.hist}}" as="h"><div class="li"><span class="row"><span class="b">{{h.v}}</span><span class="pl {{h.cls}}">{{h.st}}</span><span class="sp xs mut">{{h.at}}</span></span><span class="sm mut">{{h.d}}</span></div></sc-for>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div><h3>Kriteria penilaian keselarasan</h3><div class="s">Pertanyaan uji dan peraturan acuan per jenis indikasi</div></div><div class="r"><span class="pl pl-pub">Aktif · {{kr.versi}}</span></div></div>
+      <div class="card-b">
+        <sc-for list="{{kr.items}}" as="i">
+          <div class="kr {{i.off}}">
+            <div class="row" style="margin-bottom:8px"><span class="b">{{i.l}}</span><span class="sp"></span><button type="button" class="chip {{i.onCls}}" sc-camel-on-click="{{i.tog}}">{{i.aktifL}}</button></div>
+            <div class="fld"><label>Pertanyaan uji</label><textarea class="ta" style="min-height:60px" value="{{i.uji}}" sc-camel-on-input="{{i.onUji}}" disabled="{{kr.ro}}" aria-label="Pertanyaan uji {{i.l}}"></textarea></div>
+            <div class="fld" style="margin:0"><label>Peraturan acuan</label><input class="ip" value="{{i.acuan}}" sc-camel-on-input="{{i.onAcuan}}" disabled="{{kr.ro}}" aria-label="Acuan {{i.l}}"></div>
+          </div>
+        </sc-for>
+        <sc-if value="{{kr.dirty}}"><div class="row"><span class="sm mut" style="flex:1">Perubahan kriteria berlaku untuk penilaian berikutnya; hasil yang sudah terverifikasi tidak berubah.</span><button type="button" class="btn" sc-camel-on-click="{{kr.reset}}">Batalkan</button><button type="button" class="btn btn-p" sc-camel-on-click="{{kr.save}}">Tetapkan sebagai {{kr.nextV}}</button></div></sc-if>
+        <h4 style="font-size:13px;margin:18px 0 8px">Riwayat versi</h4>
+        <sc-for list="{{kr.hist}}" as="h"><div class="li"><span class="row"><span class="b">{{h.v}}</span><span class="pl {{h.cls}}">{{h.st}}</span><span class="sp xs mut">{{h.at}}</span></span><span class="sm mut">{{h.d}}</span></div></sc-for>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>{{dataL}}</span><span>Indikator BO-12 · Back Office 2026</span></div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { msD: null, krD: null };
+  componentDidMount() { BO.mount(this); }
+  componentWillUnmount() { BO.unmount(this); }
+
+  renderVals() {
+    const st = this.state, U = BO_UC.harmonisasi, H = BO.data('harmonisasi'), ro = BO.role().key !== 'approver';
+    const MS = BO.obj('harmonisasi', 'cms.masterSektor'), KR = BO.obj('harmonisasi', 'cms.kriteria');
+    const bump = (v) => { const m = String(v).match(/^(.*?)(?:\.(\d+))?$/); return m[1] + '.' + ((Number(m[2]) || 0) + 1); };
+    const hist = (r) => r.map((h) => ({ v: h[0], d: h[1], at: BO.date(h[2]), st: h[3] === 'aktif' ? 'Aktif' : 'Arsip', cls: h[3] === 'aktif' ? 'pl-pub' : 'pl-gray' }));
+
+    // master sektor
+    const aktif = st.msD || MS.aktif.slice();
+    const msDirty = !!st.msD && JSON.stringify(aktif.slice().sort()) !== JSON.stringify(MS.aktif.slice().sort());
+    const add = aktif.filter((k) => MS.aktif.indexOf(k) < 0), rem = MS.aktif.filter((k) => aktif.indexOf(k) < 0);
+    const msNext = bump(MS.versiAktif);
+    // kriteria
+    const items = st.krD || KR.items.map((i) => Object.assign({}, i));
+    const krDirty = !!st.krD && JSON.stringify(items) !== JSON.stringify(KR.items);
+    const krNext = bump(KR.versiAktif);
+    const setKr = (idx, patch) => { if (ro) return; this.setState((s) => { const a = (s.krD || KR.items).map((i) => Object.assign({}, i)); Object.assign(a[idx], typeof patch === 'function' ? patch(a[idx]) : patch); return { krD: a }; }); };
+
+    return {
+      dataL: H.meta.label, isAnalis: ro, kpis: U.kpiVals(['BO-12']),
+      ms: {
+        dasar: MS.dasar + ' · ditetapkan ' + BO.date(MS.ditetapkan), versi: MS.versiAktif,
+        items: H.sektor.map((s) => ({ k: s[0], l: s[0] === 'X' ? 'Lintas sektor' : s[1], on: String(aktif.indexOf(s[0]) >= 0), cls: (aktif.indexOf(s[0]) >= 0 ? 'on' : '') + (ro ? ' ro-chk' : ''), tog: () => { if (ro) return; this.setState((S) => { const a = (S.msD || MS.aktif).slice(); const i = a.indexOf(s[0]); if (i >= 0) a.splice(i, 1); else a.push(s[0]); return { msD: a }; }); } })),
+        aktifT: aktif.length + ' dari ' + H.sektor.length + ' sektor aktif untuk klasifikasi otomatis',
+        dirty: msDirty, nextV: msNext,
+        diffT: (add.length ? 'Diaktifkan: ' + add.join(', ') + '. ' : '') + (rem.length ? 'Dinonaktifkan: ' + rem.join(', ') + '.' : ''),
+        reset: () => this.setState({ msD: null }),
+        save: () => { const today = BO.now().slice(0, 10); BO.setObj('harmonisasi', 'cms.masterSektor', { aktif: aktif.slice(), versiAktif: msNext, ditetapkan: today, riwayat: [[msNext, aktif.length + ' sektor aktif', today, 'aktif']].concat(MS.riwayat.map((h) => [h[0], h[1], h[2], 'arsip'])) }, { obj: msNext, aksi: 'Master sektor ditetapkan', sebelum: MS.versiAktif, sesudah: msNext, alasan: this.state.msD ? ((add.length ? 'Diaktifkan ' + add.join(', ') + '. ' : '') + (rem.length ? 'Dinonaktifkan ' + rem.join(', ') : '')) : '' }); this.setState({ msD: null }); BO.toast('Master sektor ' + msNext + ' ditetapkan', 'ok'); },
+        hist: hist(MS.riwayat)
+      },
+      kr: {
+        versi: KR.versiAktif, ro: ro, dirty: krDirty, nextV: krNext,
+        items: items.map((i, idx) => ({ l: i.l, uji: i.uji, acuan: i.acuan, off: i.aktif ? '' : 'off', onCls: i.aktif ? 'on' : '', aktifL: i.aktif ? 'Aktif' : 'Nonaktif', tog: () => setKr(idx, (c) => ({ aktif: !c.aktif })), onUji: (e) => { const v = e.target.value; setKr(idx, { uji: v }); }, onAcuan: (e) => { const v = e.target.value; setKr(idx, { acuan: v }); } })),
+        reset: () => this.setState({ krD: null }),
+        save: () => { const today = BO.now().slice(0, 10); const ch = items.filter((i, k) => JSON.stringify(i) !== JSON.stringify(KR.items[k])).map((i) => i.l); BO.setObj('harmonisasi', 'cms.kriteria', { items: items, versiAktif: krNext, ditetapkan: today, riwayat: [[krNext, items.filter((i) => i.aktif).length + ' kriteria aktif', today, 'aktif']].concat(KR.riwayat.map((h) => [h[0], h[1], h[2], 'arsip'])) }, { obj: krNext, aksi: 'Kriteria penilaian ditetapkan', sebelum: KR.versiAktif, sesudah: krNext, alasan: 'Diubah: ' + ch.join(', ') }); this.setState({ krD: null }); BO.toast('Kriteria penilaian ' + krNext + ' ditetapkan', 'ok'); },
+        hist: hist(KR.riwayat)
+      }
+    };
+  }
+}
+</script>
+</body></html>

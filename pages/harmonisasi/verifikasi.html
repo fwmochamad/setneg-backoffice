@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verifikasi Penilaian · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+</head><body>
+<x-dc>
+<div class="pg">
+
+<sc-if value="{{isList}}">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> Ruang Kerja Analis <span>›</span> <b>Verifikasi Penilaian</b></div>
+      <h1>Verifikasi Penilaian Keselarasan</h1>
+      <p class="d">Hasil penilaian keselarasan regulasi yang dibuat otomatis diverifikasi analis, lengkap dengan pertimbangan dan bukti pendukung. Temuan tidak selaras yang terverifikasi menjadi bahan Modul 5 · Keselarasan Regulasi &amp; Tindak Lanjut.</p>
+    </div>
+  </div>
+  <div class="kpis">
+    <sc-for list="{{kpis}}" as="k">
+      <div class="kpi {{k.cls}}">
+        <div class="top"><span class="boid">{{k.id}}</span><span class="ilu">Ilustrasi</span></div>
+        <div class="l">{{k.label}}</div>
+        <div class="v">{{k.v}}</div>
+        <sc-if value="{{k.hasBar}}"><div class="bar"><i style="width: {{k.barW}}"></i></div></sc-if>
+        <div class="s">{{k.sub}}</div>
+        <details class="how"><summary>Rumus &amp; cara membaca</summary><div class="bx"><span><b>Rumus:</b> {{k.f}}</span><span><b>Cara membaca:</b> {{k.baca}}</span></div></details>
+      </div>
+    </sc-for>
+  </div>
+
+  <div class="card sec">
+    <div class="flt">
+      <div class="fr"><span class="lb">Status</span><sc-for list="{{stChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+      <div class="fr"><span class="lb">Hasil</span><sc-for list="{{hsChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+      <div class="fr"><span class="lb">Bukti</span><sc-for list="{{lkChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+      <div class="fr"><input class="in" type="search" placeholder="Cari nomor/judul regulasi atau ID…" value="{{qs}}" sc-camel-on-input="{{onQ}}" aria-label="Cari hasil penilaian"><span class="sp sm mut">{{countT}}</span></div>
+    </div>
+    <div class="tw">
+      <sc-raw-table class="tb">
+        <sc-raw-thead><sc-raw-tr><sc-raw-th>Regulasi dinilai</sc-raw-th><sc-raw-th>Hasil penilaian</sc-raw-th><sc-raw-th>Keyakinan</sc-raw-th><sc-raw-th>Bukti &amp; pertimbangan</sc-raw-th><sc-raw-th>Versi</sc-raw-th><sc-raw-th>Status</sc-raw-th><sc-raw-th></sc-raw-th></sc-raw-tr></sc-raw-thead>
+        <sc-raw-tbody>
+          <sc-for list="{{rows}}" as="r">
+            <sc-raw-tr class="clk" sc-camel-on-click="{{r.open}}">
+              <sc-raw-td><div class="t">{{r.nomor}}</div><div class="xs mut">{{r.judul}}</div><div class="xs mut mono" style="margin-top:2px">{{r.id}}</div></sc-raw-td>
+              <sc-raw-td><span class="pl {{r.hCls}}">{{r.hL}}</span><sc-if value="{{r.hasJ}}"><div class="xs mut" style="margin-top:4px">{{r.jL}}</div></sc-if></sc-raw-td>
+              <sc-raw-td>{{r.yakin}}</sc-raw-td>
+              <sc-raw-td><span class="pl {{r.lkCls}}">{{r.lkL}}</span></sc-raw-td>
+              <sc-raw-td>v{{r.ver}}</sc-raw-td>
+              <sc-raw-td><span class="pl {{r.stCls}}">{{r.stL}}</span></sc-raw-td>
+              <sc-raw-td class="right"><button type="button" class="lnk" sc-camel-on-click="{{r.open}}">{{r.act}} →</button></sc-raw-td>
+            </sc-raw-tr>
+          </sc-for>
+        </sc-raw-tbody>
+      </sc-raw-table>
+      <sc-if value="{{empty}}"><div class="empty">Tidak ada hasil penilaian pada filter ini.</div></sc-if>
+    </div>
+    <div class="pager"><span>{{pageT}}</span><span class="sp"></span><button type="button" class="btn btn-s {{prevDis}}" sc-camel-on-click="{{prev}}">← Sebelumnya</button><button type="button" class="btn btn-s {{nextDis}}" sc-camel-on-click="{{next}}">Berikutnya →</button></div>
+  </div>
+  <div class="foot"><span>{{dataL}}</span><span>Indikator BO-01 s.d. BO-03 · Back Office 2026</span></div>
+</sc-if>
+
+<sc-if value="{{isDetail}}">
+  <button type="button" class="back" sc-camel-on-click="{{d.back}}">← Kembali ke daftar</button>
+  <div class="crumb">Harmonisasi Investasi <span>›</span> Verifikasi Penilaian <span>›</span> <b class="mono">{{d.id}}</b></div>
+  <div class="dh">
+    <div style="flex:1;min-width:280px">
+      <h1>{{d.reg.nomor}}</h1>
+      <div class="meta"><span>{{d.reg.judul}}</span><span>Penerbit: {{d.reg.penerbit}}</span><span>Wilayah: {{d.reg.wilayah}}</span><sc-if value="{{d.hasTemuan}}"><span>Temuan dashboard: {{d.temuanId}}</span></sc-if></div>
+    </div>
+    <div class="row"><span class="pl {{d.stCls}}">{{d.stL}}</span><span class="tag">Versi v{{d.ver}}</span><span class="tag">Diubah {{d.diubah}}</span></div>
+  </div>
+  <div class="tabs" role="tablist"><sc-for list="{{d.tabs}}" as="t"><button type="button" role="tab" class="tab {{t.cls}}" sc-camel-on-click="{{t.pick}}">{{t.l}}</button></sc-for></div>
+
+  <sc-if value="{{d.isNilai}}">
+    <div class="cmp">
+      <div class="card pad">
+        <div class="cmp-h"><h3>Hasil penilaian otomatis</h3><span class="pl pl-ai">✦ AI · read-only</span><span class="sp xs mut">Keyakinan {{d.ai.yakin}}</span></div>
+        <div class="fld"><span class="lb">Hasil</span><div class="row"><span class="pl {{d.ai.hCls}}">{{d.ai.hL}}</span><sc-if value="{{d.ai.hasJ}}"><span class="tag">{{d.ai.jL}}</span></sc-if></div></div>
+        <div class="fld"><span class="lb">Alasan</span><div class="ro">{{d.ai.alasan}}</div></div>
+        <div class="fld"><span class="lb">Ketentuan yang dinilai</span><div class="ro">{{d.ketentuan}}</div></div>
+        <div class="fld" style="margin-bottom:0"><span class="lb">Ketentuan pembanding</span><div class="ro"><b>{{d.pembanding.reg}}</b><br>{{d.pembanding.teks}}</div></div>
+      </div>
+      <div class="card pad">
+        <div class="cmp-h"><h3>Keputusan &amp; pertimbangan analis</h3><span class="sp xs mut">{{d.lockT}}</span></div>
+        <div class="fld"><span class="lb">Hasil setelah verifikasi <span class="req">*</span></span>
+          <div class="row"><sc-for list="{{d.hsChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}}</button></sc-for><sc-if value="{{d.changedHasil}}"><span class="chg">Berbeda dari AI</span></sc-if></div>
+        </div>
+        <sc-if value="{{d.isTidak}}"><div class="fld"><span class="lb">Jenis indikasi <span class="req">*</span></span><div class="row"><sc-for list="{{d.jnChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}}</button></sc-for></div></div></sc-if>
+        <div class="fld"><label for="pt">Pertimbangan analis <span class="req">*</span></label>
+          <sc-if value="{{d.editable}}"><textarea id="pt" class="ta" value="{{d.ed.pertimbangan}}" sc-camel-on-input="{{d.onPt}}" placeholder="Jelaskan dasar keputusan: ketentuan yang dibandingkan, konteks, dan implikasinya."></textarea></sc-if>
+          <sc-if value="{{d.locked}}"><div class="ro {{d.ptCls}}">{{d.ptView}}</div></sc-if>
+        </div>
+        <div class="fld" style="margin-bottom:0"><span class="lb">Checklist bukti wajib ({{d.buktiN}})</span>
+          <sc-for list="{{d.bukti}}" as="b"><button type="button" class="chk {{b.cls}}" sc-camel-on-click="{{b.tog}}" aria-pressed="{{b.on}}"><span class="bx">✓</span><span>{{b.l}}</span></button></sc-for>
+        </div>
+        <sc-if value="{{d.kurang}}"><div class="note warn" style="margin-top:6px">Belum lengkap: {{d.kurangT}}. Hasil tetap dapat diverifikasi, tetapi tercatat belum lengkap pada indikator BO-03.</div></sc-if>
+      </div>
+    </div>
+    <div class="note sec">Verifikasi tidak sama dengan persetujuan tayang. Temuan yang terverifikasi tampil di Modul 5 setelah analisis disetujui di menu Penayangan Analisis.</div>
+  </sc-if>
+
+  <sc-if value="{{d.isAud}}">
+    <div class="card pad sec"><h3 style="font-size:14px;margin-bottom:12px">Riwayat versi &amp; audit</h3>
+      <ul class="tl"><sc-for list="{{d.audit}}" as="a"><li class="{{a.cls}}"><div class="w">{{a.w}}</div><div class="m">{{a.m}}</div><sc-if value="{{a.hasD}}"><div class="m">{{a.d}}</div></sc-if><sc-if value="{{a.hasWhy}}"><div class="m">{{a.why}}</div></sc-if></li></sc-for>
+        <li class="ai"><div class="w">Hasil penilaian otomatis dibuat</div><div class="m">Sistem AI · kriteria penilaian aktif</div></li></ul>
+    </div>
+  </sc-if>
+
+  <div class="act"><span class="info">{{d.actNote}}</span><sc-for list="{{d.acts}}" as="b"><button type="button" class="btn {{b.cls}}" sc-camel-on-click="{{b.run}}">{{b.l}}</button></sc-for></div>
+</sc-if>
+<sc-if value="{{isMissing}}"><div class="card empty">Hasil penilaian tidak ditemukan. <button type="button" class="lnk" sc-camel-on-click="{{backList}}">Kembali ke daftar</button></div></sc-if>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { sel: null, tab: 'nilai', fSt: 'menunggu', fHs: 'all', fLk: 'all', qs: '', pg: 0, draft: {} };
+  componentDidMount() { BO.mount(this); this.onOpen(BO.param('id')); }
+  componentWillUnmount() { BO.unmount(this); }
+  componentDidUpdate(pp, ps) { if (ps && ps.sel !== this.state.sel) { try { window.scrollTo(0, 0); } catch (e) {} } }
+  onOpen(id) {
+    if (id === 'f:menunggu') this.setState({ sel: null, fSt: 'menunggu', fLk: 'all', pg: 0 });
+    else if (id === 'f:kurang') this.setState({ sel: null, fSt: 'terverifikasi', fLk: 'kurang', pg: 0 });
+    else this.setState({ sel: id || null, tab: 'nilai' });
+  }
+  open(id) { this.setState({ sel: id, tab: 'nilai' }); BO.route('harmonisasi/verifikasi/' + id); }
+  close() { this.setState({ sel: null }); BO.route('harmonisasi/verifikasi'); }
+
+  renderVals() {
+    const st = this.state, U = BO_UC.harmonisasi, H = BO.data('harmonisasi'), ST = U.ST_HP, role = BO.role().key;
+    const all = BO.list('harmonisasi', 'penilaian');
+    const qs = (st.qs || '').toLowerCase();
+    const regOf = (p) => U.reg(p.regId) || { nomor: '—', judul: '—', penerbit: '—', wilayah: '—' };
+    const hL = (h) => h === 'tidak' ? ['Tidak selaras', 'pl-bad'] : ['Selaras', 'pl-pub'];
+    const base = all.filter((p) => !qs || [p.id, regOf(p).nomor, regOf(p).judul].join(' ').toLowerCase().indexOf(qs) >= 0);
+    const fs = (p, f) => f === 'all' || p.status === f;
+    const fh = (p, f) => f === 'all' || p.hasil === f;
+    const fl = (p, f) => f === 'all' || (f === 'kurang' ? !U.hpLengkap(p) : U.hpLengkap(p));
+    const rowsAll = base.filter((p) => fs(p, st.fSt) && fh(p, st.fHs) && fl(p, st.fLk)).sort((a, b) => (a.status === b.status ? 0 : a.status === 'menunggu' ? -1 : 1) || (a.diubah < b.diubah ? 1 : -1));
+    const PS = 20, nPg = Math.max(1, Math.ceil(rowsAll.length / PS)), pg = Math.min(st.pg, nPg - 1);
+    const chip = (key, list, test) => list.map((c) => ({ l: c[1], n: String(base.filter((p) => test(p, c[0]) && (key !== 'fSt' ? fs(p, st.fSt) : true)).length), cls: st[key] === c[0] ? 'on' : '', pick: () => this.setState({ [key]: c[0], pg: 0 }) }));
+
+    const vals = {
+      isList: !st.sel, isDetail: false, isMissing: false, dataL: H.meta.label, backList: () => this.close(),
+      kpis: U.kpiVals(['BO-01', 'BO-02', 'BO-03']),
+      qs: st.qs, onQ: (e) => this.setState({ qs: e.target.value, pg: 0 }),
+      stChips: chip('fSt', [['menunggu', 'Menunggu verifikasi'], ['terverifikasi', 'Terverifikasi'], ['dikembalikan', 'Perlu penilaian ulang'], ['all', 'Semua']], fs),
+      hsChips: chip('fHs', [['all', 'Semua'], ['tidak', 'Tidak selaras'], ['selaras', 'Selaras']], fh),
+      lkChips: chip('fLk', [['all', 'Semua'], ['kurang', 'Belum lengkap'], ['lengkap', 'Lengkap']], fl),
+      rows: rowsAll.slice(pg * PS, pg * PS + PS).map((p) => {
+        const r = regOf(p), h = hL(p.hasil), k = U.buktiKurang(p);
+        return { id: p.id, nomor: r.nomor, judul: r.judul, hL: h[0], hCls: h[1], hasJ: p.hasil === 'tidak', jL: U.jenisL(p.jenis), yakin: Math.round(p.ai.yakin * 100) + '%',
+          lkL: k.length ? k.length + ' belum lengkap' : 'Lengkap', lkCls: k.length ? 'pl-warn' : 'pl-pub', ver: p.ver, stL: ST[p.status][0], stCls: ST[p.status][1],
+          act: p.status === 'menunggu' ? 'Verifikasi' : 'Lihat', open: () => this.open(p.id) };
+      }),
+      empty: rowsAll.length === 0, countT: rowsAll.length + ' hasil penilaian',
+      pageT: 'Halaman ' + (pg + 1) + ' dari ' + nPg, prevDis: pg <= 0 ? 'dis' : '', nextDis: pg >= nPg - 1 ? 'dis' : '',
+      prev: () => this.setState({ pg: Math.max(0, pg - 1) }), next: () => this.setState({ pg: Math.min(nPg - 1, pg + 1) }),
+      d: {}
+    };
+
+    if (st.sel) {
+      const p = BO.get('harmonisasi', 'penilaian', st.sel);
+      vals.isList = false;
+      if (!p) { vals.isMissing = true; return vals; }
+      vals.isDetail = true;
+      const saved = { hasil: p.hasil, jenis: p.jenis, pertimbangan: p.pertimbangan || '', bukti: Object.assign({}, p.bukti) };
+      const ed = st.draft[p.id] || saved;
+      const dirty = !!st.draft[p.id] && JSON.stringify(ed) !== JSON.stringify(saved);
+      const editable = p.status !== 'terverifikasi' && role === 'analis';
+      const setEd = (patch) => { if (editable) BO.draftSet(this, p.id, saved, patch); };
+      const clear = () => { const D = Object.assign({}, st.draft); delete D[p.id]; this.setState({ draft: D }); };
+      const virt = Object.assign({}, p, ed);
+      const kurang = U.buktiKurang(virt);
+      const valid = ed.hasil === 'selaras' || !!ed.jenis;
+      const persist = (extra, log) => {
+        const nv = dirty ? p.ver + 1 : p.ver;
+        BO.update('harmonisasi', 'penilaian', p.id, Object.assign({ hasil: ed.hasil, jenis: ed.hasil === 'tidak' ? ed.jenis : null, pertimbangan: ed.pertimbangan, bukti: ed.bukti, ver: nv, diubah: BO.now() }, extra || {}), log(nv));
+        clear();
+        return nv;
+      };
+      const acts = []; let note = '';
+      if (role !== 'analis') note = 'Verifikasi dilakukan oleh Analis. Ganti peran ke Analis untuk memverifikasi.';
+      else if (p.status === 'terverifikasi') {
+        note = 'Terverifikasi oleh ' + (p.verifikator || 'Analis') + '. Membuka ulang akan membuat versi baru yang perlu diverifikasi lagi.';
+        acts.push({ l: 'Buka ulang verifikasi', cls: '', run: () => { BO.update('harmonisasi', 'penilaian', p.id, { status: 'menunggu', ver: p.ver + 1, diubah: BO.now() }, { aksi: 'Verifikasi dibuka ulang', sebelum: 'Terverifikasi · v' + p.ver, sesudah: 'Menunggu verifikasi · v' + (p.ver + 1), alasan: 'Perlu peninjauan ulang' }); BO.toast('Masuk lagi ke antrean verifikasi (v' + (p.ver + 1) + ')'); } });
+      } else {
+        note = dirty ? 'Perubahan belum disimpan.' : (p.status === 'dikembalikan' ? 'Dikembalikan untuk penilaian ulang. Masukkan kembali ke antrean setelah diperbaiki.' : 'Periksa hasil otomatis, isi pertimbangan dan bukti, lalu tandai terverifikasi.');
+        acts.push({ l: 'Simpan', cls: dirty ? '' : 'dis', run: () => { const nv = persist(null, (nv) => ({ aksi: 'Pertimbangan & bukti disimpan', sebelum: 'v' + p.ver, sesudah: 'v' + nv, alasan: kurang.length ? 'Belum lengkap: ' + kurang.join(', ') : 'Lengkap' })); BO.toast('Tersimpan sebagai v' + nv, 'ok'); } });
+        if (p.status === 'menunggu') acts.push({ l: 'Kembalikan untuk penilaian ulang', cls: 'btn-r', run: () => { persist({ status: 'dikembalikan' }, (nv) => ({ aksi: 'Dikembalikan untuk penilaian ulang', sebelum: 'Menunggu verifikasi · v' + p.ver, sesudah: 'Perlu penilaian ulang · v' + nv, alasan: ed.pertimbangan || 'Hasil otomatis perlu dinilai ulang' })); BO.toast('Dikembalikan untuk penilaian ulang'); } });
+        if (p.status === 'dikembalikan') acts.push({ l: 'Masukkan ke antrean', cls: '', run: () => { persist({ status: 'menunggu' }, (nv) => ({ aksi: 'Dimasukkan kembali ke antrean', sebelum: 'Perlu penilaian ulang · v' + p.ver, sesudah: 'Menunggu verifikasi · v' + nv, alasan: 'Penilaian ulang selesai' })); BO.toast('Masuk ke antrean verifikasi'); } });
+        acts.push({ l: 'Tandai terverifikasi', cls: valid && ed.pertimbangan.trim() ? 'btn-g' : 'btn-g dis', run: () => { persist({ status: 'terverifikasi', verifikator: BO.role().nama }, (nv) => ({ aksi: 'Hasil penilaian diverifikasi', sebelum: ST[p.status][0] + ' · v' + p.ver, sesudah: 'Terverifikasi · v' + nv, alasan: (ed.hasil !== p.ai.hasil ? 'Hasil diubah dari AI. ' : '') + (kurang.length ? 'Belum lengkap: ' + kurang.join(', ') : 'Pertimbangan & bukti lengkap') })); BO.toast('Hasil penilaian terverifikasi', 'ok'); } });
+        if (!ed.pertimbangan.trim()) note = 'Isi pertimbangan analis sebelum menandai terverifikasi.';
+      }
+      const r = regOf(p), ah = hL(p.ai.hasil), sh = ST[p.status];
+      vals.d = {
+        id: p.id, reg: r, hasTemuan: !!p.temuanId, temuanId: p.temuanId, ver: p.ver, diubah: BO.dt(p.diubah), stL: sh[0], stCls: sh[1],
+        back: () => this.close(),
+        tabs: [['nilai', 'Penilaian & bukti'], ['aud', 'Riwayat & audit']].map((t) => ({ l: t[1], cls: st.tab === t[0] ? 'on' : '', pick: () => this.setState({ tab: t[0] }) })),
+        isNilai: st.tab === 'nilai', isAud: st.tab === 'aud',
+        ai: { hL: ah[0], hCls: ah[1], hasJ: p.ai.hasil === 'tidak', jL: U.jenisL(p.ai.jenis), alasan: p.ai.alasan, yakin: Math.round(p.ai.yakin * 100) + '%' },
+        ketentuan: p.ketentuan, pembanding: p.pembanding,
+        editable: editable, locked: !editable, lockT: editable ? 'Dapat disunting' : (p.status === 'terverifikasi' ? 'Terkunci · terverifikasi' : 'Hanya-baca'),
+        ed: ed, onPt: (e) => { const v = e.target.value; setEd({ pertimbangan: v }); },
+        ptView: ed.pertimbangan || 'Belum ada pertimbangan.', ptCls: ed.pertimbangan ? '' : 'empty',
+        hsChips: [['selaras', 'Selaras'], ['tidak', 'Tidak selaras']].map((c) => ({ l: c[1], cls: ed.hasil === c[0] ? 'on' : '', pick: () => setEd({ hasil: c[0], jenis: c[0] === 'tidak' ? (ed.jenis || p.ai.jenis) : null }) })),
+        changedHasil: ed.hasil !== p.ai.hasil, isTidak: ed.hasil === 'tidak',
+        jnChips: H.jenisIndikasi.map((j) => ({ l: j[1], cls: ed.jenis === j[0] ? 'on' : '', pick: () => setEd({ jenis: j[0] }) })),
+        bukti: H.buktiWajib.map((b) => ({ l: b[1], on: String(!!ed.bukti[b[0]]), cls: (ed.bukti[b[0]] ? 'on' : '') + (editable ? '' : ' ro-chk'), tog: () => setEd((c) => ({ bukti: Object.assign({}, c.bukti, { [b[0]]: !c.bukti[b[0]] }) })) })),
+        buktiN: H.buktiWajib.filter((b) => ed.bukti[b[0]]).length + '/' + H.buktiWajib.length,
+        kurang: kurang.length > 0, kurangT: kurang.join(', '),
+        audit: U.auditOf('penilaian', p.id), acts: acts, actNote: note
+      };
+    }
+    return vals;
+  }
+}
+</script>
+</body></html>

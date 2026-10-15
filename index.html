@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backoffice Dashboard Presiden · Kemensetneg RI</title>
+  <meta name="description" content="Backoffice pengelolaan konten Dashboard Presiden: verifikasi, kurasi, persetujuan keluaran AI, dan CMS untuk use case Eksekutif, Ekonomi, dan Harmonisasi Investasi.">
+  <meta name="author" content="Badan Teknologi, Data dan Informasi - Kementerian Sekretariat Negara RI">
+  <meta name="theme-color" content="#0F1E3D">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230F1E3D' stroke='%23C9A227' stroke-width='2'/%3E%3Cpath d='M16 6l2.5 5 5.5.8-4 3.9 1 5.5-5-2.6-5 2.6 1-5.5-4-3.9 5.5-.8z' fill='%23fbbf24'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./assets/inter.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #F1F5F9; color: #0F172A; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { overflow: hidden; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    button:focus-visible, a:focus-visible { outline: 2px solid #0f827d; outline-offset: 2px; }
+    .ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* header */
+    .h { position: relative; z-index: 40; display: flex; align-items: center; gap: 14px; height: 64px; padding: 0 20px; background: linear-gradient(90deg, #FFF4D2 0%, #FFFBF0 50%, #FFFFFF 100%); border-bottom: 1px solid #F1E6C4; }
+    .burger { display: none; width: 36px; height: 36px; border: 0; background: transparent; border-radius: 8px; align-items: center; justify-content: center; color: #334155; }
+    .logo { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #C9A227; background: #FFF9E6; display: flex; align-items: center; justify-content: center; flex: none; }
+    .brand { min-width: 0; }
+    .brand b { display: block; font-size: 13.5px; font-weight: 800; letter-spacing: .06em; color: #0F1E3D; }
+    .brand span { display: block; font-size: 11.5px; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .uc { position: relative; margin-left: 10px; }
+    .uc-btn { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; border: 1px solid #E8D9A8; border-radius: 10px; background: rgba(255,255,255,.8); }
+    .uc-btn:hover { background: #fff; }
+    .uc-btn small { color: #64748B; font-size: 11px; }
+    .uc-btn strong { font-size: 13px; }
+    .uc-menu { position: absolute; top: 44px; left: 0; width: 340px; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 16px 40px rgba(15,23,42,.18); padding: 6px; display: none; }
+    .uc-menu.on { display: block; }
+    .uc-it { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; text-align: left; }
+    .uc-it:hover { background: #F8FAFC; }
+    .uc-it.on { background: #EFF6FF; }
+    .uc-it .t { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+    .uc-it .d { font-size: 12px; color: #64748B; }
+    .soon { font-size: 10.5px; font-weight: 700; color: #92400E; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 5px; padding: 0 5px; }
+    .live { font-size: 10.5px; font-weight: 700; color: #166534; background: #DCFCE7; border: 1px solid #BBF7D0; border-radius: 5px; padding: 0 5px; }
+    .hr { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .role { display: flex; padding: 3px; border-radius: 10px; background: rgba(15,30,61,.06); border: 1px solid #EADFBF; }
+    .role button { border: 0; background: transparent; height: 30px; padding: 0 12px; border-radius: 7px; font-size: 12.5px; font-weight: 600; color: #475569; }
+    .role button.on { background: #0F1E3D; color: #fff; }
+    .role .lb { align-self: center; font-size: 11px; color: #64748B; padding: 0 8px 0 6px; }
+    .bell { position: relative; width: 38px; height: 38px; border: 0; border-radius: 10px; background: transparent; color: #334155; display: flex; align-items: center; justify-content: center; }
+    .bell:hover { background: rgba(255,255,255,.8); }
+    .bell i { position: absolute; top: 4px; right: 3px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 99px; background: #DC2626; color: #fff; font-size: 10px; font-weight: 700; font-style: normal; display: flex; align-items: center; justify-content: center; }
+    .user { display: flex; align-items: center; gap: 10px; }
+    .av { width: 36px; height: 36px; border-radius: 50%; background: #0F1E3D; color: #FDE68A; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12.5px; }
+    .user b { display: block; font-size: 13px; }
+    .user span { display: block; font-size: 11.5px; color: #64748B; }
+
+    /* layout */
+    .body { display: grid; grid-template-columns: 272px minmax(0, 1fr); height: calc(100vh - 64px); }
+    .side { background: #0F1E3D; color: #CBD5E1; overflow-y: auto; padding: 14px 12px 20px; display: flex; flex-direction: column; }
+    .ucc { padding: 12px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); margin-bottom: 8px; }
+    .ucc b { display: block; color: #fff; font-size: 13.5px; }
+    .ucc span { display: block; font-size: 11.5px; color: #94A3B8; margin-top: 2px; line-height: 1.4; }
+    .gl { margin: 16px 10px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #64748B; }
+    .nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 9px; background: transparent; color: #CBD5E1; text-align: left; font-size: 13px; font-weight: 500; text-decoration: none; }
+    .nav:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .nav.on { background: #C9A227; color: #0F1E3D; font-weight: 700; }
+    .nav .nl { flex: 1; min-width: 0; }
+    .nav .bo { display: block; font-size: 10.5px; color: #64748B; font-weight: 500; }
+    .nav.on .bo { color: rgba(15,30,61,.7); }
+    .nav .nb { min-width: 22px; height: 20px; padding: 0 6px; border-radius: 99px; background: rgba(255,255,255,.12); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .nav.on .nb { background: rgba(15,30,61,.18); color: #0F1E3D; }
+    .side .sfoot { margin-top: auto; padding: 18px 10px 0; font-size: 11.5px; color: #64748B; line-height: 1.5; }
+    .side .reset { margin-top: 8px; border: 1px solid rgba(255,255,255,.14); background: transparent; color: #CBD5E1; border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+    .side .reset:hover { background: rgba(255,255,255,.07); }
+    .main { position: relative; min-width: 0; }
+    .main iframe { display: block; width: 100%; height: 100%; border: 0; background: #F1F5F9; }
+    .scrim { display: none; }
+
+    @media (max-width: 1180px) { .user > div, .role .lb { display: none; } }
+    @media (max-width: 900px) {
+      .burger { display: flex; }
+      .brand span, .uc-btn small, .uc-btn br { display: none; }
+      .uc { margin-left: 0; }
+      .uc-btn strong { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .h { padding: 0 12px; gap: 8px; }
+      .hr { gap: 6px; }
+      .user { display: none; }
+      .body { grid-template-columns: minmax(0, 1fr); }
+      .side { position: fixed; z-index: 50; top: 64px; bottom: 0; left: 0; width: 280px; transform: translateX(-100%); transition: transform .2s ease; }
+      .side.on { transform: none; }
+      .scrim.on { display: block; position: fixed; inset: 64px 0 0 0; z-index: 45; background: rgba(15,23,42,.45); }
+    }
+    .mrole { display: none; margin: 4px 0 8px; }
+    .mrole span { display: block; font-size: 11px; color: #94A3B8; margin-bottom: 6px; }
+    .mrole .role { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); display: inline-flex; }
+    .mrole .role button { color: #CBD5E1; }
+    .mrole .role button.on { background: #C9A227; color: #0F1E3D; }
+    @media (max-width: 560px) {
+      .brand, .logo, .h > .hr > .role { display: none; }
+      .mrole { display: block; }
+      .uc-btn strong { max-width: 150px; }
+      .uc-menu { width: calc(100vw - 24px); }
+    }
+  </style>
+</head>
+<body>
+  <header class="h">
+    <button class="burger" id="burger" type="button" aria-label="Buka menu" aria-controls="side" aria-expanded="false">
+      <svg class="ic" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 32 32"><path d="M16 4l3 6.2 6.8 1-4.9 4.8 1.2 6.8L16 19.6l-6.1 3.2 1.2-6.8-4.9-4.8 6.8-1z" fill="#C9A227"/></svg></div>
+    <div class="brand">
+      <b>BACKOFFICE DASHBOARD PRESIDEN</b>
+      <span>Kementerian Sekretariat Negara Republik Indonesia</span>
+    </div>
+    <div class="uc">
+      <button class="uc-btn" id="ucBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+        <span><small>Use case</small><br><strong id="ucName">—</strong></span>
+        <svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="uc-menu" id="ucMenu" role="listbox" aria-label="Pilih use case"></div>
+    </div>
+    <div class="hr">
+      <div class="role" role="group" aria-label="Peran simulasi">
+        <span class="lb">Peran</span>
+        <button type="button" data-role="analis">Analis</button>
+        <button type="button" data-role="approver">Approver</button>
+      </div>
+      <button class="bell" id="bell" type="button" aria-label="Notifikasi">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <i id="bellN" hidden>0</i>
+      </button>
+      <div class="user">
+        <div class="av" id="av">AH</div>
+        <div><b id="uName">—</b><span id="uUnit">—</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="side" id="side" aria-label="Menu backoffice"></aside>
+    <div class="scrim" id="scrim"></div>
+    <main class="main">
+      <iframe id="frame" title="Halaman backoffice"></iframe>
+    </main>
+  </div>
+
+  <script src="./data/harmonisasi-data.js"></script>
+  <script src="./assets/bo-store.js"></script>
+  <script src="./assets/bo-usecases.js"></script>
+  <script src="./assets/uc-harmonisasi.js"></script>
+  <script>
+    (function () {
+      window.__BO_SHELL__ = true;
+      var V = '20261016-1';
+      var ICONS = {
+        grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+        check: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+        book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+        tag: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/>',
+        flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+        map: '<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>',
+        spark: '<path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/>',
+        sliders: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+        bell: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+        layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+        eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+        history: '<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>',
+        inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+        clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'
+      };
+      var icon = function (k) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[k] || '') + '</svg>'; };
+      var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+
+      var UCS = window.BO_USECASES, SHARED = window.BO_SHARED;
+      var DEFAULT_UC = 'harmonisasi';
+      var frame = document.getElementById('frame');
+      var side = document.getElementById('side');
+      var cur = { uc: null, page: null, id: null, src: null };
+
+      function ucOf(k) { return UCS.filter(function (u) { return u.key === k; })[0] || null; }
+      function pagesOf(u) { var a = []; (u.grup || []).forEach(function (g) { a = a.concat(g.items); }); return a; }
+
+      function parse() {
+        var raw = (location.hash || '').replace(/^#\/?/, '');
+        var p = raw.split('/').filter(Boolean).map(decodeURIComponent);
+        var u = ucOf(p[0]) || ucOf(DEFAULT_UC);
+        var page = p[1] || (u.status === 'aktif' ? u.awal : 'segera');
+        return { uc: u.key, page: page, id: p[2] || null };
+      }
+
+      function resolve(r) {
+        var u = ucOf(r.uc);
+        var sh = SHARED.filter(function (s) { return s.k === r.page; })[0];
+        if (sh) return { f: sh.f, page: r.page, title: sh.l };
+        if (u.status !== 'aktif') return { f: 'shared/segera.html', page: 'segera', title: u.nama };
+        var it = pagesOf(u).filter(function (x) { return x.k === r.page; })[0] || pagesOf(u)[0];
+        return { f: it.f, page: it.k, title: it.l };
+      }
+
+      function load() {
+        var r = parse(), res = resolve(r);
+        var src = './pages/' + res.f + '?uc=' + r.uc + (r.id ? '&id=' + encodeURIComponent(r.id) : '') + '&v=' + V;
+        var samePage = cur.uc === r.uc && cur.page === res.page && cur.src;
+        cur = { uc: r.uc, page: res.page, id: r.id, src: cur.src };
+        if (samePage) {
+          try { frame.contentWindow.postMessage({ type: 'bo:open', id: r.id }, '*'); } catch (e) {}
+        } else {
+          cur.src = src;
+          frame.setAttribute('src', src);
+          frame.setAttribute('title', res.title);
+        }
+        document.title = res.title + ' · ' + ucOf(r.uc).nama + ' · Backoffice Dashboard Presiden';
+        render();
+        closeSide();
+      }
+
+      function render() {
+        var u = ucOf(cur.uc), role = BO.role();
+        var uh = window.BO_UC[cur.uc];
+        var badges = uh && uh.badges ? uh.badges() : {};
+        document.getElementById('ucName').textContent = u.nama;
+        // menu use case
+        document.getElementById('ucMenu').innerHTML = UCS.map(function (x) {
+          return '<button type="button" role="option" class="uc-it' + (x.key === u.key ? ' on' : '') + '" data-uc="' + x.key + '" aria-selected="' + (x.key === u.key) + '">' +
+            '<span class="t">' + esc(x.nama) + (x.status === 'aktif' ? ' <span class="live">Aktif</span>' : ' <span class="soon">Segera</span>') + '</span>' +
+            '<span class="d">' + esc(x.ringkas) + '</span></button>';
+        }).join('');
+        // sidebar
+        var h = '<div class="mrole"><span>Peran simulasi</span><div class="role" role="group" aria-label="Peran simulasi">' +
+          ['analis', 'approver'].map(function (k) { return '<button type="button" data-role="' + k + '" class="' + (role.key === k ? 'on' : '') + '" aria-pressed="' + (role.key === k) + '">' + BO.ROLES[k].peran + '</button>'; }).join('') + '</div></div>';
+        h += '<div class="ucc"><b>' + esc(u.nama) + '</b><span>' + (u.status === 'aktif' ? u.modul + ' modul dashboard · ' + esc(u.ringkas) : 'Belum tersedia di backoffice ini') + '</span></div>';
+        (u.grup || []).forEach(function (g) {
+          h += '<div class="gl">' + esc(g.l) + '</div>';
+          g.items.forEach(function (it) { h += navItem(it, badges[it.k]); });
+        });
+        if (u.status !== 'aktif') h += '<div class="gl">Use case</div>' + navItem({ k: 'segera', l: 'Status pengembangan', ic: 'clock' });
+        h += '<div class="gl">Administrasi</div>';
+        SHARED.forEach(function (it) { h += navItem(it, it.k === 'notifikasi' ? BO.unread(cur.uc) : null); });
+        h += '<div class="sfoot">Prototipe · data simulasi per 16 Oktober 2026.<br>Perubahan tersimpan di peramban ini saja.<br><button type="button" class="reset" id="reset">Atur ulang data simulasi</button></div>';
+        side.innerHTML = h;
+        // peran
+        Array.prototype.forEach.call(document.querySelectorAll('.h .role button'), function (b) {
+          var on = b.getAttribute('data-role') === role.key;
+          b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+        });
+        document.getElementById('av').textContent = role.ini;
+        document.getElementById('uName').textContent = role.nama;
+        document.getElementById('uUnit').textContent = role.peran + ' · ' + role.unit;
+        var n = BO.unread(cur.uc), bn = document.getElementById('bellN');
+        bn.hidden = !n; bn.textContent = n > 99 ? '99+' : n;
+      }
+
+      function navItem(it, badge) {
+        var on = it.k === cur.page;
+        return '<a class="nav' + (on ? ' on' : '') + '" href="#' + cur.uc + '/' + it.k + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(it.ic) +
+          '<span class="nl">' + esc(it.l) + (it.bo ? '<span class="bo">' + it.bo + '</span>' : '') + '</span>' +
+          (badge ? '<span class="nb" aria-label="' + badge + ' perlu tindakan">' + badge + '</span>' : '') + '</a>';
+      }
+
+      function closeSide() { side.classList.remove('on'); document.getElementById('scrim').classList.remove('on'); document.getElementById('burger').setAttribute('aria-expanded', 'false'); }
+
+      // ---------- event ----------
+      document.getElementById('burger').addEventListener('click', function () {
+        var on = !side.classList.contains('on');
+        side.classList.toggle('on', on); document.getElementById('scrim').classList.toggle('on', on);
+        this.setAttribute('aria-expanded', on);
+      });
+      document.getElementById('scrim').addEventListener('click', closeSide);
+      var ucBtn = document.getElementById('ucBtn'), ucMenu = document.getElementById('ucMenu');
+      ucBtn.addEventListener('click', function (e) { e.stopPropagation(); var on = !ucMenu.classList.contains('on'); ucMenu.classList.toggle('on', on); ucBtn.setAttribute('aria-expanded', on); });
+      ucMenu.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-uc]'); if (!b) return;
+        ucMenu.classList.remove('on'); ucBtn.setAttribute('aria-expanded', 'false');
+        location.hash = b.getAttribute('data-uc');
+      });
+      document.addEventListener('click', function () { ucMenu.classList.remove('on'); ucBtn.setAttribute('aria-expanded', 'false'); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { ucMenu.classList.remove('on'); closeSide(); } });
+      document.querySelector('.h .role').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-role]'); if (!b) return;
+        BO.setRole(b.getAttribute('data-role'));
+      });
+      document.getElementById('bell').addEventListener('click', function () { location.hash = cur.uc + '/notifikasi'; });
+      side.addEventListener('click', function (e) {
+        var rb = e.target.closest('[data-role]');
+        if (rb) { BO.setRole(rb.getAttribute('data-role')); return; }
+        if (e.target.id === 'reset' && confirm('Atur ulang seluruh perubahan simulasi di peramban ini?')) { BO.reset(); frame.contentWindow.location.reload(); }
+      });
+
+      window.addEventListener('message', function (e) {
+        var d = e.data; if (!d || typeof d !== 'object' || e.source !== frame.contentWindow) return;
+        if (d.type === 'bo:nav' && typeof d.path === 'string') { location.hash = d.path; }
+        if (d.type === 'bo:route' && typeof d.path === 'string') {
+          var p = d.path.split('/');
+          cur.id = p[2] || null;
+          if (history.replaceState) history.replaceState(null, '', '#' + d.path);
+        }
+      });
+      window.addEventListener('hashchange', load);
+      BO.on(render);
+      load();
+    })();
+  </script>
+</body>
+</html>

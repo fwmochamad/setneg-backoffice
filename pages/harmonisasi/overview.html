@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ringkasan · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+</head><body>
+<x-dc>
+<div class="pg">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> <b>Ruang Kerja Analis</b></div>
+      <h1>Ringkasan Backoffice Harmonisasi Investasi</h1>
+      <p class="d">Antrean kerja, kelengkapan, dan persetujuan konten sebelum tayang di Dashboard Harmonisasi Investasi. Indikator mengikuti Back Office 2026 (KAK 2026); nilai awal merupakan contoh ilustrasi.</p>
+    </div>
+    <div class="r"><span class="tag">Masuk sebagai {{roleL}}</span></div>
+  </div>
+
+  <div class="sec-h"><h2>Ruang Kerja Analis</h2><span class="s">BO-01 s.d. BO-11 · klik kartu untuk membuka antrean terkait</span></div>
+  <div class="kpis">
+    <sc-for list="{{kpRa}}" as="k">
+      <div class="kpi {{k.cls}}">
+        <div class="top"><span class="boid">{{k.id}}</span><span class="ilu">Ilustrasi</span></div>
+        <div class="l">{{k.label}}</div>
+        <div class="v {{k.vcls}}">{{k.v}}</div>
+        <sc-if value="{{k.hasBar}}"><div class="bar"><i style="width: {{k.barW}}"></i></div></sc-if>
+        <div class="s">{{k.sub}}</div>
+        <details class="how"><summary>Rumus &amp; cara membaca</summary><div class="bx"><span><b>Rumus:</b> {{k.f}}</span><span><b>Cara membaca:</b> {{k.baca}}</span></div></details>
+        <button type="button" class="go" sc-camel-on-click="{{k.go}}">Buka halaman →</button>
+      </div>
+    </sc-for>
+  </div>
+
+  <div class="sec-h sec"><h2>CMS Harmonisasi</h2><span class="s">BO-12 s.d. BO-15 · indikator berbentuk daftar/konfigurasi, bukan angka</span></div>
+  <div class="kpis">
+    <sc-for list="{{kpCms}}" as="k">
+      <div class="kpi {{k.cls}}">
+        <div class="top"><span class="boid">{{k.id}}</span></div>
+        <div class="l">{{k.label}}</div>
+        <div class="v {{k.vcls}}">{{k.v}}</div>
+        <div class="s">{{k.sub}}</div>
+        <details class="how"><summary>Cara membaca</summary><div class="bx"><span>{{k.f}}</span><span>{{k.baca}}</span></div></details>
+        <button type="button" class="go" sc-camel-on-click="{{k.go}}">Kelola →</button>
+      </div>
+    </sc-for>
+  </div>
+
+  <div class="split sec">
+    <div class="card">
+      <div class="card-h"><div><h3>Perlu tindakan Anda</h3><div class="s">{{todoSub}}</div></div><span class="r tag">{{todoN}} item</span></div>
+      <div class="card-b">
+        <sc-for list="{{todo}}" as="t">
+          <button type="button" class="li" sc-camel-on-click="{{t.go}}">
+            <span class="row"><span class="pl {{t.cls}}">{{t.k}}</span><span class="xs mut mono">{{t.id}}</span><span class="xs mut">{{t.m}}</span></span>
+            <span class="t">{{t.t}}</span>
+          </button>
+        </sc-for>
+        <sc-if value="{{todoEmpty}}"><div class="empty">Tidak ada antrean untuk peran ini.</div></sc-if>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div><h3>Aktivitas terbaru</h3><div class="s">Dari audit trail use case ini</div></div><button type="button" class="r lnk" sc-camel-on-click="{{goAudit}}">Audit trail →</button></div>
+      <div class="card-b">
+        <ul class="tl">
+          <sc-for list="{{act}}" as="a"><li class="{{a.cls}}"><div class="w">{{a.w}}</div><div class="m">{{a.o}}</div><div class="m">{{a.m}}</div></li></sc-for>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card sec">
+    <div class="card-h"><div><h3>Status konten per modul dashboard</h3><div class="s">Keluaran AI per modul Dashboard Harmonisasi Investasi</div></div></div>
+    <div class="tw">
+      <sc-raw-table class="tb" style="min-width:720px">
+        <sc-raw-thead><sc-raw-tr><sc-raw-th>Modul</sc-raw-th><sc-raw-th class="right">Menunggu tinjauan</sc-raw-th><sc-raw-th class="right">Menunggu persetujuan</sc-raw-th><sc-raw-th class="right">Tayang</sc-raw-th><sc-raw-th class="right">Ditarik</sc-raw-th><sc-raw-th></sc-raw-th></sc-raw-tr></sc-raw-thead>
+        <sc-raw-tbody>
+          <sc-for list="{{mods}}" as="m">
+            <sc-raw-tr><sc-raw-td><span class="b">{{m.no}} · {{m.l}}</span></sc-raw-td><sc-raw-td class="right">{{m.rev}}</sc-raw-td><sc-raw-td class="right">{{m.app}}</sc-raw-td><sc-raw-td class="right">{{m.pub}}</sc-raw-td><sc-raw-td class="right">{{m.tak}}</sc-raw-td><sc-raw-td class="right"><button type="button" class="lnk" sc-camel-on-click="{{m.go}}">Lihat →</button></sc-raw-td></sc-raw-tr>
+          </sc-for>
+        </sc-raw-tbody>
+      </sc-raw-table>
+    </div>
+  </div>
+
+  <div class="foot"><span>{{dataL}}</span><span>Prototipe backoffice · tidak terhubung ke dashboard produksi</span></div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  componentDidMount() { BO.mount(this); }
+  componentWillUnmount() { BO.unmount(this); }
+
+  renderVals() {
+    const U = BO_UC.harmonisasi, H = BO.data('harmonisasi'), role = BO.role();
+    const kp = U.kpiVals();
+    const ai = BO.list('harmonisasi', 'keluaranAI'), hp = BO.list('harmonisasi', 'penilaian'), ks = BO.list('harmonisasi', 'klasifikasi');
+    const tl = BO.list('harmonisasi', 'tindakLanjut'), pn = BO.list('harmonisasi', 'cms.penayangan'), am = BO.list('harmonisasi', 'cms.ambang');
+    const nav = (p) => () => BO.nav('harmonisasi/' + p);
+    let todo = [];
+    if (role.key === 'analis') {
+      todo = todo
+        .concat(ai.filter((a) => a.status === 'review').map((a) => ({ k: 'Narasi AI', cls: 'pl-ai', id: a.id, m: U.modulS(a.modul) + ' · ' + a.cakupan, t: U.aiTeks(a).judul, go: nav('narasi-ai/' + a.id) })))
+        .concat(hp.filter((p) => p.status === 'menunggu').slice(0, 5).map((p) => ({ k: 'Verifikasi', cls: 'pl-rev', id: p.id, m: (p.hasil === 'tidak' ? 'Indikasi tidak selaras' : 'Selaras') + ' · versi ' + p.ver, t: (U.reg(p.regId) || {}).nomor, go: nav('verifikasi/' + p.id) })))
+        .concat(ks.filter((k) => k.status === 'menunggu').slice(0, 3).map((k) => ({ k: 'Klasifikasi', cls: 'pl-app', id: k.id, m: 'Keyakinan ' + Math.round(k.ai.yakin * 100) + '%', t: (U.reg(k.regId) || {}).nomor, go: nav('klasifikasi/' + k.id) })))
+        .concat(tl.filter((t) => !U.tlLengkap(t)).map((t) => ({ k: 'Tindak lanjut', cls: 'pl-warn', id: t.id, m: 'PIC belum terisi', t: t.judul, go: nav('tindak-lanjut/' + t.id) })));
+    } else {
+      todo = todo
+        .concat(ai.filter((a) => a.status === 'approval').map((a) => ({ k: 'Persetujuan AI', cls: 'pl-app', id: a.id, m: U.modulS(a.modul) + ' · v' + a.ver, t: U.aiTeks(a).judul, go: nav('narasi-ai/' + a.id) })))
+        .concat(pn.filter((p) => p.status === 'menunggu').map((p) => ({ k: 'Penayangan', cls: 'pl-app', id: p.id, m: 'v' + p.verTerbaru + ' menunggu persetujuan', t: 'Analisis ' + p.cakupan, go: nav('cms-penayangan') })))
+        .concat(am.filter((a) => a.status === 'diusulkan').map((a) => ({ k: 'Ambang', cls: 'pl-warn', id: a.id, m: 'Usulan nilai ' + a.nilai + ' ' + a.sat, t: a.l, go: nav('cms-ambang') })));
+    }
+    const au = BO.audit('harmonisasi').slice(0, 7);
+    return {
+      roleL: role.nama + ' (' + role.peran + ')', dataL: H.meta.label,
+      kpRa: kp.filter((k) => k.area === 'ra'), kpCms: kp.filter((k) => k.area === 'cms'),
+      todo: todo.slice(0, 10), todoN: todo.length, todoEmpty: !todo.length,
+      todoSub: role.key === 'analis' ? 'Tinjauan, verifikasi, dan pencatatan yang menunggu Analis' : 'Keputusan persetujuan yang menunggu Approver',
+      act: au.map((a) => ({ w: a.aksi, o: (U.entL[a.ent] || a.ent) + ' · ' + U.objL(a.ent, a.obj), m: a.aktor + ' · ' + BO.dt(a.at), cls: a.peran === 'sistem' ? 'ai' : /tarik|kembali/i.test(a.aksi) ? 'x' : /setuju|selesai|diverifikasi|ditetapkan/i.test(a.aksi) ? 'ok' : '' })),
+      goAudit: nav('audit'),
+      mods: H.modul.map((m, i) => {
+        const its = ai.filter((a) => a.modul === m[0]); const c = (s) => String(its.filter((a) => a.status === s).length);
+        return { no: i + 1, l: m[1], rev: c('review'), app: c('approval'), pub: c('published'), tak: c('taken'), go: nav('narasi-ai') };
+      })
+    };
+  }
+}
+</script>
+</body></html>

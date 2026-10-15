@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klasifikasi Sektor · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+</head><body>
+<x-dc>
+<div class="pg">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> Ruang Kerja Analis <span>›</span> <b>Klasifikasi Sektor</b></div>
+      <h1>Tinjauan Klasifikasi Sektor Otomatis</h1>
+      <p class="d">Model AI mengusulkan kategori KBLI 2025 untuk setiap regulasi. Analis meninjau usulan, mengonfirmasi atau mengoreksi, sebelum klasifikasi dipakai untuk grafik sektor di dashboard.</p>
+    </div>
+  </div>
+  <div class="kpis">
+    <sc-for list="{{kpis}}" as="k">
+      <div class="kpi {{k.cls}}">
+        <div class="top"><span class="boid">{{k.id}}</span><span class="ilu">Ilustrasi</span></div>
+        <div class="l">{{k.label}}</div><div class="v">{{k.v}}</div>
+        <sc-if value="{{k.hasBar}}"><div class="bar"><i style="width: {{k.barW}}"></i></div></sc-if>
+        <div class="s">{{k.sub}}</div>
+        <details class="how"><summary>Rumus &amp; cara membaca</summary><div class="bx"><span><b>Rumus:</b> {{k.f}}</span><span><b>Cara membaca:</b> {{k.baca}}</span></div></details>
+      </div>
+    </sc-for>
+    <div class="kpi t-slate">
+      <div class="top"><span class="tag">Informasi</span></div>
+      <div class="l">Usulan AI yang dikonfirmasi tanpa koreksi</div>
+      <div class="v">{{agreeT}}</div>
+      <div class="s">{{agreeS}}</div>
+      <div class="s">Bukan indikator BO dan bukan ukuran akurasi model.</div>
+    </div>
+  </div>
+
+  <div class="split sec">
+    <div class="card">
+      <div class="flt">
+        <div class="fr"><span class="lb">Status</span><sc-for list="{{stChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+        <div class="fr"><input class="in" type="search" placeholder="Cari regulasi atau ID…" value="{{qs}}" sc-camel-on-input="{{onQ}}" aria-label="Cari hasil klasifikasi"><span class="sp sm mut">{{countT}}</span></div>
+      </div>
+      <div class="tw">
+        <sc-raw-table class="tb" style="min-width:560px">
+          <sc-raw-thead><sc-raw-tr><sc-raw-th>Regulasi</sc-raw-th><sc-raw-th>Usulan AI</sc-raw-th><sc-raw-th>Keyakinan</sc-raw-th><sc-raw-th>Status</sc-raw-th></sc-raw-tr></sc-raw-thead>
+          <sc-raw-tbody>
+            <sc-for list="{{rows}}" as="r">
+              <sc-raw-tr class="clk {{r.selCls}}" sc-camel-on-click="{{r.open}}">
+                <sc-raw-td><div class="t">{{r.nomor}}</div><div class="xs mut">{{r.judul}}</div></sc-raw-td>
+                <sc-raw-td><span class="mono">{{r.kode}}</span></sc-raw-td>
+                <sc-raw-td><div class="bar" style="width: 70px"><i style="width: {{r.yakinW}}; background: {{r.tone}}"></i></div><div class="xs mut">{{r.yakin}}</div></sc-raw-td>
+                <sc-raw-td><span class="pl {{r.stCls}}">{{r.stL}}</span></sc-raw-td>
+              </sc-raw-tr>
+            </sc-for>
+          </sc-raw-tbody>
+        </sc-raw-table>
+        <sc-if value="{{empty}}"><div class="empty">Tidak ada hasil klasifikasi pada filter ini.</div></sc-if>
+      </div>
+      <div class="pager"><span>{{pageT}}</span><span class="sp"></span><button type="button" class="btn btn-s {{prevDis}}" sc-camel-on-click="{{prev}}">←</button><button type="button" class="btn btn-s {{nextDis}}" sc-camel-on-click="{{next}}">→</button></div>
+    </div>
+
+    <div class="card pad sticky">
+      <sc-if value="{{noSel}}"><div class="empty">Pilih hasil klasifikasi di sebelah kiri untuk ditinjau.</div></sc-if>
+      <sc-if value="{{hasSel}}">
+        <div class="row" style="margin-bottom:6px"><span class="mono xs mut">{{d.id}}</span><span class="pl {{d.stCls}}">{{d.stL}}</span><sc-if value="{{d.hasPut}}"><span class="pl {{d.putCls}}">{{d.putL}}</span></sc-if></div>
+        <h3 style="font-size:16px;line-height:1.35">{{d.reg.nomor}}</h3>
+        <p class="sm mut" style="margin:4px 0 14px">{{d.reg.judul}} · {{d.reg.penerbit}}</p>
+
+        <div class="fld"><span class="lb">Usulan AI · {{d.model}}</span>
+          <div class="row"><sc-for list="{{d.usul}}" as="u"><span class="pl pl-ai">✦ {{u}}</span></sc-for><span class="sp xs mut">Keyakinan {{d.yakin}}</span></div>
+          <span class="hint">{{d.dasar}}</span>
+        </div>
+        <div class="fld"><span class="lb">Keputusan analis</span>
+          <div class="row"><sc-for list="{{d.putChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}}</button></sc-for></div>
+        </div>
+        <sc-if value="{{d.isKoreksi}}">
+          <div class="fld"><span class="lb">Sektor final (KBLI 2025) <span class="req">*</span></span>
+            <div class="row"><sc-for list="{{d.sekChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}" title="{{c.t}}">{{c.l}}</button></sc-for></div>
+            <span class="hint">Terpilih: {{d.finalT}}</span>
+          </div>
+        </sc-if>
+        <div class="fld"><label for="cat">Catatan tinjauan</label>
+          <sc-if value="{{d.editable}}"><textarea id="cat" class="ta" style="min-height:70px" value="{{d.catatan}}" sc-camel-on-input="{{d.onCat}}" placeholder="Opsional · wajib bila mengoreksi usulan AI"></textarea></sc-if>
+          <sc-if value="{{d.locked}}"><div class="ro">{{d.catView}}</div></sc-if>
+        </div>
+        <sc-if value="{{d.reviewed}}"><p class="sm mut" style="margin-bottom:12px">Ditinjau {{d.peninjau}} · {{d.diubah}} · sektor final: <b>{{d.finalSaved}}</b></p></sc-if>
+        <div class="row"><span class="sm mut" style="flex:1">{{d.note}}</span><sc-for list="{{d.acts}}" as="b"><button type="button" class="btn {{b.cls}}" sc-camel-on-click="{{b.run}}">{{b.l}}</button></sc-for></div>
+      </sc-if>
+    </div>
+  </div>
+  <div class="foot"><span>{{dataL}}</span><span>Indikator BO-06 &amp; BO-07 · Back Office 2026</span></div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { sel: null, fSt: 'menunggu', qs: '', pg: 0, draft: {} };
+  componentDidMount() { BO.mount(this); this.onOpen(BO.param('id')); }
+  componentWillUnmount() { BO.unmount(this); }
+  onOpen(id) { if (id === 'f:menunggu') this.setState({ fSt: 'menunggu', sel: null }); else if (id) this.setState({ sel: id }); }
+  open(id) { this.setState({ sel: id }); BO.route('harmonisasi/klasifikasi/' + id); }
+
+  renderVals() {
+    const st = this.state, U = BO_UC.harmonisasi, H = BO.data('harmonisasi'), role = BO.role().key;
+    const all = BO.list('harmonisasi', 'klasifikasi');
+    const qs = (st.qs || '').toLowerCase();
+    const regOf = (k) => U.reg(k.regId) || { nomor: '—', judul: '—', penerbit: '—' };
+    const base = all.filter((k) => !qs || [k.id, regOf(k).nomor, regOf(k).judul].join(' ').toLowerCase().indexOf(qs) >= 0);
+    const fs = (k, f) => f === 'all' || k.status === f;
+    const rowsAll = base.filter((k) => fs(k, st.fSt)).sort((a, b) => a.status === b.status ? a.ai.yakin - b.ai.yakin : (a.status === 'menunggu' ? -1 : 1));
+    const PS = 15, nPg = Math.max(1, Math.ceil(rowsAll.length / PS)), pg = Math.min(st.pg, nPg - 1);
+    const ditinjau = all.filter((k) => k.status === 'ditinjau'), sesuai = ditinjau.filter((k) => k.putusan === 'sesuai').length;
+    const tone = (y) => y >= 0.8 ? '#15803D' : y >= 0.65 ? '#B45309' : '#B91C1C';
+
+    const vals = {
+      dataL: H.meta.label, kpis: U.kpiVals(['BO-06', 'BO-07']),
+      agreeT: BO.nf(BO.pct(sesuai, ditinjau.length), 1) + '%', agreeS: sesuai + ' dari ' + ditinjau.length + ' hasil yang sudah ditinjau',
+      qs: st.qs, onQ: (e) => this.setState({ qs: e.target.value, pg: 0 }),
+      stChips: [['menunggu', 'Menunggu tinjauan'], ['ditinjau', 'Selesai ditinjau'], ['all', 'Semua']].map((c) => ({ l: c[1], n: String(base.filter((k) => fs(k, c[0])).length), cls: st.fSt === c[0] ? 'on' : '', pick: () => this.setState({ fSt: c[0], pg: 0 }) })),
+      rows: rowsAll.slice(pg * PS, pg * PS + PS).map((k) => { const r = regOf(k), s = U.ST_KS[k.status]; return { nomor: r.nomor, judul: r.judul, kode: (k.status === 'ditinjau' ? k.final : k.ai.kode).join(', '), yakin: Math.round(k.ai.yakin * 100) + '%', yakinW: Math.round(k.ai.yakin * 100) + '%', tone: tone(k.ai.yakin), stL: s[0], stCls: s[1], selCls: st.sel === k.id ? 'sel' : '', open: () => this.open(k.id) }; }),
+      empty: rowsAll.length === 0, countT: rowsAll.length + ' hasil', pageT: 'Hal. ' + (pg + 1) + '/' + nPg + ' · urut keyakinan terendah',
+      prevDis: pg <= 0 ? 'dis' : '', nextDis: pg >= nPg - 1 ? 'dis' : '', prev: () => this.setState({ pg: Math.max(0, pg - 1) }), next: () => this.setState({ pg: Math.min(nPg - 1, pg + 1) }),
+      noSel: true, hasSel: false, d: {}
+    };
+
+    const k = st.sel ? BO.get('harmonisasi', 'klasifikasi', st.sel) : null;
+    if (k) {
+      vals.noSel = false; vals.hasSel = true;
+      const editable = k.status === 'menunggu' && role === 'analis';
+      const ed = st.draft[k.id] || { putusan: k.putusan || 'sesuai', final: (k.final || k.ai.kode).slice(), catatan: k.catatan || '' };
+      const setEd = (p) => { if (editable) BO.draftSet(this, k.id, { putusan: k.putusan || 'sesuai', final: (k.final || k.ai.kode).slice(), catatan: k.catatan || '' }, p); };
+      const finalArr = ed.putusan === 'sesuai' ? k.ai.kode : ed.final;
+      const ok = finalArr.length > 0 && (ed.putusan === 'sesuai' || ed.catatan.trim().length > 2);
+      const s = U.ST_KS[k.status];
+      const acts = []; let note = '';
+      if (role !== 'analis') note = 'Tinjauan klasifikasi dilakukan Analis.';
+      else if (k.status === 'menunggu') {
+        note = ok ? '' : (ed.putusan === 'koreksi' ? 'Pilih sektor final dan isi catatan koreksi.' : '');
+        acts.push({ l: 'Simpan tinjauan', cls: ok ? 'btn-p' : 'btn-p dis', run: () => {
+          const D = Object.assign({}, st.draft); delete D[k.id];
+          BO.update('harmonisasi', 'klasifikasi', k.id, { status: 'ditinjau', putusan: ed.putusan, final: finalArr.slice(), catatan: ed.catatan, peninjau: BO.role().nama, diubah: BO.now() }, { aksi: 'Klasifikasi sektor ditinjau', sebelum: 'Usulan AI: ' + k.ai.kode.join(', '), sesudah: (ed.putusan === 'sesuai' ? 'Sesuai usulan: ' : 'Dikoreksi: ') + finalArr.join(', '), alasan: ed.catatan || 'Usulan AI sesuai ruang lingkup naskah' });
+          // lanjut ke antrean berikutnya
+          const nxt = all.filter((x) => x.status === 'menunggu' && x.id !== k.id).sort((a, b) => a.ai.yakin - b.ai.yakin)[0];
+          this.setState({ draft: D, sel: nxt ? nxt.id : k.id });
+          if (nxt) BO.route('harmonisasi/klasifikasi/' + nxt.id);
+          BO.toast('Klasifikasi ' + k.id + ' ditinjau' + (nxt ? ' · lanjut ke ' + nxt.id : ''), 'ok');
+        } });
+      } else {
+        acts.push({ l: 'Tinjau ulang', cls: '', run: () => BO.update('harmonisasi', 'klasifikasi', k.id, { status: 'menunggu', ver: k.ver + 1, diubah: BO.now() }, { aksi: 'Klasifikasi dibuka untuk tinjauan ulang', sebelum: 'Selesai ditinjau · v' + k.ver, sesudah: 'Menunggu tinjauan · v' + (k.ver + 1), alasan: 'Perlu peninjauan ulang' }) });
+      }
+      vals.d = {
+        id: k.id, reg: regOf(k), stL: s[0], stCls: s[1], hasPut: !!k.putusan, putL: k.putusan === 'koreksi' ? 'Dikoreksi analis' : 'Sesuai usulan AI', putCls: k.putusan === 'koreksi' ? 'pl-edit' : 'pl-pub',
+        model: k.ai.model, usul: k.ai.kode.map((c) => U.sekShort(c)), yakin: Math.round(k.ai.yakin * 100) + '%', dasar: k.ai.dasar,
+        putChips: [['sesuai', 'Sesuai usulan AI'], ['koreksi', 'Koreksi sektor']].map((c) => ({ l: c[1], cls: ed.putusan === c[0] ? 'on' : '', pick: () => setEd({ putusan: c[0] }) })),
+        isKoreksi: ed.putusan === 'koreksi',
+        sekChips: H.sektor.map((x) => ({ l: x[0] === 'X' ? 'Lintas sektor' : x[0], t: x[1], cls: ed.final.indexOf(x[0]) >= 0 ? 'on' : '', pick: () => setEd((c) => { const a = c.final.slice(); const i = a.indexOf(x[0]); if (i >= 0) a.splice(i, 1); else a.push(x[0]); return { final: a }; }) })),
+        finalT: finalArr.map((c) => U.sekShort(c)).join('; ') || '—',
+        editable: editable, locked: !editable, catatan: ed.catatan, onCat: (e) => { const v = e.target.value; setEd({ catatan: v }); }, catView: k.catatan || '—',
+        reviewed: k.status === 'ditinjau', peninjau: k.peninjau || '—', diubah: BO.dt(k.diubah), finalSaved: (k.final || []).map((c) => U.sekShort(c)).join('; '),
+        acts: acts, note: note
+      };
+    }
+    return vals;
+  }
+}
+</script>
+</body></html>

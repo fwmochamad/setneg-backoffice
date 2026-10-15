@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit Trail · Backoffice</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/bo-usecases.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+</head><body>
+<x-dc>
+<div class="pg">
+  <div class="ph">
+    <div>
+      <div class="crumb">{{ucNama}} <span>›</span> Administrasi <span>›</span> <b>Audit Trail</b></div>
+      <h1>Audit Trail</h1>
+      <p class="d">Aktor, peran, waktu, objek, kondisi sebelum/sesudah, dan alasan untuk setiap aksi penting di backoffice. Catatan tidak dapat diubah dari antarmuka.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flt">
+      <div class="fr"><span class="lb">Objek</span><sc-for list="{{entChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+      <div class="fr"><span class="lb">Peran</span><sc-for list="{{roleChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+      <div class="fr"><input class="in" type="search" placeholder="Cari aksi, objek, aktor, atau alasan…" value="{{qs}}" sc-camel-on-input="{{onQ}}" aria-label="Cari audit"><span class="sp sm mut">{{countT}}</span></div>
+    </div>
+    <div class="tw">
+      <sc-raw-table class="tb">
+        <sc-raw-thead><sc-raw-tr><sc-raw-th>Waktu</sc-raw-th><sc-raw-th>Aksi</sc-raw-th><sc-raw-th>Objek</sc-raw-th><sc-raw-th>Aktor · peran</sc-raw-th><sc-raw-th>Sebelum → sesudah</sc-raw-th><sc-raw-th></sc-raw-th></sc-raw-tr></sc-raw-thead>
+        <sc-raw-tbody>
+          <sc-for list="{{rows}}" as="r">
+            <sc-raw-tr>
+              <sc-raw-td class="sm nowrap">{{r.at}}<sc-if value="{{r.live}}"><div><span class="pl pl-rev" style="margin-top:4px">Sesi ini</span></div></sc-if></sc-raw-td>
+              <sc-raw-td><div class="b">{{r.aksi}}</div><sc-if value="{{r.hasWhy}}"><div class="xs mut" style="margin-top:2px;max-width:280px">Alasan: {{r.alasan}}</div></sc-if></sc-raw-td>
+              <sc-raw-td><div class="sm">{{r.objL}}</div><div class="xs mut">{{r.entL}} · <span class="mono">{{r.obj}}</span></div></sc-raw-td>
+              <sc-raw-td><div class="sm">{{r.aktor}}</div><div class="xs mut">{{r.peran}}</div></sc-raw-td>
+              <sc-raw-td class="sm" style="max-width:300px"><span class="mut">{{r.sebelum}}</span> → <span>{{r.sesudah}}</span></sc-raw-td>
+              <sc-raw-td class="right"><sc-if value="{{r.hasGo}}"><button type="button" class="lnk" sc-camel-on-click="{{r.go}}">Buka →</button></sc-if></sc-raw-td>
+            </sc-raw-tr>
+          </sc-for>
+        </sc-raw-tbody>
+      </sc-raw-table>
+      <sc-if value="{{empty}}"><div class="empty">Tidak ada catatan audit yang cocok.</div></sc-if>
+    </div>
+    <div class="pager"><span>{{pageT}}</span><span class="sp"></span><button type="button" class="btn btn-s {{prevDis}}" sc-camel-on-click="{{prev}}">← Sebelumnya</button><button type="button" class="btn btn-s {{nextDis}}" sc-camel-on-click="{{next}}">Berikutnya →</button></div>
+  </div>
+  <div class="foot"><span>Catatan bertanda "Sesi ini" berasal dari simulasi di peramban ini; catatan lain adalah riwayat contoh.</span></div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { fEnt: 'all', fRole: 'all', qs: '', pg: 0 };
+  componentDidMount() { BO.mount(this); }
+  componentWillUnmount() { BO.unmount(this); }
+
+  renderVals() {
+    const st = this.state, uc = BO.param('uc') || 'harmonisasi';
+    const U = (window.BO_UC || {})[uc] || null;
+    const ucDef = (window.BO_USECASES || []).filter((u) => u.key === uc)[0] || { nama: uc };
+    const all = BO.audit(uc);
+    const live = {}; BO.liveAudit().forEach((a) => { live[a.id] = 1; });
+    const entL = (e) => (U && U.entL[e]) || e;
+    const norm = (e) => String(e).replace(/^cms\./, '');
+    const ROLE = { analis: 'Analis', approver: 'Approver', sistem: 'Sistem AI' };
+    const qs = (st.qs || '').toLowerCase();
+    const base = all.filter((a) => !qs || [a.aksi, a.obj, a.aktor, a.alasan, a.sebelum, a.sesudah, U ? U.objL(a.ent, a.obj) : ''].join(' ').toLowerCase().indexOf(qs) >= 0);
+    const fe = (a, f) => f === 'all' || norm(a.ent) === f, fr = (a, f) => f === 'all' || a.peran === f;
+    const rowsAll = base.filter((a) => fe(a, st.fEnt) && fr(a, st.fRole));
+    const ents = []; base.forEach((a) => { const n = norm(a.ent); if (ents.indexOf(n) < 0) ents.push(n); });
+    const PS = 20, nPg = Math.max(1, Math.ceil(rowsAll.length / PS)), pg = Math.min(st.pg, nPg - 1);
+    return {
+      ucNama: ucDef.nama,
+      qs: st.qs, onQ: (e) => this.setState({ qs: e.target.value, pg: 0 }),
+      entChips: [['all', 'Semua']].concat(ents.map((e) => [e, entL(e)])).map((c) => ({ l: c[1], n: String(base.filter((a) => fe(a, c[0]) && fr(a, st.fRole)).length), cls: st.fEnt === c[0] ? 'on' : '', pick: () => this.setState({ fEnt: c[0], pg: 0 }) })),
+      roleChips: [['all', 'Semua'], ['analis', 'Analis'], ['approver', 'Approver'], ['sistem', 'Sistem AI']].map((c) => ({ l: c[1], n: String(base.filter((a) => fr(a, c[0]) && fe(a, st.fEnt)).length), cls: st.fRole === c[0] ? 'on' : '', pick: () => this.setState({ fRole: c[0], pg: 0 }) })),
+      rows: rowsAll.slice(pg * PS, pg * PS + PS).map((a) => {
+        const path = U ? U.objPath(a.ent, a.obj) : null;
+        return { at: BO.dt(a.at), live: !!live[a.id], aksi: a.aksi, alasan: a.alasan, hasWhy: !!a.alasan && a.alasan !== '—', obj: a.obj, objL: U ? U.objL(a.ent, a.obj) : a.obj, entL: entL(a.ent), aktor: a.aktor, peran: ROLE[a.peran] || a.peran, sebelum: a.sebelum, sesudah: a.sesudah, hasGo: !!path, go: () => BO.nav(path) };
+      }),
+      empty: !rowsAll.length, countT: rowsAll.length + ' catatan',
+      pageT: 'Halaman ' + (pg + 1) + ' dari ' + nPg, prevDis: pg <= 0 ? 'dis' : '', nextDis: pg >= nPg - 1 ? 'dis' : '',
+      prev: () => this.setState({ pg: Math.max(0, pg - 1) }), next: () => this.setState({ pg: Math.min(nPg - 1, pg + 1) })
+    };
+  }
+}
+</script>
+</body></html>

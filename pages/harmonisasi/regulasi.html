@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koleksi Regulasi · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+</head><body>
+<x-dc>
+<div class="pg">
+
+<sc-if value="{{isList}}">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> Ruang Kerja Analis <span>›</span> <b>Koleksi Regulasi</b></div>
+      <h1>Koleksi Regulasi &amp; Metadata Resmi</h1>
+      <p class="d">Koleksi peraturan yang dikelola Workspace, termasuk regulasi historis dan pembanding. Metadata resmi (instansi penerbit, cakupan wilayah, status, dan rujukan JDIH) menjadi dasar Modul 1 · Payung Kebijakan Investasi.</p>
+    </div>
+    <div class="r"><sc-if value="{{canEdit}}"><button type="button" class="btn btn-p" sc-camel-on-click="{{addNew}}">+ Tambah regulasi</button></sc-if></div>
+  </div>
+  <div class="kpis">
+    <sc-for list="{{kpis}}" as="k">
+      <div class="kpi {{k.cls}}">
+        <div class="top"><span class="boid">{{k.id}}</span><span class="ilu">Ilustrasi</span></div>
+        <div class="l">{{k.label}}</div><div class="v">{{k.v}}</div>
+        <sc-if value="{{k.hasBar}}"><div class="bar"><i style="width: {{k.barW}}"></i></div></sc-if>
+        <div class="s">{{k.sub}}</div>
+        <details class="how"><summary>Rumus &amp; cara membaca</summary><div class="bx"><span><b>Rumus:</b> {{k.f}}</span><span><b>Cara membaca:</b> {{k.baca}}</span></div></details>
+      </div>
+    </sc-for>
+  </div>
+
+  <div class="card sec">
+    <div class="flt">
+      <div class="fr"><span class="lb">Status</span><sc-for list="{{stChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+      <div class="fr"><span class="lb">Jenis</span><sc-for list="{{jnChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for></div>
+      <div class="fr"><span class="lb">Metadata</span><sc-for list="{{lkChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}} <span class="n">{{c.n}}</span></button></sc-for>
+        <span class="lb" style="margin-left:12px">Cakupan</span><sc-for list="{{wlChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}">{{c.l}}</button></sc-for></div>
+      <div class="fr"><input class="in" type="search" placeholder="Cari nomor, judul, penerbit, atau wilayah…" value="{{qs}}" sc-camel-on-input="{{onQ}}" aria-label="Cari regulasi"><span class="sp sm mut">{{countT}}</span></div>
+    </div>
+    <div class="tw">
+      <sc-raw-table class="tb">
+        <sc-raw-thead><sc-raw-tr><sc-raw-th>Regulasi</sc-raw-th><sc-raw-th>Jenis</sc-raw-th><sc-raw-th>Penerbit · wilayah</sc-raw-th><sc-raw-th>Status</sc-raw-th><sc-raw-th>Peran</sc-raw-th><sc-raw-th>Metadata resmi</sc-raw-th><sc-raw-th></sc-raw-th></sc-raw-tr></sc-raw-thead>
+        <sc-raw-tbody>
+          <sc-for list="{{rows}}" as="r">
+            <sc-raw-tr class="clk" sc-camel-on-click="{{r.open}}">
+              <sc-raw-td><div class="t">{{r.nomor}}</div><div class="xs mut">{{r.judul}}</div></sc-raw-td>
+              <sc-raw-td><span class="tag">{{r.jenis}}</span></sc-raw-td>
+              <sc-raw-td><div class="sm">{{r.penerbit}}</div><div class="xs mut">{{r.wilayah}}</div></sc-raw-td>
+              <sc-raw-td><span class="pl {{r.stCls}}">{{r.stL}}</span></sc-raw-td>
+              <sc-raw-td class="sm">{{r.peran}}</sc-raw-td>
+              <sc-raw-td><span class="pl {{r.lkCls}}">{{r.lkL}}</span></sc-raw-td>
+              <sc-raw-td class="right"><button type="button" class="lnk" sc-camel-on-click="{{r.open}}">Kelola →</button></sc-raw-td>
+            </sc-raw-tr>
+          </sc-for>
+        </sc-raw-tbody>
+      </sc-raw-table>
+      <sc-if value="{{empty}}"><div class="empty">Tidak ada regulasi pada filter ini.</div></sc-if>
+    </div>
+    <div class="pager"><span>{{pageT}}</span><span class="sp"></span><button type="button" class="btn btn-s {{prevDis}}" sc-camel-on-click="{{prev}}">← Sebelumnya</button><button type="button" class="btn btn-s {{nextDis}}" sc-camel-on-click="{{next}}">Berikutnya →</button></div>
+  </div>
+  <div class="foot"><span>{{dataL}}</span><span>Regulasi nasional diambil dari koleksi contoh Modul 1; regulasi daerah merupakan pelengkap simulasi</span></div>
+</sc-if>
+
+<sc-if value="{{isDetail}}">
+  <button type="button" class="back" sc-camel-on-click="{{d.back}}">← Kembali ke koleksi</button>
+  <div class="crumb">Harmonisasi Investasi <span>›</span> Koleksi Regulasi <span>›</span> <b class="mono">{{d.id}}</b></div>
+  <div class="dh">
+    <div style="flex:1;min-width:280px"><h1>{{d.title}}</h1><div class="meta"><span>{{d.sub}}</span></div></div>
+    <div class="row"><sc-if value="{{d.exists}}"><span class="pl {{d.stCls}}">{{d.stL}}</span><span class="tag">Versi v{{d.ver}}</span></sc-if><span class="pl {{d.lkCls}}">{{d.lkL}}</span></div>
+  </div>
+
+  <div class="split sec">
+    <div class="card pad">
+      <h3 style="font-size:14px;margin-bottom:14px">Metadata resmi</h3>
+      <div class="g2" style="gap:0 16px">
+        <div class="fld"><label for="f-jenis">Jenis peraturan <span class="req">*</span></label><sc-raw-select id="f-jenis" class="ip" value="{{d.f.jenis}}" sc-camel-on-change="{{d.on.jenis}}" disabled="{{d.ro}}"><sc-for list="{{d.jenisOpt}}" as="o"><option value="{{o}}">{{o}}</option></sc-for></sc-raw-select></div>
+        <div class="fld"><label for="f-tahun">Tahun <span class="req">*</span></label><input id="f-tahun" class="ip" type="number" value="{{d.f.tahun}}" sc-camel-on-input="{{d.on.tahun}}" disabled="{{d.ro}}"></div>
+      </div>
+      <div class="fld"><label for="f-nomor">Nomor &amp; tahun (sitasi) <span class="req">*</span></label><input id="f-nomor" class="ip" value="{{d.f.nomor}}" sc-camel-on-input="{{d.on.nomor}}" disabled="{{d.ro}}" placeholder="mis. PP No. 28 Tahun 2025"></div>
+      <div class="fld"><label for="f-judul">Judul / tentang <span class="req">*</span></label><textarea id="f-judul" class="ta" style="min-height:64px" value="{{d.f.judul}}" sc-camel-on-input="{{d.on.judul}}" disabled="{{d.ro}}"></textarea></div>
+      <div class="fld"><label for="f-pen">Instansi penerbit <span class="req">*</span></label><input id="f-pen" class="ip" value="{{d.f.penerbit}}" sc-camel-on-input="{{d.on.penerbit}}" disabled="{{d.ro}}" placeholder="mis. Pemerintah Provinsi Jawa Barat"></div>
+      <div class="g2" style="gap:0 16px">
+        <div class="fld"><label for="f-wil">Cakupan wilayah <span class="req">*</span></label><sc-raw-select id="f-wil" class="ip" value="{{d.f.wilayah}}" sc-camel-on-change="{{d.on.wilayah}}" disabled="{{d.ro}}"><option value="">— pilih —</option><sc-for list="{{d.wilOpt}}" as="o"><option value="{{o}}">{{o}}</option></sc-for></sc-raw-select></div>
+        <div class="fld"><label for="f-st">Status keberlakuan <span class="req">*</span></label><sc-raw-select id="f-st" class="ip" value="{{d.f.status}}" sc-camel-on-change="{{d.on.status}}" disabled="{{d.ro}}"><option value="berlaku">Berlaku</option><option value="diubah">Diubah</option><option value="dicabut">Dicabut</option></sc-raw-select></div>
+      </div>
+      <div class="g2" style="gap:0 16px">
+        <div class="fld"><label for="f-peran">Peran dalam koleksi</label><sc-raw-select id="f-peran" class="ip" value="{{d.f.peran}}" sc-camel-on-change="{{d.on.peran}}" disabled="{{d.ro}}"><option value="acuan">Acuan berlaku</option><option value="objek">Objek penilaian</option><option value="historis">Historis</option><option value="pembanding">Pembanding</option></sc-raw-select></div>
+        <div class="fld"><label for="f-ruj">Rujukan sumber resmi <span class="req">*</span></label><input id="f-ruj" class="ip" value="{{d.f.rujukan}}" sc-camel-on-input="{{d.on.rujukan}}" disabled="{{d.ro}}" placeholder="mis. JDIH Kemensetneg · peraturan.go.id"></div>
+      </div>
+      <div class="fld" style="margin-bottom:0"><span class="lb">Sektor KBLI 2025 <span class="req">*</span></span>
+        <div class="row"><sc-for list="{{d.sekChips}}" as="c"><button type="button" class="chip {{c.cls}}" sc-camel-on-click="{{c.pick}}" title="{{c.t}}">{{c.l}}</button></sc-for></div>
+      </div>
+    </div>
+
+    <div class="col" style="gap:16px">
+      <div class="card pad">
+        <h3 style="font-size:14px;margin-bottom:4px">Kelengkapan metadata resmi</h3>
+        <p class="sm mut" style="margin-bottom:12px">Field wajib yang disepakati (BO-05). Lengkap belum berarti benar; tetap cocokkan dengan naskah resmi.</p>
+        <sc-for list="{{d.cek}}" as="c"><div class="chk ro-chk {{c.cls}}"><span class="bx">✓</span><span>{{c.l}}</span></div></sc-for>
+      </div>
+      <sc-if value="{{d.exists}}">
+        <div class="card pad">
+          <h3 style="font-size:14px;margin-bottom:10px">Dipakai di backoffice</h3>
+          <div class="stats"><sc-for list="{{d.use}}" as="u"><div class="stat"><div class="v">{{u.v}}</div><div class="l">{{u.l}}</div></div></sc-for></div>
+        </div>
+        <div class="card pad">
+          <h3 style="font-size:14px;margin-bottom:12px">Riwayat perubahan</h3>
+          <ul class="tl"><sc-for list="{{d.audit}}" as="a"><li class="{{a.cls}}"><div class="w">{{a.w}}</div><div class="m">{{a.m}}</div><sc-if value="{{a.hasD}}"><div class="m">{{a.d}}</div></sc-if></li></sc-for><li class="ai"><div class="w">Masuk koleksi Workspace</div><div class="m">{{d.diubah}}</div></li></ul>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div class="act"><span class="info">{{d.actNote}}</span><sc-for list="{{d.acts}}" as="b"><button type="button" class="btn {{b.cls}}" sc-camel-on-click="{{b.run}}">{{b.l}}</button></sc-for></div>
+</sc-if>
+<sc-if value="{{isMissing}}"><div class="card empty">Regulasi tidak ditemukan. <button type="button" class="lnk" sc-camel-on-click="{{backList}}">Kembali ke koleksi</button></div></sc-if>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { sel: null, fSt: 'all', fJn: 'all', fLk: 'all', fWl: 'all', qs: '', pg: 0, draft: {} };
+  componentDidMount() { BO.mount(this); this.onOpen(BO.param('id')); }
+  componentWillUnmount() { BO.unmount(this); }
+  componentDidUpdate(pp, ps) { if (ps && ps.sel !== this.state.sel) { try { window.scrollTo(0, 0); } catch (e) {} } }
+  onOpen(id) {
+    if (id === 'f:kurang') this.setState({ sel: null, fLk: 'kurang', pg: 0 });
+    else this.setState({ sel: id || null });
+  }
+  open(id) { this.setState({ sel: id }); BO.route('harmonisasi/regulasi/' + id); }
+  close() { this.setState({ sel: null }); BO.route('harmonisasi/regulasi'); }
+
+  renderVals() {
+    const st = this.state, U = BO_UC.harmonisasi, H = BO.data('harmonisasi'), role = BO.role().key;
+    const all = BO.list('harmonisasi', 'regulasi');
+    const qs = (st.qs || '').toLowerCase();
+    const JEN = ['UU', 'PP', 'Perpres', 'Permen', 'Kepmen', 'Perda', 'Perkada'];
+    const base = all.filter((r) => !qs || [r.id, r.nomor, r.judul, r.penerbit, r.wilayah].join(' ').toLowerCase().indexOf(qs) >= 0);
+    const t = { fSt: (r, f) => f === 'all' || r.status === f, fJn: (r, f) => f === 'all' || r.jenis === f, fLk: (r, f) => f === 'all' || (f === 'kurang' ? !U.metaLengkap(r) : U.metaLengkap(r)), fWl: (r, f) => f === 'all' || (f === 'nas' ? r.wilayah === 'Nasional' : r.wilayah !== 'Nasional') };
+    const pass = (r, skip) => Object.keys(t).every((k) => k === skip || t[k](r, st[k]));
+    const rowsAll = base.filter((r) => pass(r));
+    const chip = (key, list) => list.map((c) => ({ l: c[1], n: String(base.filter((r) => pass(r, key) && t[key](r, c[0])).length), cls: st[key] === c[0] ? 'on' : '', pick: () => this.setState({ [key]: c[0], pg: 0 }) }));
+    const PS = 25, nPg = Math.max(1, Math.ceil(rowsAll.length / PS)), pg = Math.min(st.pg, nPg - 1);
+    const lk = (r) => { const k = U.metaKosong(r); return k.length ? [k.length + ' field kosong', 'pl-warn'] : ['Lengkap', 'pl-pub']; };
+
+    const vals = {
+      isList: !st.sel, isDetail: false, isMissing: false, dataL: H.meta.label, canEdit: role === 'analis', backList: () => this.close(),
+      addNew: () => { this.setState({ sel: '__baru' }); },
+      kpis: U.kpiVals(['BO-04', 'BO-05']),
+      qs: st.qs, onQ: (e) => this.setState({ qs: e.target.value, pg: 0 }),
+      stChips: chip('fSt', [['all', 'Semua'], ['berlaku', 'Berlaku'], ['diubah', 'Diubah'], ['dicabut', 'Dicabut']]),
+      jnChips: chip('fJn', [['all', 'Semua']].concat(JEN.map((j) => [j, j]))),
+      lkChips: chip('fLk', [['all', 'Semua'], ['kurang', 'Belum lengkap'], ['lengkap', 'Lengkap']]),
+      wlChips: [['all', 'Semua'], ['nas', 'Nasional'], ['dae', 'Daerah']].map((c) => ({ l: c[1], cls: st.fWl === c[0] ? 'on' : '', pick: () => this.setState({ fWl: c[0], pg: 0 }) })),
+      rows: rowsAll.slice(pg * PS, pg * PS + PS).map((r) => { const l = lk(r), s = U.ST_REG[r.status] || ['—', 'pl-gray']; return { nomor: r.nomor, judul: r.judul, jenis: r.jenis, penerbit: r.penerbit || '— belum diisi', wilayah: r.wilayah || '— belum diisi', stL: s[0], stCls: s[1], peran: U.PERAN_REG[r.peran] || '—', lkL: l[0], lkCls: l[1], open: () => this.open(r.id) }; }),
+      empty: rowsAll.length === 0, countT: BO.nf(rowsAll.length) + ' regulasi',
+      pageT: 'Halaman ' + (pg + 1) + ' dari ' + nPg, prevDis: pg <= 0 ? 'dis' : '', nextDis: pg >= nPg - 1 ? 'dis' : '',
+      prev: () => this.setState({ pg: Math.max(0, pg - 1) }), next: () => this.setState({ pg: Math.min(nPg - 1, pg + 1) }),
+      d: { f: {}, on: {} }
+    };
+
+    if (st.sel) {
+      const isNew = st.sel === '__baru';
+      const r = isNew ? { id: BO.nextId('harmonisasi', 'regulasi', 'REG-', 4), jenis: 'Perda', nomor: '', tahun: 2026, judul: '', penerbit: '', wilayah: '', sektor: [], status: 'berlaku', peran: 'acuan', rujukan: '', ver: 0, diubah: BO.now() } : BO.get('harmonisasi', 'regulasi', st.sel);
+      vals.isList = false;
+      if (!r) { vals.isMissing = true; return vals; }
+      vals.isDetail = true;
+      const FIELDS = ['jenis', 'nomor', 'tahun', 'judul', 'penerbit', 'wilayah', 'status', 'peran', 'rujukan', 'sektor'];
+      const saved = {}; FIELDS.forEach((k) => { saved[k] = Array.isArray(r[k]) ? r[k].slice() : r[k]; });
+      const f = st.draft[st.sel] || saved;
+      const changed = FIELDS.filter((k) => JSON.stringify(f[k]) !== JSON.stringify(saved[k]));
+      const ro = role !== 'analis';
+      const setF = (k, v) => { if (!ro) BO.draftSet(this, st.sel, saved, typeof v === 'function' ? (c) => ({ [k]: v(c[k]) }) : { [k]: v }); };
+      const on = {}; FIELDS.forEach((k) => { on[k] = (e) => { const v = e.target.value; setF(k, k === 'tahun' ? Number(v) : v); }; });
+      const virt = Object.assign({}, r, f);
+      const kosong = U.metaKosong(virt).map((m) => m[0]);
+      const labelOf = (k) => (H.metaWajib.filter((m) => m[0] === k)[0] || [k, k])[1];
+      const clear = () => { const D = Object.assign({}, st.draft); delete D[st.sel]; return D; };
+      const minOk = f.nomor.trim() && f.judul.trim();
+      const acts = []; let note = '';
+      if (ro) note = 'Pengelolaan koleksi dilakukan oleh Analis. Ganti peran ke Analis untuk menyunting.';
+      else if (isNew) {
+        note = minOk ? (kosong.length ? 'Regulasi dapat disimpan; ' + kosong.length + ' field wajib masih kosong.' : 'Metadata lengkap.') : 'Isi minimal nomor dan judul.';
+        acts.push({ l: 'Batal', cls: '', run: () => this.setState({ sel: null, draft: clear() }) });
+        acts.push({ l: 'Simpan ke koleksi', cls: minOk ? 'btn-p' : 'btn-p dis', run: () => { const rec = Object.assign({}, r, f, { ver: 1, diubah: BO.now() }); BO.create('harmonisasi', 'regulasi', rec, { aksi: 'Regulasi ditambahkan ke koleksi', sebelum: '—', sesudah: 'v1 · ' + (kosong.length ? kosong.length + ' field kosong' : 'metadata lengkap'), alasan: 'Input manual analis' }); this.setState({ sel: rec.id, draft: clear() }); BO.route('harmonisasi/regulasi/' + rec.id); BO.toast('Regulasi ditambahkan ke koleksi', 'ok'); } });
+      } else {
+        note = changed.length ? changed.length + ' field diubah dan belum disimpan.' : 'Perubahan metadata disimpan sebagai versi baru dan tercatat di audit trail.';
+        acts.push({ l: 'Batalkan perubahan', cls: changed.length ? '' : 'dis', run: () => this.setState({ draft: clear() }) });
+        acts.push({ l: 'Simpan metadata', cls: changed.length && minOk ? 'btn-p' : 'btn-p dis', run: () => { const nv = r.ver + 1; const patch = {}; changed.forEach((k) => { patch[k] = f[k]; }); patch.ver = nv; patch.diubah = BO.now(); BO.update('harmonisasi', 'regulasi', r.id, patch, { aksi: 'Metadata regulasi diperbarui', sebelum: 'v' + r.ver + ' · ' + U.metaKosong(r).length + ' field kosong', sesudah: 'v' + nv + ' · ' + kosong.length + ' field kosong', alasan: 'Field diubah: ' + changed.map(labelOf).join(', ') }); this.setState({ draft: clear() }); BO.toast('Metadata tersimpan (v' + nv + ')', 'ok'); } });
+      }
+      const s = U.ST_REG[r.status] || ['—', 'pl-gray'];
+      const cnt = (ent) => BO.list('harmonisasi', ent).filter((x) => x.regId === r.id).length;
+      vals.d = {
+        id: isNew ? 'Regulasi baru' : r.id, exists: !isNew, title: isNew ? 'Tambah regulasi ke koleksi' : (f.nomor || r.nomor), sub: isNew ? 'Lengkapi metadata resmi sesuai naskah dan rujukan JDIH' : f.judul,
+        stL: s[0], stCls: s[1], ver: r.ver, lkL: kosong.length ? kosong.length + ' field wajib kosong' : 'Metadata lengkap', lkCls: kosong.length ? 'pl-warn' : 'pl-pub',
+        back: () => this.close(), f: f, on: on, ro: ro,
+        jenisOpt: JEN, wilOpt: ['Nasional'].concat(H.provinsi38),
+        sekChips: H.sektor.map((x) => ({ l: x[0] === 'X' ? 'Lintas sektor' : x[0], t: x[1], cls: (f.sektor || []).indexOf(x[0]) >= 0 ? 'on' : '', pick: () => setF('sektor', (cur) => { const a = (cur || []).slice(); const i = a.indexOf(x[0]); if (i >= 0) a.splice(i, 1); else a.push(x[0]); return a; }) })),
+        cek: H.metaWajib.map((m) => ({ l: m[1], cls: kosong.indexOf(m[0]) >= 0 ? '' : 'on' })),
+        use: [{ v: cnt('penilaian'), l: 'Hasil penilaian' }, { v: cnt('klasifikasi'), l: 'Hasil klasifikasi' }, { v: cnt('tindakLanjut'), l: 'Tindak lanjut' }],
+        audit: U.auditOf('regulasi', r.id), diubah: BO.dt(r.diubah),
+        acts: acts, actNote: note
+      };
+    }
+    return vals;
+  }
+}
+</script>
+</body></html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lapisan Peta &amp; Indikator · Harmonisasi Investasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css">
+<script src="../../assets/react.production.min.js"></script>
+<script src="../../assets/react-dom.production.min.js"></script>
+<script src="../../assets/dc-runtime.js"></script>
+<script src="../../data/harmonisasi-data.js"></script>
+<script src="../../assets/bo-store.js"></script>
+<script src="../../assets/uc-harmonisasi.js"></script>
+</head><body>
+<x-dc>
+<div class="pg">
+  <div class="ph">
+    <div>
+      <div class="crumb">Harmonisasi Investasi <span>›</span> CMS Harmonisasi <span>›</span> <b>Lapisan Peta &amp; Indikator</b></div>
+      <h1>Lapisan Peta &amp; Indikator Wilayah</h1>
+      <p class="d">Lapisan peta dan indikator wilayah yang ditampilkan di peta Modul 2 · Peluang Investasi Daerah, Modul 3 · Demografi, dan Modul 4 · Perizinan. Setiap lapisan wajib mencantumkan sumber, cakupan wilayah, dan periode.</p>
+    </div>
+  </div>
+  <div class="kpis"><sc-for list="{{kpis}}" as="k"><div class="kpi {{k.cls}}"><div class="top"><span class="boid">{{k.id}}</span></div><div class="l">{{k.label}}</div><div class="v txt">{{k.v}}</div><div class="s">{{k.sub}}</div><details class="how"><summary>Cara membaca</summary><div class="bx"><span>{{k.f}}</span><span>{{k.baca}}</span></div></details></div></sc-for></div>
+
+  <div class="split sec">
+    <div class="card">
+      <div class="tw">
+        <sc-raw-table class="tb" style="min-width:600px">
+          <sc-raw-thead><sc-raw-tr><sc-raw-th>Lapisan</sc-raw-th><sc-raw-th>Modul</sc-raw-th><sc-raw-th>Sumber · periode</sc-raw-th><sc-raw-th>Tayang</sc-raw-th></sc-raw-tr></sc-raw-thead>
+          <sc-raw-tbody>
+            <sc-for list="{{rows}}" as="r">
+              <sc-raw-tr class="clk {{r.selCls}}" sc-camel-on-click="{{r.open}}">
+                <sc-raw-td><div class="t">{{r.l}}</div><div class="xs mut">{{r.tipe}} · {{r.cakupan}}</div></sc-raw-td>
+                <sc-raw-td class="sm">{{r.modul}}</sc-raw-td>
+                <sc-raw-td><div class="sm">{{r.sumber}}</div><div class="xs mut">{{r.periode}}</div></sc-raw-td>
+                <sc-raw-td><span class="pl {{r.aktifCls}}">{{r.aktifL}}</span></sc-raw-td>
+              </sc-raw-tr>
+            </sc-for>
+          </sc-raw-tbody>
+        </sc-raw-table>
+      </div>
+    </div>
+    <div class="card pad sticky">
+      <sc-if value="{{noSel}}"><div class="empty">Pilih lapisan untuk mengubah konfigurasi.</div></sc-if>
+      <sc-if value="{{hasSel}}">
+        <div class="row" style="margin-bottom:6px"><span class="mono xs mut">{{d.id}}</span><span class="pl {{d.aktifCls}}">{{d.aktifL}}</span></div>
+        <h3 style="font-size:16px;margin-bottom:14px">{{d.l}}</h3>
+        <div class="fld"><label for="tp">Tipe visual</label><sc-raw-select id="tp" class="ip" value="{{d.f.tipe}}" sc-camel-on-change="{{d.on.tipe}}" disabled="{{d.ro}}"><sc-for list="{{d.tipeOpt}}" as="o"><option value="{{o}}">{{o}}</option></sc-for></sc-raw-select></div>
+        <div class="fld"><label for="sb">Sumber data <span class="req">*</span></label><input id="sb" class="ip" value="{{d.f.sumber}}" sc-camel-on-input="{{d.on.sumber}}" disabled="{{d.ro}}"></div>
+        <div class="g2" style="gap:0 12px">
+          <div class="fld"><label for="ck">Cakupan wilayah <span class="req">*</span></label><input id="ck" class="ip" value="{{d.f.cakupan}}" sc-camel-on-input="{{d.on.cakupan}}" disabled="{{d.ro}}"></div>
+          <div class="fld"><label for="pd">Periode <span class="req">*</span></label><input id="pd" class="ip" value="{{d.f.periode}}" sc-camel-on-input="{{d.on.periode}}" disabled="{{d.ro}}"></div>
+        </div>
+        <div class="fld"><span class="lb">Tayang di peta</span><div class="row"><button type="button" class="chip {{d.onCls}}" sc-camel-on-click="{{d.setOn}}">Aktif</button><button type="button" class="chip {{d.offCls}}" sc-camel-on-click="{{d.setOff}}">Nonaktif</button></div></div>
+        <sc-if value="{{d.invalid}}"><div class="note warn" style="margin-bottom:12px">Sumber, cakupan wilayah, dan periode wajib diisi sebelum lapisan dapat disimpan.</div></sc-if>
+        <div class="row"><span class="sm mut" style="flex:1">{{d.note}}</span><sc-for list="{{d.acts}}" as="b"><button type="button" class="btn {{b.cls}}" sc-camel-on-click="{{b.run}}">{{b.l}}</button></sc-for></div>
+        <h4 style="font-size:13px;margin:18px 0 10px">Riwayat konfigurasi</h4>
+        <ul class="tl"><sc-for list="{{d.audit}}" as="a"><li class="{{a.cls}}"><div class="w">{{a.w}}</div><div class="m">{{a.m}}</div><sc-if value="{{a.hasD}}"><div class="m">{{a.d}}</div></sc-if></li></sc-for></ul>
+        <sc-if value="{{d.noAud}}"><p class="sm mut">Belum ada perubahan pada sesi ini.</p></sc-if>
+      </sc-if>
+    </div>
+  </div>
+  <div class="foot"><span>{{dataL}}</span><span>Indikator BO-14 · Back Office 2026</span></div>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = { sel: 'LY-01', draft: {} };
+  componentDidMount() { BO.mount(this); }
+  componentWillUnmount() { BO.unmount(this); }
+
+  renderVals() {
+    const st = this.state, U = BO_UC.harmonisasi, H = BO.data('harmonisasi');
+    const ro = false; // konfigurasi peta dapat dikelola Analis maupun Approver
+    const all = BO.list('harmonisasi', 'cms.layer');
+    const vals = {
+      dataL: H.meta.label, kpis: U.kpiVals(['BO-14']),
+      rows: all.map((l) => ({ l: l.l, tipe: l.tipe, cakupan: l.cakupan, modul: U.modulNo(l.modul) + ' · ' + U.modulS(l.modul), sumber: l.sumber, periode: l.periode, aktifL: l.aktif ? 'Aktif' : 'Nonaktif', aktifCls: l.aktif ? 'pl-pub' : 'pl-gray', selCls: st.sel === l.id ? 'sel' : '', open: () => this.setState({ sel: l.id }) })),
+      noSel: true, hasSel: false, d: { f: {}, on: {} }
+    };
+    const l = st.sel ? BO.get('harmonisasi', 'cms.layer', st.sel) : null;
+    if (l) {
+      vals.noSel = false; vals.hasSel = true;
+      const F = ['tipe', 'sumber', 'cakupan', 'periode', 'aktif'];
+      const saved = {}; F.forEach((k) => { saved[k] = l[k]; });
+      const f = st.draft[l.id] || saved;
+      const setF = (k, v) => BO.draftSet(this, l.id, saved, { [k]: v });
+      const on = {}; F.forEach((k) => { on[k] = (e) => { const v = e.target.value; setF(k, v); }; });
+      const changed = F.filter((k) => f[k] !== saved[k]);
+      const invalid = ['sumber', 'cakupan', 'periode'].some((k) => !String(f[k] || '').trim());
+      const lbl = { tipe: 'tipe', sumber: 'sumber', cakupan: 'cakupan', periode: 'periode', aktif: 'status tayang' };
+      const aud = U.auditOf('cms.layer', l.id);
+      vals.d = {
+        id: l.id, l: l.l, f: f, on: on, ro: ro, invalid: invalid,
+        aktifL: l.aktif ? 'Aktif di peta' : 'Nonaktif', aktifCls: l.aktif ? 'pl-pub' : 'pl-gray',
+        tipeOpt: ['Koroplet provinsi', 'Poligon kab/kota', 'Titik', 'Garis alur', 'Heatmap'],
+        onCls: f.aktif ? 'on' : '', offCls: f.aktif ? '' : 'on', setOn: () => setF('aktif', true), setOff: () => setF('aktif', false),
+        note: changed.length ? changed.length + ' perubahan belum disimpan.' : 'Konfigurasi tersimpan.',
+        acts: [
+          { l: 'Batalkan', cls: changed.length ? '' : 'dis', run: () => { const D = Object.assign({}, st.draft); delete D[l.id]; this.setState({ draft: D }); } },
+          { l: 'Simpan konfigurasi', cls: changed.length && !invalid ? 'btn-p' : 'btn-p dis', run: () => {
+            const patch = {}; changed.forEach((k) => { patch[k] = f[k]; });
+            BO.update('harmonisasi', 'cms.layer', l.id, patch, { aksi: 'Konfigurasi lapisan peta diperbarui', sebelum: changed.map((k) => lbl[k] + ': ' + (k === 'aktif' ? (saved[k] ? 'aktif' : 'nonaktif') : saved[k])).join('; '), sesudah: changed.map((k) => lbl[k] + ': ' + (k === 'aktif' ? (f[k] ? 'aktif' : 'nonaktif') : f[k])).join('; '), alasan: 'Pembaruan konfigurasi peta' });
+            const D = Object.assign({}, st.draft); delete D[l.id]; this.setState({ draft: D }); BO.toast('Konfigurasi ' + l.l + ' tersimpan', 'ok');
+          } }
+        ],
+        audit: aud, noAud: !aud.length
+      };
+    }
+    return vals;
+  }
+}
+</script>
+</body></html>
