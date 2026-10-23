@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Approvals · Backoffice Sitroom</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  var JENIS = ['Dashboard', 'Widget', 'Data Source', 'EWS', 'Narasi AI'];
+  var IC = { Dashboard: 'layout', Widget: 'widget', 'Data Source': 'db', EWS: 'alert', 'Narasi AI': 'spark' };
+  var DEC = /disetujui|ditolak|dipublikasikan|publikasi dashboard ditolak|ditarik/i;
+  UI.page({
+    state: { j: 'all', tab: 'pending' },
+    render: function (s) {
+      var role = BO.role().key;
+      var pend = WS.approvals().concat(WS.aiApproval().map(function (a) { return { jenis: 'Narasi AI', id: a.id, ent: 'keluaranAI', judul: (a.ed || a.ai).judul, sub: WS.MODUL[a.modul] + ' · ' + a.widget + ' · v' + a.ver, at: a.dibuat, oleh: a.diajukan || 'Analis Harmonisasi', nav: 'harmonisasi/narasi-ai/' + a.id }; }));
+      var ENT = { 'ws.ews': 'EWS', 'ws.widgets': 'Widget', 'ws.dataSource': 'Data Source', 'ws.versi': 'Dashboard', keluaranAI: 'Narasi AI' };
+      var hist = BO.audit(UC).filter(function (a) { return ENT[a.ent] && DEC.test(a.aksi) && a.peran === 'approver'; });
+      var f = function (x) { return s.j === 'all' || x === s.j; };
+      var list = pend.filter(function (p) { return f(p.jenis); }), hl = hist.filter(function (a) { return f(ENT[a.ent]); });
+      var h = '<div class="pg">';
+      h += '<div class="ph"><div><h1>Approvals</h1><p class="d">Tinjau dan putuskan pengajuan dashboard, widget, data source, EWS, dan narasi AI use case Harmonisasi sebelum tayang ke Dashboard Presiden.</p></div></div>';
+      if (role !== 'approver') h += '<div class="note warn" style="margin-bottom:12px">Anda masuk sebagai Analyst. Keputusan Setujui/Tolak hanya untuk Approver; ganti peran di menu pengguna (pojok kanan atas).</div>';
+      h += '<div class="row" style="margin-bottom:4px">' + UI.chips([{ k: 'all', l: 'Semua jenis' }].concat(JENIS.map(function (j) { return { k: j, l: j, n: pend.filter(function (p) { return p.jenis === j; }).length || null }; })), s.j, 'j') + '</div>';
+      h += UI.tabs([{ k: 'pending', l: 'Menunggu keputusan', n: list.length, hl: true }, { k: 'hist', l: 'Riwayat keputusan', n: hl.length }], s.tab, 'tab');
+      h += '<section class="card sec">';
+      if (s.tab === 'pending') {
+        h += list.length ? list.map(function (p) {
+          var direct = p.jenis !== 'Narasi AI' && p.jenis !== 'Dashboard';
+          return '<div class="todo"><span class="tic t-' + (p.jenis === 'EWS' ? 'err' : p.jenis === 'Narasi AI' ? 'ai' : 'info') + '">' + ic(IC[p.jenis]) + '</span><div class="tx"><div class="tt">' + esc(p.judul) + '</div><div class="ts"><span class="tag">' + p.jenis + '</span><span class="tag">Harmonisasi</span>' + esc(p.sub) + ' · diajukan ' + esc(p.oleh) + ', ' + UI.dt(p.at, false) + '</div></div>' +
+            '<div class="row" style="flex-wrap:nowrap"><button type="button" class="btn btn-s" data-nav="' + p.nav + '">Tinjau</button>' + (role === 'approver' && direct ? '<button type="button" class="btn btn-s btn-r" data-on="dec" data-a="tolak" data-ent="' + p.ent + '" data-id="' + p.id + '">Tolak</button><button type="button" class="btn btn-s btn-g" data-on="dec" data-a="setuju" data-ent="' + p.ent + '" data-id="' + p.id + '">Setujui</button>' : '') + '</div></div>';
+        }).join('') : UI.soon('Tidak ada pengajuan', 'Semua pengajuan sudah diputuskan.', 'okc');
+      } else {
+        h += hl.length ? hl.map(function (a) {
+          var ok = !/tolak|ditarik/i.test(a.aksi);
+          return '<div class="todo"><span class="tic t-' + (ok ? 'ok' : 'err') + '">' + ic(ok ? 'ok' : 'x') + '</span><div class="tx"><div class="tt">' + esc(U().objL(a.ent, a.obj)) + '</div><div class="ts"><span class="tag">' + ENT[a.ent] + '</span>' + esc(a.aksi) + ' · ' + esc(a.aktor) + ' · ' + BO.dt(a.at) + (a.alasan && a.alasan !== '—' ? ' · ' + esc(a.alasan) : '') + '</div></div></div>';
+        }).join('') : UI.soon('Belum ada riwayat keputusan', 'Keputusan Setujui/Tolak akan muncul di sini.', 'hist');
+      }
+      return h + '</section></div>';
+    },
+    on: {
+      j: function (el) { this.set({ j: el.dataset.k }); },
+      tab: function (el) { this.set({ tab: el.dataset.k }); },
+      dec: function (el) {
+        var ent = el.dataset.ent, id = el.dataset.id, ok = el.dataset.a === 'setuju', r = BO.get(UC, ent, id);
+        var CFG = {
+          'ws.ews': { y: { status: 'active', diperbarui: BO.now() }, n: function (why) { return { status: 'archived', alasanArsip: 'Ditolak Approver: ' + why }; }, ya: 'EWS disetujui dan tayang', na: 'EWS ditolak', s: 'Approval' },
+          'ws.widgets': { y: { status: 'active', diperbarui: BO.now() }, n: function () { return { status: 'draft' }; }, ya: 'Widget disetujui dan tayang', na: 'Widget ditolak, dikembalikan ke draft', s: 'Menunggu persetujuan' },
+          'ws.dataSource': { y: { status: 'aktif' }, n: function () { return { status: 'archive' }; }, ya: 'Data source disetujui', na: 'Data source ditolak', s: 'Menunggu' }
+        }[ent];
+        if (ok) { BO.update(UC, ent, id, CFG.y, { aksi: CFG.ya, sebelum: CFG.s, sesudah: 'Disetujui', alasan: 'Sesuai' }); BO.toast(CFG.ya + '.', 'ok'); }
+        else UI.reason('Tolak: ' + (r.judul || r.nama), 'Alasan penolakan (wajib):', function (why) { BO.update(UC, ent, id, CFG.n(why), { aksi: CFG.na, sebelum: CFG.s, sesudah: 'Ditolak', alasan: why }); BO.toast(CFG.na + '.', 'x'); });
+      }
+    }
+  });
+  function U() { return window.BO_UC.harmonisasi; }
+})();
+</script>
+</body></html>

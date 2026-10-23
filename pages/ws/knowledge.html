@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Knowledge · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+<style>
+  .doc{display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .doc:last-child{border-bottom:0}
+  .doc .fi{width:36px;height:36px;border-radius:8px;background:var(--background-elevated);display:flex;align-items:center;justify-content:center;color:var(--content-brand);flex:none}
+  .doc h3{font-size:14px;line-height:1.4}
+  .doc p{font-size:13px;color:var(--content-secondary);margin-top:4px;line-height:1.5}
+  .doc .m{font-size:12px;color:var(--content-tertiary);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+</style>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  UI.page({
+    state: { q: '' },
+    render: function (s) {
+      var q = s.q.trim().toLowerCase(), all = WS.knowledge().filter(function (k) { return !k.hapus; });
+      var list = all.filter(function (k) { return !q || (k.judul + ' ' + k.ringkas).toLowerCase().indexOf(q) >= 0; }).sort(function (a, b) { return a.tgl < b.tgl ? 1 : -1; });
+      var row = function (k) {
+        return '<div class="doc"><span class="fi">' + ic('file') + '</span><div style="flex:1;min-width:0"><h3>' + esc(k.judul) + '</h3><p>' + esc(k.ringkas) + '</p><div class="m">oleh ' + esc(k.oleh) + ' · <span class="tag">' + esc(k.fmt) + '</span> · ' + UI.d(k.tgl) + (k.def ? ' · <span class="pl bd-info">' + esc(k.def) + '</span>' : '') + '</div></div>' +
+          '<div class="row" style="align-self:flex-start"><button type="button" class="btn btn-s" data-nav="workspace/harmonisasi/assistant">' + ic('spark') + 'Tanya</button><button type="button" class="btn btn-s btn-ghost btn-r" data-on="hapus" data-id="' + k.id + '" aria-label="Hapus dokumen">' + ic('x') + '</button></div></div>';
+      };
+      var h = '<div class="pg" style="max-width:1100px">';
+      h += '<div class="crumb"><a href="#" data-nav="workspace/harmonisasi/assistant">AI Training Center</a>' + ic('chevr') + '<b>Data Knowledge</b></div>';
+      h += '<div class="ph"><div><h1>Data Knowledge</h1><p class="d">Dokumen rujukan AI Training Center untuk use case Harmonisasi: kajian, notulen, pedoman. Angka dan chart tetap diambil dari dataset Aktif di Data Source.</p></div></div>';
+      h += '<div class="row" style="margin-bottom:14px"><label class="srch">' + ic('search') + '<input class="in" id="q" data-in="q" placeholder="Cari dokumen" value="' + esc(s.q) + '" aria-label="Cari dokumen"></label><span class="sp"></span><label class="btn btn-p" for="up">' + ic('upload') + 'Unggah</label><input type="file" id="up" style="display:none" accept=".pdf,.docx,.xlsx,.txt" data-ch="up"></div>';
+      if (!q) h += '<div class="sec-h"><h2>Terbaru diunggah</h2></div><section class="card">' + list.slice(0, 2).map(row).join('') + '</section>';
+      h += '<div class="sec-h sec"><h2>' + (q ? 'Hasil pencarian' : 'Semua dokumen') + ' (' + list.length + ')</h2></div><section class="card">' + (list.length ? list.map(row).join('') : '<div class="empty">Tidak ada dokumen.</div>') + '</section>';
+      return h + '</div>';
+    },
+    on: {
+      q: function (el) { this.set({ q: el.value }); },
+      up: function (el) {
+        var f = el.files && el.files[0]; if (!f) return;
+        var id = BO.nextId(UC, 'ws.knowledge', 'KN-', 1);
+        BO.create(UC, 'ws.knowledge', { id: id, judul: f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '), ringkas: 'Ringkasan otomatis sedang disiapkan.', oleh: BO.role().nama, fmt: (f.name.split('.').pop() || '').toUpperCase(), tgl: BO.now().slice(0, 10), def: null }, { aksi: 'Dokumen knowledge diunggah', sesudah: f.name });
+        BO.toast('Dokumen diunggah ke Data Knowledge.', 'ok');
+      },
+      hapus: function (el) { var k = BO.get(UC, 'ws.knowledge', el.dataset.id); if (!confirm('Hapus dokumen "' + k.judul + '"?')) return; BO.update(UC, 'ws.knowledge', k.id, { hapus: true }, { aksi: 'Dokumen knowledge dihapus', sebelum: k.judul, sesudah: '—' }); }
+    }
+  });
+})();
+</script>
+</body></html>

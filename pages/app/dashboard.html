@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Backoffice Sitroom</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS;
+  UI.page({
+    state: { mine: true, uc: 'all', ptab: 'approval' },
+    render: function (s) {
+      var role = BO.role(), all = WS.todo().map(function (x) { return Object.assign({ uc: 'Harmonisasi' }, x); });
+      var mine = all.filter(function (x) { return x.mine; });
+      var list = (s.mine ? mine : all).filter(function () { return s.uc === 'all' || s.uc === 'harmonisasi'; });
+      var ws = WS.ws(), fr = WS.fresh();
+      var crit = WS.ews().filter(function (e) { return e.status === 'active' && e.level === 'crit'; }).length;
+
+      // Status Pengajuan Saya: konten analis yang menunggu Approver
+      var pend = [];
+      WS.widgets().filter(function (w) { return w.status === 'approval'; }).forEach(function (w) { pend.push({ t: w.judul, k: 'Widget', at: w.diperbarui, nav: 'workspace/harmonisasi/widgets/' + w.id }); });
+      WS.aiApproval().forEach(function (a) { pend.push({ t: (a.ed || a.ai).judul, k: 'Narasi AI', at: a.dibuat, nav: 'harmonisasi/narasi-ai/' + a.id }); });
+      WS.sources().filter(function (x) { return x.status === 'menunggu'; }).forEach(function (x) { pend.push({ t: x.nama, k: 'Data Source', at: x.diperbarui, nav: 'workspace/harmonisasi/data-source/' + x.id }); });
+      WS.versi().filter(function (v) { return v.status === 'approval'; }).forEach(function (v) { pend.push({ t: 'Dashboard Harmonisasi ' + v.id, k: 'Dashboard', at: v.tgl, nav: 'dashboard-management/harmonisasi' }); });
+      var hari = function (at) { var a = new Date(String(at).slice(0, 10)), b = new Date('2026-10-23'); return Math.max(0, Math.round((b - a) / 864e5)); };
+
+      // Dashboard Presiden: semua use case (hanya Harmonisasi yang dikelola di backoffice ini)
+      var vs = WS.versi(), live = vs.filter(function (v) { return v.status === 'live'; }).slice(-1)[0];
+      var next = vs.filter(function (v) { return v.status !== 'live' && v.status !== 'arsip'; }).slice(-1)[0];
+      var rows = [];
+      ws.katalog.forEach(function (k) {
+        if (k.sub) k.sub.forEach(function (x) { rows.push({ key: x[0], nama: x[1], cat: k.nama }); });
+        else rows.push({ key: k.key, nama: k.nama, cat: '', aktif: k.aktif });
+      });
+      var hrm = { live: live ? live.id : '—', tgl: live ? UI.d(live.tgl) : '—', oleh: live ? live.oleh : '—', next: next ? next : null };
+      var nApp = next && next.status === 'approval' ? 1 : 0, nDraft = next && next.status === 'draft' ? 1 : 0;
+      var ptRows = rows.filter(function (r) {
+        if (s.ptab === 'approval') return r.aktif && nApp;
+        if (s.ptab === 'draft') return r.aktif && nDraft;
+        return true;
+      });
+
+      var h = '<div class="pg">';
+      h += '<div class="ph"><div><h1>Dashboard</h1><p class="d">Pekerjaan Anda di semua use case</p></div><span class="stamp">Data terakhir masuk ' + UI.dt(ws.dataMasuk) + ' WIB</span></div>';
+      h += '<div class="split2">';
+      h += '<section class="card"><div class="card-h"><h3>Perlu Tindakan</h3><span class="mut" title="Tugas yang perlu ditindaklanjuti sesuai peran Anda">' + ic('info') + '</span><div class="r">' +
+        '<select class="sel" data-ch="uc" aria-label="Filter use case" style="height:34px;min-height:34px"><option value="all"' + (s.uc === 'all' ? ' selected' : '') + '>Semua use case</option><option value="harmonisasi"' + (s.uc === 'harmonisasi' ? ' selected' : '') + '>Harmonisasi</option></select>' +
+        '<button type="button" class="pill' + (s.mine ? ' on' : '') + '" data-on="mine" data-v="1">Untuk saya ' + mine.length + '</button>' +
+        '<button type="button" class="pill' + (!s.mine ? ' on' : '') + '" data-on="mine" data-v="0">Semua ' + all.length + '</button></div></div>';
+      h += list.length ? list.map(UI.todoRow).join('') : '<div class="empty">Tidak ada tindakan untuk ' + (role.key === 'approver' ? 'Approver' : 'Analis') + ' saat ini.</div>';
+      h += '</section>';
+      h += '<section class="card"><div class="card-h"><h3>Status Pengajuan Saya</h3></div>' +
+        '<div class="kvr" style="font-weight:600;font-size:13px">' + ic('clock') + '<span>Menunggu persetujuan</span><span class="cnt">' + pend.length + '</span></div>' +
+        (pend.length ? pend.slice(0, 6).map(function (p) {
+          var n = hari(p.at);
+          return '<a class="todo" href="#" data-nav="' + p.nav + '" style="text-decoration:none;color:inherit;padding:12px 20px"><div class="tx"><div class="tt" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(p.t) + '</div><div class="ts"><span class="tag">Harmonisasi</span>' + esc(p.k) + '</div></div><span class="pl bd-warn">Menunggu ' + n + ' hari</span></a>';
+        }).join('') : '<div class="empty">Tidak ada pengajuan yang menunggu.</div>') + '</section>';
+      h += '</div>';
+
+      h += '<div class="sec-h sec"><h2>Use Case Saya</h2><span class="cnt">1</span></div>';
+      var tugas = all.length, bermasalah = fr.ganggu.length + fr.telat.length;
+      h += '<div class="ucs"><a class="ucard' + (crit ? ' hot' : '') + '" href="#" data-nav="workspace/harmonisasi"><div><h3>Harmonisasi</h3><div class="sub">Harmonisasi Investasi · 5 modul</div></div>' +
+        '<div class="stats"><div class="stat"><div class="v">' + tugas + '</div><div class="l">tugas</div></div><div class="stat"><div class="v bad-c">' + crit + '</div><div class="l">EWS Kritis</div></div><div class="stat"><div class="v warn-c">' + bermasalah + '</div><div class="l">data bermasalah</div></div></div>' +
+        '<div class="ft">Data terakhir masuk ' + UI.d(ws.dataMasuk, false) + '<span class="sp">' + ic('chevr') + '</span></div></a></div>';
+
+      h += '<section class="card sec"><div class="card-h nb"><h3>Dashboard Presiden</h3><span class="mut" title="Versi Dashboard Presiden per use case">' + ic('info') + '</span></div>';
+      h += '<div style="padding:0 8px">' + UI.tabs([{ k: 'approval', l: 'Menunggu persetujuan', n: nApp, hl: true }, { k: 'aktif', l: 'Aktif', n: rows.length }, { k: 'draft', l: 'Draf', n: nDraft }], s.ptab, 'ptab').replace('class="tabs"', 'class="tabs" style="margin:0;border-bottom:0"') + '</div>';
+      h += '<div class="tw"><table class="tb" style="min-width:720px"><thead><tr><th>Use case</th><th>Versi tayang</th><th>Dipublikasikan</th><th>Versi berikutnya</th><th></th></tr></thead><tbody>';
+      h += ptRows.length ? ptRows.map(function (r) {
+        var me = r.aktif;
+        return '<tr' + (me ? ' class="clk" data-nav="dashboard-management/harmonisasi"' : '') + '><td><div class="b">' + esc(r.nama) + (me ? ' <span class="pl bd-info" style="margin-left:6px">Use case Anda</span>' : '') + '</div>' + (r.cat ? '<div class="sm mut">' + esc(r.cat) + '</div>' : '') + '</td>' +
+          '<td class="b">' + (me ? hrm.live : 'v1.0') + '</td><td><div class="b">' + (me ? hrm.tgl : '14 Agu 2026') + '</div><div class="xs mut">' + (me ? esc(hrm.oleh) : 'Sistem') + '</div></td>' +
+          '<td>' + (me ? (hrm.next ? '<span class="pl ' + (hrm.next.status === 'approval' ? 'bd-warn' : 'bd-ter') + '">' + (hrm.next.status === 'approval' ? 'Menunggu ' : 'Draft ') + hrm.next.id + '</span>' : '<span class="mut">—</span>') : '<span class="pl bd-ter">Draft v1.3</span>') + '</td>' +
+          '<td class="right"><span class="mut" title="' + (me ? 'Buka di Dashboard Management' : 'Dikelola tim use case lain') + '">' + ic(me ? 'ext' : 'lock') + '</span></td></tr>';
+      }).join('') : '<tr><td colspan="5"><div class="empty">Tidak ada dashboard pada tab ini.</div></td></tr>';
+      h += '</tbody></table></div></section>';
+      h += '<div class="foot"><span>Backoffice ini hanya mengelola use case Harmonisasi. Use case lain tampil sebagai daftar dan dikelola tim masing-masing.</span></div>';
+      return h + '</div>';
+    },
+    on: {
+      mine: function (el) { this.set({ mine: el.dataset.v === '1' }); },
+      ptab: function (el) { this.set({ ptab: el.dataset.k }); },
+      uc: function (el) { this.set({ uc: el.value }); }
+    }
+  });
+})();
+</script>
+</body></html>

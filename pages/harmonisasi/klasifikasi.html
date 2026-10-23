@@ -114,7 +114,7 @@ class Component extends DCLogic {
     const rowsAll = base.filter((k) => fs(k, st.fSt)).sort((a, b) => a.status === b.status ? a.ai.yakin - b.ai.yakin : (a.status === 'menunggu' ? -1 : 1));
     const PS = 15, nPg = Math.max(1, Math.ceil(rowsAll.length / PS)), pg = Math.min(st.pg, nPg - 1);
     const ditinjau = all.filter((k) => k.status === 'ditinjau'), sesuai = ditinjau.filter((k) => k.putusan === 'sesuai').length;
-    const tone = (y) => y >= 0.8 ? '#15803D' : y >= 0.65 ? '#B45309' : '#B91C1C';
+    const tone = (y) => y >= 0.8 ? 'var(--ok)' : y >= 0.65 ? 'var(--warn)' : 'var(--bad)';
 
     const vals = {
       dataL: H.meta.label, kpis: U.kpiVals(['BO-06', 'BO-07']),

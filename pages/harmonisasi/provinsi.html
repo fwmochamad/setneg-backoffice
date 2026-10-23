@@ -11,8 +11,8 @@
 <script src="../../assets/uc-harmonisasi.js"></script>
 <style>
   .pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-  .pc{display:flex;flex-direction:column;gap:8px;padding:16px;text-align:left;border:1px solid var(--line);border-radius:var(--r);background:#fff;box-shadow:var(--sh)}
-  .pc:hover{border-color:#93C5FD;box-shadow:0 8px 20px rgba(15,23,42,.08)}
+  .pc{display:flex;flex-direction:column;gap:8px;padding:16px;text-align:left;border:1px solid var(--line);border-radius:var(--r);background:var(--card);box-shadow:var(--sh)}
+  .pc:hover{border-color:var(--pri-ln);box-shadow:var(--sh-lg)}
   .pc h3{font-size:15px}
   .pc .p{font-size:12px;color:var(--mut);line-height:1.45;min-height:52px}
   .itb input{min-height:32px;padding:5px 8px}
@@ -122,7 +122,7 @@ class Component extends DCLogic {
     const vals = {
       isList: !st.sel, isDetail: false, dataL: H.meta.label, kpis: U.kpiVals(['BO-09']),
       cakupanT: all.length + ' provinsi · subset sesuai cakupan, bukan seluruh 38 provinsi',
-      cards: all.slice().sort((a, b) => (a.status === b.status ? 0 : a.status === 'proses' ? -1 : 1)).map((p) => { const c = U.pvChecklist(p); return { nama: p.nama, ringkasan: p.ringkasan, ver: p.ver, stL: ST[p.status][0], stCls: ST[p.status][1], done: c.done, total: c.total, pctW: Math.round(c.done / c.total * 100) + '%', tone: c.done === c.total ? '#15803D' : '#2563EB', diubah: BO.date(p.diubah), open: () => this.open(p.id) }; }),
+      cards: all.slice().sort((a, b) => (a.status === b.status ? 0 : a.status === 'proses' ? -1 : 1)).map((p) => { const c = U.pvChecklist(p); return { nama: p.nama, ringkasan: p.ringkasan, ver: p.ver, stL: ST[p.status][0], stCls: ST[p.status][1], done: c.done, total: c.total, pctW: Math.round(c.done / c.total * 100) + '%', tone: c.done === c.total ? 'var(--ok)' : 'var(--pri)', diubah: BO.date(p.diubah), open: () => this.open(p.id) }; }),
       d: { f: {} }
     };
     const p = st.sel ? BO.get('harmonisasi', 'provinsi', st.sel) : null;

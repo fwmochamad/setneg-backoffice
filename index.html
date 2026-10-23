@@ -1,299 +1,413 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Backoffice Dashboard Presiden · Kemensetneg RI</title>
-  <meta name="description" content="Backoffice pengelolaan konten Dashboard Presiden: verifikasi, kurasi, persetujuan keluaran AI, dan CMS untuk use case Eksekutif, Ekonomi, dan Harmonisasi Investasi.">
+  <title>Backoffice - Sitroom</title>
+  <meta name="description" content="Panel admin untuk mengelola konten Dashboard Presiden Sitroom · use case Harmonisasi Investasi.">
   <meta name="author" content="Badan Teknologi, Data dan Informasi - Kementerian Sekretariat Negara RI">
-  <meta name="theme-color" content="#0F1E3D">
+  <meta name="theme-color" content="#0d1524">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230F1E3D' stroke='%23C9A227' stroke-width='2'/%3E%3Cpath d='M16 6l2.5 5 5.5.8-4 3.9 1 5.5-5-2.6-5 2.6 1-5.5-4-3.9 5.5-.8z' fill='%23fbbf24'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14.5' fill='%23241a06' stroke='%23a4791f' stroke-width='2'/%3E%3Cpath d='M16 6.5l2.6 6.1 6.6.5-5 4.4 1.6 6.4L16 20.4l-5.8 3.5 1.6-6.4-5-4.4 6.6-.5z' fill='%23d49a1f'/%3E%3C/svg%3E">
+  <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('bo.theme')==='light'?'light':'dark')}catch(e){}</script>
   <link rel="stylesheet" href="./assets/inter.css">
+  <link rel="stylesheet" href="./assets/bo-theme.css?v=20261023-1">
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: #F1F5F9; color: #0F172A; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }
-    body { overflow: hidden; }
-    button { font: inherit; color: inherit; cursor: pointer; }
-    button:focus-visible, a:focus-visible { outline: 2px solid #0f827d; outline-offset: 2px; }
-    .ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    html, body { height: 100%; }
+    body { overflow: hidden; font-size: 14px; }
+    .ic { width: 18px; height: 18px; }
 
-    /* header */
-    .h { position: relative; z-index: 40; display: flex; align-items: center; gap: 14px; height: 64px; padding: 0 20px; background: linear-gradient(90deg, #FFF4D2 0%, #FFFBF0 50%, #FFFFFF 100%); border-bottom: 1px solid #F1E6C4; }
-    .burger { display: none; width: 36px; height: 36px; border: 0; background: transparent; border-radius: 8px; align-items: center; justify-content: center; color: #334155; }
-    .logo { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #C9A227; background: #FFF9E6; display: flex; align-items: center; justify-content: center; flex: none; }
-    .brand { min-width: 0; }
-    .brand b { display: block; font-size: 13.5px; font-weight: 800; letter-spacing: .06em; color: #0F1E3D; }
-    .brand span { display: block; font-size: 11.5px; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .uc { position: relative; margin-left: 10px; }
-    .uc-btn { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; border: 1px solid #E8D9A8; border-radius: 10px; background: rgba(255,255,255,.8); }
-    .uc-btn:hover { background: #fff; }
-    .uc-btn small { color: #64748B; font-size: 11px; }
-    .uc-btn strong { font-size: 13px; }
-    .uc-menu { position: absolute; top: 44px; left: 0; width: 340px; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 16px 40px rgba(15,23,42,.18); padding: 6px; display: none; }
-    .uc-menu.on { display: block; }
-    .uc-it { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; text-align: left; }
-    .uc-it:hover { background: #F8FAFC; }
-    .uc-it.on { background: #EFF6FF; }
-    .uc-it .t { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-    .uc-it .d { font-size: 12px; color: #64748B; }
-    .soon { font-size: 10.5px; font-weight: 700; color: #92400E; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 5px; padding: 0 5px; }
-    .live { font-size: 10.5px; font-weight: 700; color: #166534; background: #DCFCE7; border: 1px solid #BBF7D0; border-radius: 5px; padding: 0 5px; }
-    .hr { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-    .role { display: flex; padding: 3px; border-radius: 10px; background: rgba(15,30,61,.06); border: 1px solid #EADFBF; }
-    .role button { border: 0; background: transparent; height: 30px; padding: 0 12px; border-radius: 7px; font-size: 12.5px; font-weight: 600; color: #475569; }
-    .role button.on { background: #0F1E3D; color: #fff; }
-    .role .lb { align-self: center; font-size: 11px; color: #64748B; padding: 0 8px 0 6px; }
-    .bell { position: relative; width: 38px; height: 38px; border: 0; border-radius: 10px; background: transparent; color: #334155; display: flex; align-items: center; justify-content: center; }
-    .bell:hover { background: rgba(255,255,255,.8); }
-    .bell i { position: absolute; top: 4px; right: 3px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 99px; background: #DC2626; color: #fff; font-size: 10px; font-weight: 700; font-style: normal; display: flex; align-items: center; justify-content: center; }
-    .user { display: flex; align-items: center; gap: 10px; }
-    .av { width: 36px; height: 36px; border-radius: 50%; background: #0F1E3D; color: #FDE68A; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12.5px; }
-    .user b { display: block; font-size: 13px; }
-    .user span { display: block; font-size: 11.5px; color: #64748B; }
+    /* ---------- header ---------- */
+    .h { position: relative; z-index: 40; display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 20px 0 16px; background: linear-gradient(180deg, var(--header-glow) 0%, transparent 100%), var(--background-surface); border-bottom: 1px solid var(--border-default); }
+    .burger { width: 36px; height: 36px; border: 0; background: transparent; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--content-secondary); }
+    .burger:hover { background: var(--hover); color: var(--content-primary); }
+    .emb { width: 40px; height: 40px; flex: none; }
+    .brand { min-width: 0; line-height: 1.2; }
+    .brand b { display: block; font-size: 12.5px; font-weight: 800; letter-spacing: .01em; color: var(--content-primary); }
+    .brand span { display: block; font-size: 9.5px; color: var(--content-secondary); max-width: 150px; }
+    .hr { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .tbtn { width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: var(--content-secondary); display: flex; align-items: center; justify-content: center; }
+    .tbtn:hover { background: var(--hover); color: var(--content-primary); }
+    .user { position: relative; }
+    .ubtn { display: flex; align-items: center; gap: 10px; border: 0; background: transparent; padding: 4px 6px; border-radius: 10px; text-align: left; }
+    .ubtn:hover { background: var(--hover); }
+    .av { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #a855f7); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex: none; }
+    .side > * { flex-shrink: 0; }
+    .ubtn .ut b { display: block; font-size: 14px; color: var(--content-primary); }
+    .ubtn .ut span { display: block; font-size: 12px; color: var(--content-secondary); }
+    .umenu { position: absolute; right: 0; top: 50px; width: 280px; background: var(--background-elevated); border: 1px solid var(--border-default); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 6px; display: none; }
+    .umenu.on { display: block; }
+    .umenu .hd { padding: 10px 10px 8px; border-bottom: 1px solid var(--border-default); margin-bottom: 6px; }
+    .umenu .hd b { display: block; font-size: 13px; }
+    .umenu .hd span { font-size: 12px; color: var(--content-secondary); }
+    .umenu .lb { font-size: 11px; font-weight: 700; color: var(--content-tertiary); text-transform: uppercase; letter-spacing: .06em; padding: 8px 10px 4px; }
+    .umenu button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; text-align: left; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: var(--content-primary); }
+    .umenu button:hover { background: var(--hover); }
+    .umenu button .ok { margin-left: auto; color: var(--content-brand); }
+    .umenu button .n { margin-left: auto; min-width: 20px; height: 18px; padding: 0 6px; border-radius: 99px; background: #DC2626; color: #fff; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+    .umenu hr { border: 0; border-top: 1px solid var(--border-default); margin: 6px 0; }
+    .umenu .out { color: var(--st-err); }
 
-    /* layout */
-    .body { display: grid; grid-template-columns: 272px minmax(0, 1fr); height: calc(100vh - 64px); }
-    .side { background: #0F1E3D; color: #CBD5E1; overflow-y: auto; padding: 14px 12px 20px; display: flex; flex-direction: column; }
-    .ucc { padding: 12px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); margin-bottom: 8px; }
-    .ucc b { display: block; color: #fff; font-size: 13.5px; }
-    .ucc span { display: block; font-size: 11.5px; color: #94A3B8; margin-top: 2px; line-height: 1.4; }
-    .gl { margin: 16px 10px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #64748B; }
-    .nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 9px; background: transparent; color: #CBD5E1; text-align: left; font-size: 13px; font-weight: 500; text-decoration: none; }
-    .nav:hover { background: rgba(255,255,255,.07); color: #fff; }
-    .nav.on { background: #C9A227; color: #0F1E3D; font-weight: 700; }
-    .nav .nl { flex: 1; min-width: 0; }
-    .nav .bo { display: block; font-size: 10.5px; color: #64748B; font-weight: 500; }
-    .nav.on .bo { color: rgba(15,30,61,.7); }
-    .nav .nb { min-width: 22px; height: 20px; padding: 0 6px; border-radius: 99px; background: rgba(255,255,255,.12); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-    .nav.on .nb { background: rgba(15,30,61,.18); color: #0F1E3D; }
-    .side .sfoot { margin-top: auto; padding: 18px 10px 0; font-size: 11.5px; color: #64748B; line-height: 1.5; }
-    .side .reset { margin-top: 8px; border: 1px solid rgba(255,255,255,.14); background: transparent; color: #CBD5E1; border-radius: 8px; padding: 6px 10px; font-size: 12px; }
-    .side .reset:hover { background: rgba(255,255,255,.07); }
-    .main { position: relative; min-width: 0; }
-    .main iframe { display: block; width: 100%; height: 100%; border: 0; background: #F1F5F9; }
+    /* ---------- tata letak ---------- */
+    .body { display: flex; height: calc(100vh - 64px); }
+    .side { width: 240px; flex: none; background: var(--background-surface); border-right: 1px solid var(--border-default); overflow-y: auto; padding: 12px 8px 20px; display: flex; flex-direction: column; transition: width .15s; }
+    .gl { margin: 18px 12px 8px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--content-secondary); white-space: nowrap; }
+    .nav { display: flex; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: var(--content-secondary); text-decoration: none; font-size: 14px; text-align: left; margin-bottom: 4px; white-space: nowrap; }
+    .nav:hover { background: var(--hover); color: var(--content-primary); }
+    .nav.on { background: var(--background-brand); color: #fff; }
+    .nav .ic { width: 20px; height: 20px; }
+    .nav .nl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .nav .cv { width: 16px; height: 16px; margin-left: auto; transition: transform .15s; }
+    .nav.open .cv { transform: rotate(180deg); }
+    .nav.par { color: var(--content-primary); }
+    .nav.par.inpath { background: var(--background-elevated); }
+    .nb { min-width: 20px; height: 18px; padding: 0 6px; border-radius: 99px; background: #DC2626; color: #fff; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+    .sub { display: none; padding: 2px 0 6px; }
+    .sub.on { display: block; }
+    .sub .sg { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--content-tertiary); padding: 10px 12px 4px 44px; }
+    .sub a { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px 0 44px; border-radius: 6px; color: var(--content-secondary); text-decoration: none; font-size: 13.5px; margin-bottom: 2px; }
+    .sub a:hover { background: var(--hover); color: var(--content-primary); }
+    .sub a.on { color: var(--content-primary); background: var(--background-elevated); font-weight: 600; }
+    .sub a .nl { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sub a .bo { font-size: 10px; color: var(--content-tertiary); font-weight: 600; }
+    .sfoot { margin-top: auto; padding: 16px 12px 0; font-size: 11px; color: var(--content-tertiary); line-height: 1.5; }
+    .sfoot button { margin-top: 6px; border: 1px solid var(--border-strong); background: transparent; color: var(--content-secondary); border-radius: 6px; padding: 4px 8px; font-size: 11px; }
+    .sfoot button:hover { color: var(--content-primary); }
+
+    /* rail (sidebar diciutkan / mode workspace) */
+    .side.rail { width: 60px; padding: 12px 8px; }
+    .side.rail .gl, .side.rail .nl, .side.rail .cv, .side.rail .sub, .side.rail .sfoot, .side.rail .nb { display: none; }
+    .side.rail .nav { justify-content: center; padding: 0; height: 44px; }
+    .side.rail .gap { height: 10px; }
+
+    /* kolom kedua Workspace */
+    .wside { width: 240px; flex: none; background: var(--background-default); border-right: 1px solid var(--border-default); overflow-y: auto; padding: 14px 12px 20px; display: none; }
+    .wside.on { display: block; }
+    .wside h2 { font-size: 14px; font-weight: 600; margin: 4px 0 8px; }
+    .ucsel { position: relative; margin-bottom: 12px; }
+    .ucsel > button { display: flex; align-items: center; width: 100%; height: 36px; padding: 0 12px 0 16px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--background-surface); color: var(--content-primary); font-size: 13px; font-weight: 600; text-align: left; }
+    .ucsel > button .ic { margin-left: auto; width: 16px; height: 16px; color: var(--content-secondary); }
+    .ucm { position: absolute; left: 0; right: 0; top: 40px; z-index: 30; max-height: 60vh; overflow: auto; background: var(--background-elevated); border: 1px solid var(--border-default); border-radius: 8px; box-shadow: var(--shadow-pop); padding: 4px; display: none; }
+    .ucm.on { display: block; }
+    .ucm button { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: transparent; padding: 7px 10px; border-radius: 6px; text-align: left; font-size: 13px; color: var(--content-primary); }
+    .ucm button:hover { background: var(--hover); }
+    .ucm button.on { background: var(--background-brand); color: #fff; }
+    .ucm button small { margin-left: auto; font-size: 10.5px; color: var(--content-tertiary); }
+    .ucm button.on small { color: rgba(255,255,255,.75); }
+    .ucm .cat { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--content-tertiary); padding: 8px 10px 2px; }
+    .wnav { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-radius: 6px; color: var(--content-secondary); text-decoration: none; font-size: 14px; margin-bottom: 2px; }
+    .wnav:hover { background: var(--hover); color: var(--content-primary); }
+    .wnav.on { background: var(--background-brand); color: #fff; }
+    .wnav .ic { width: 16px; height: 16px; }
+    .wnav span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wnav .nb { margin-left: auto; }
+    .obr { margin-top: 18px; padding: 0 12px; }
+    .obr .row { display: flex; align-items: center; justify-content: space-between; }
+    .obr b { font-size: 14px; }
+    .obr button { border: 0; background: none; color: var(--content-secondary); padding: 4px; border-radius: 6px; display: flex; }
+    .obr button:hover { background: var(--hover); color: var(--content-primary); }
+    .obr p { font-size: 12px; color: var(--content-secondary); margin-top: 6px; line-height: 1.5; }
+    .obr a { display: block; font-size: 13px; color: var(--content-secondary); text-decoration: none; padding: 6px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .obr a:hover { color: var(--content-primary); }
+
+    .main { flex: 1; min-width: 0; position: relative; background: var(--background-default); }
+    .main iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: var(--background-default); }
     .scrim { display: none; }
 
-    @media (max-width: 1180px) { .user > div, .role .lb { display: none; } }
+    /* ---------- login ---------- */
+    .login { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; background: var(--background-default); }
+    .login.on { display: flex; }
+    .lcard { width: 100%; max-width: 384px; padding: 32px; border: 1px solid var(--border-default); border-radius: 14px; background: var(--background-surface); box-shadow: var(--shadow-pop); text-align: center; }
+    .lcard .emb { width: 48px; height: 48px; margin: 0 auto 10px; display: block; }
+    .lcard h1 { font-size: 18px; font-weight: 700; }
+    .lcard p { font-size: 14px; color: var(--content-secondary); margin: 8px 0 24px; }
+    .lcard label { display: block; text-align: left; font-size: 12px; font-weight: 600; color: var(--content-secondary); margin: 0 0 6px; }
+    .lcard input { width: 100%; height: 38px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--background-default); color: var(--content-primary); padding: 0 12px; margin-bottom: 16px; font-size: 14px; }
+    .lcard input:focus { outline: 2px solid var(--pri-ln); border-color: var(--content-brand); }
+    .lcard .go { width: 100%; height: 40px; border: 0; border-radius: 8px; background: var(--action-primary); color: #fff; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+    .lcard .go:hover { background: var(--action-hover); }
+    .lcard .err { color: var(--st-err); font-size: 12px; margin: -6px 0 12px; text-align: left; min-height: 0; }
+    .lcard small { display: block; margin-top: 20px; font-size: 11.5px; color: var(--content-secondary); line-height: 1.5; }
+    .lcard small b { color: var(--content-primary); }
+
     @media (max-width: 900px) {
-      .burger { display: flex; }
-      .brand span, .uc-btn small, .uc-btn br { display: none; }
-      .uc { margin-left: 0; }
-      .uc-btn strong { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .h { padding: 0 12px; gap: 8px; }
-      .hr { gap: 6px; }
-      .user { display: none; }
-      .body { grid-template-columns: minmax(0, 1fr); }
-      .side { position: fixed; z-index: 50; top: 64px; bottom: 0; left: 0; width: 280px; transform: translateX(-100%); transition: transform .2s ease; }
-      .side.on { transform: none; }
-      .scrim.on { display: block; position: fixed; inset: 64px 0 0 0; z-index: 45; background: rgba(15,23,42,.45); }
-    }
-    .mrole { display: none; margin: 4px 0 8px; }
-    .mrole span { display: block; font-size: 11px; color: #94A3B8; margin-bottom: 6px; }
-    .mrole .role { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); display: inline-flex; }
-    .mrole .role button { color: #CBD5E1; }
-    .mrole .role button.on { background: #C9A227; color: #0F1E3D; }
-    @media (max-width: 560px) {
-      .brand, .logo, .h > .hr > .role { display: none; }
-      .mrole { display: block; }
-      .uc-btn strong { max-width: 150px; }
-      .uc-menu { width: calc(100vw - 24px); }
+      .brand span { display: none; }
+      .ubtn .ut { display: none; }
+      .side { position: fixed; left: 0; top: 64px; bottom: 0; z-index: 35; transform: translateX(-100%); transition: transform .2s; width: 260px; }
+      .side.rail { width: 260px; padding: 12px 8px 20px; }
+      .side.rail .gl, .side.rail .nl, .side.rail .cv, .side.rail .sfoot { display: block; }
+      .side.rail .nav { justify-content: flex-start; padding: 0 12px; }
+      .side.rail .nb { display: inline-flex; }
+      .side.mob { transform: none; box-shadow: var(--shadow-pop); }
+      .side.rail .sub.on { display: block; }
+      .body { flex-direction: column; }
+      .wside.on { display: flex; align-items: center; gap: 6px; width: auto; overflow-x: auto; padding: 8px 12px; border-right: 0; border-bottom: 1px solid var(--border-default); flex: none; }
+      .wside h2, .wside .obr { display: none; }
+      .wside .ucsel { margin: 0; flex: none; width: 160px; position: static; }
+      .wside .ucm { position: fixed; top: 116px; left: 12px; right: 12px; }
+      .wnav { flex: none; height: 34px; margin: 0; }
+      .main { flex: 1; }
+      .scrim.on { display: block; position: fixed; inset: 64px 0 0 0; z-index: 33; background: var(--scrim); }
     }
   </style>
 </head>
 <body>
+  <!-- login demo (sama dengan Backoffice Sitroom) -->
+  <div class="login" id="login" role="dialog" aria-modal="true" aria-labelledby="lgT">
+    <form class="lcard" id="lgF" autocomplete="off">
+      <svg class="emb" viewBox="0 0 48 48" aria-hidden="true"><use href="#emblem"/></svg>
+      <h1 id="lgT">Backoffice Sitroom</h1>
+      <p>Masuk untuk mengelola konten dashboard.</p>
+      <label for="lgU">Username</label>
+      <input id="lgU" name="u" placeholder="admin" autocomplete="username">
+      <label for="lgP">Password</label>
+      <input id="lgP" name="p" type="password" placeholder="••••••••" autocomplete="current-password">
+      <div class="err" id="lgE" role="alert"></div>
+      <button class="go" type="submit"><svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>Masuk</button>
+      <small>Gunakan username <b>admin</b> dan password <b>admin</b> untuk masuk.</small>
+    </form>
+  </div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="emblem" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="22" fill="#241a06" stroke="#7a5a17" stroke-width="1.5"/>
+      <circle cx="24" cy="24" r="18.5" fill="none" stroke="#7a5a17" stroke-width="1" stroke-dasharray="1.5 1.8"/>
+      <path d="M24 9.5l3.7 8.8 9.5.7-7.3 6.2 2.3 9.2L24 29.3l-8.2 5.1 2.3-9.2-7.3-6.2 9.5-.7z" fill="#c98a12" stroke="#7a5a17" stroke-width=".8"/>
+      <path d="M12 37c3 2.6 7.3 4 12 4s9-1.4 12-4" fill="none" stroke="#7a5a17" stroke-width="1.6"/>
+    </symbol>
+  </svg>
+
   <header class="h">
-    <button class="burger" id="burger" type="button" aria-label="Buka menu" aria-controls="side" aria-expanded="false">
-      <svg class="ic" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <button class="burger" id="burger" type="button" aria-label="Ciutkan menu" aria-controls="side" aria-expanded="true">
+      <svg class="ic" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
     </button>
-    <div class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 32 32"><path d="M16 4l3 6.2 6.8 1-4.9 4.8 1.2 6.8L16 19.6l-6.1 3.2 1.2-6.8-4.9-4.8 6.8-1z" fill="#C9A227"/></svg></div>
-    <div class="brand">
-      <b>BACKOFFICE DASHBOARD PRESIDEN</b>
-      <span>Kementerian Sekretariat Negara Republik Indonesia</span>
-    </div>
-    <div class="uc">
-      <button class="uc-btn" id="ucBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
-        <span><small>Use case</small><br><strong id="ucName">—</strong></span>
-        <svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="uc-menu" id="ucMenu" role="listbox" aria-label="Pilih use case"></div>
-    </div>
+    <svg class="emb" viewBox="0 0 48 48" aria-hidden="true"><use href="#emblem"/></svg>
+    <div class="brand"><b>BACKOFFICE SITROOM</b><span>Kementerian Sekretariat Negara Republik Indonesia</span></div>
     <div class="hr">
-      <div class="role" role="group" aria-label="Peran simulasi">
-        <span class="lb">Peran</span>
-        <button type="button" data-role="analis">Analis</button>
-        <button type="button" data-role="approver">Approver</button>
-      </div>
-      <button class="bell" id="bell" type="button" aria-label="Notifikasi">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <i id="bellN" hidden>0</i>
+      <button class="tbtn" id="theme" type="button" aria-label="Ganti tema" title="Ganti tema terang/gelap">
+        <svg class="ic" viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><line x1="17" y1="3" x2="17" y2="5"/><line x1="21" y1="7" x2="19" y2="7"/><line x1="19.8" y1="4.2" x2="18.4" y2="5.6"/></svg>
       </button>
       <div class="user">
-        <div class="av" id="av">AH</div>
-        <div><b id="uName">—</b><span id="uUnit">—</span></div>
+        <button class="ubtn" id="ubtn" type="button" aria-haspopup="menu" aria-expanded="false">
+          <span class="av" id="av">A</span>
+          <span class="ut"><b id="uName">—</b><span id="uRole">—</span></span>
+          <svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:var(--content-secondary);stroke-width:2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="umenu" id="umenu" role="menu"></div>
       </div>
     </div>
   </header>
 
   <div class="body">
-    <aside class="side" id="side" aria-label="Menu backoffice"></aside>
+    <aside class="side" id="side" aria-label="Menu utama"></aside>
+    <aside class="wside" id="wside" aria-label="Menu workspace"></aside>
     <div class="scrim" id="scrim"></div>
-    <main class="main">
-      <iframe id="frame" title="Halaman backoffice"></iframe>
-    </main>
+    <main class="main"><iframe id="frame" title="Halaman backoffice"></iframe></main>
   </div>
 
-  <script src="./data/harmonisasi-data.js"></script>
-  <script src="./assets/bo-store.js"></script>
-  <script src="./assets/bo-usecases.js"></script>
-  <script src="./assets/uc-harmonisasi.js"></script>
+  <script src="./data/harmonisasi-data.js?v=20261023-1"></script>
+  <script src="./data/harmonisasi-ws.js?v=20261023-1"></script>
+  <script src="./assets/bo-store.js?v=20261023-1"></script>
+  <script src="./assets/bo-usecases.js?v=20261023-1"></script>
+  <script src="./assets/uc-harmonisasi.js?v=20261023-1"></script>
+  <script src="./assets/bo-ui.js?v=20261023-1"></script>
   <script>
     (function () {
+      'use strict';
       window.__BO_SHELL__ = true;
-      var V = '20261016-1';
-      var ICONS = {
-        grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
-        check: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
-        book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
-        tag: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/>',
-        flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
-        map: '<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>',
-        spark: '<path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/>',
-        sliders: '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
-        bell: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
-        layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
-        eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
-        history: '<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>',
-        inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
-        clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'
-      };
-      var icon = function (k) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[k] || '') + '</svg>'; };
-      var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+      var V = '20261023-1';
+      var ic = UI.icon, esc = UI.esc, WS = UI.WS;
+      var KAT = WS.ws().katalog;
+      var UC_ALL = []; KAT.forEach(function (k) { if (k.sub) k.sub.forEach(function (s) { UC_ALL.push({ key: s[0], nama: s[1], cat: k.nama }); }); else UC_ALL.push({ key: k.key, nama: k.nama, aktif: k.aktif }); });
+      var ucOf = function (k) { return UC_ALL.filter(function (u) { return u.key === k; })[0]; };
+      var OPS = window.BO_USECASES.filter(function (u) { return u.key === 'harmonisasi'; })[0];
+      var OPS_PAGES = []; OPS.grup.forEach(function (g) { OPS_PAGES = OPS_PAGES.concat(g.items); }); OPS_PAGES = OPS_PAGES.concat(window.BO_SHARED);
 
-      var UCS = window.BO_USECASES, SHARED = window.BO_SHARED;
-      var DEFAULT_UC = 'harmonisasi';
-      var frame = document.getElementById('frame');
-      var side = document.getElementById('side');
-      var cur = { uc: null, page: null, id: null, src: null };
+      var frame = document.getElementById('frame'), side = document.getElementById('side'), wside = document.getElementById('wside');
+      var cur = { key: null, src: null, sec: null, ws: null, opsPage: null };
+      var collapsed = false, opsOpen = true;
+      try { collapsed = localStorage.getItem('bo.rail') === '1'; } catch (e) {}
 
-      function ucOf(k) { return UCS.filter(function (u) { return u.key === k; })[0] || null; }
-      function pagesOf(u) { var a = []; (u.grup || []).forEach(function (g) { a = a.concat(g.items); }); return a; }
-
-      function parse() {
-        var raw = (location.hash || '').replace(/^#\/?/, '');
-        var p = raw.split('/').filter(Boolean).map(decodeURIComponent);
-        var u = ucOf(p[0]) || ucOf(DEFAULT_UC);
-        var page = p[1] || (u.status === 'aktif' ? u.awal : 'segera');
-        return { uc: u.key, page: page, id: p[2] || null };
-      }
-
-      function resolve(r) {
-        var u = ucOf(r.uc);
-        var sh = SHARED.filter(function (s) { return s.k === r.page; })[0];
-        if (sh) return { f: sh.f, page: r.page, title: sh.l };
-        if (u.status !== 'aktif') return { f: 'shared/segera.html', page: 'segera', title: u.nama };
-        var it = pagesOf(u).filter(function (x) { return x.k === r.page; })[0] || pagesOf(u)[0];
-        return { f: it.f, page: it.k, title: it.l };
+      // ---------- router ----------
+      // #dashboard · #workspace/<uc>[/widgets|ews|data-source|assistant][/<id>] · #dashboard-management[/<uc>]
+      // #approvals · #users · #roles · #harmonisasi/<halaman>[/<id>] (Operation › Harmonisasi)
+      function route() {
+        var p = (location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+        var a = p[0] || 'dashboard';
+        if (a === 'dashboard') return { sec: 'dashboard', f: 'app/dashboard.html', title: 'Dashboard' };
+        if (a === 'workspace') {
+          var uc = ucOf(p[1]) ? p[1] : 'harmonisasi', s = p[2] || 'dashboard', id = p[3] || null;
+          var r = { sec: 'workspace', ws: uc, wsub: s, id: id };
+          if (uc !== 'harmonisasi') { r.f = 'ws/segera.html'; r.title = ucOf(uc).nama; return r; }
+          if (s === 'widgets') { r.f = id ? 'ws/widget.html' : 'ws/widgets.html'; r.title = 'Widget'; }
+          else if (s === 'ews') { r.f = id === 'topik' ? 'ws/ews-topik.html' : id ? 'ws/ews-detail.html' : 'ws/ews.html'; r.title = 'Early Warning System'; }
+          else if (s === 'data-source') { r.f = id === 'unggah' ? 'ws/unggah.html' : id ? 'ws/data-detail.html' : 'ws/data-source.html'; r.title = 'Data Source'; }
+          else if (s === 'assistant') { r.f = id === 'knowledge' ? 'ws/knowledge.html' : 'ws/assistant.html'; r.title = 'AI Training Center'; }
+          else { r.wsub = 'dashboard'; r.f = 'ws/dashboard.html'; r.title = 'Dashboard'; }
+          return r;
+        }
+        if (a === 'dashboard-management') return p[1] ? { sec: 'dm', f: 'app/dm-detail.html', id: p[1], title: 'Dashboard Management' } : { sec: 'dm', f: 'app/dm.html', title: 'Dashboard Management' };
+        if (a === 'approvals') return { sec: 'approvals', f: 'app/approvals.html', title: 'Approvals', id: p[1] || null };
+        if (a === 'users') return { sec: 'users', f: 'app/users.html', title: 'User Management' };
+        if (a === 'roles') return { sec: 'roles', f: 'app/roles.html', title: 'Role & Permission' };
+        if (a === 'harmonisasi') {
+          var it = OPS_PAGES.filter(function (x) { return x.k === p[1]; })[0] || OPS_PAGES[0];
+          return { sec: 'ops', ops: it.k, f: it.f, id: p[2] || null, title: it.l };
+        }
+        return { sec: 'dashboard', f: 'app/dashboard.html', title: 'Dashboard' };
       }
 
       function load() {
-        var r = parse(), res = resolve(r);
-        var src = './pages/' + res.f + '?uc=' + r.uc + (r.id ? '&id=' + encodeURIComponent(r.id) : '') + '&v=' + V;
-        var samePage = cur.uc === r.uc && cur.page === res.page && cur.src;
-        cur = { uc: r.uc, page: res.page, id: r.id, src: cur.src };
-        if (samePage) {
+        if (!BO.authed()) { showLogin(); return; }
+        document.getElementById('login').classList.remove('on');
+        var r = route();
+        var src = './pages/' + r.f + '?uc=harmonisasi' + (r.ws ? '&ws=' + r.ws : '') + (r.id ? '&id=' + encodeURIComponent(r.id) : '') + '&v=' + V;
+        var key = r.f + '|' + (r.ws || '');
+        if (cur.key === key && cur.src && r.sec === 'ops') {
           try { frame.contentWindow.postMessage({ type: 'bo:open', id: r.id }, '*'); } catch (e) {}
-        } else {
-          cur.src = src;
-          frame.setAttribute('src', src);
-          frame.setAttribute('title', res.title);
+        } else if (cur.src !== src) {
+          frame.setAttribute('src', src); cur.src = src;
         }
-        document.title = res.title + ' · ' + ucOf(r.uc).nama + ' · Backoffice Dashboard Presiden';
-        render();
-        closeSide();
+        cur.key = key; cur.r = r;
+        document.title = r.title + (r.sec === 'ops' ? ' · Harmonisasi' : '') + ' - Backoffice Sitroom';
+        frame.setAttribute('title', r.title);
+        if (r.sec === 'ops') opsOpen = true;
+        render(); closeMob();
       }
 
+      // ---------- render menu ----------
+      function nav(href, icn, label, on, extra) {
+        return '<a class="nav' + (on ? ' on' : '') + '" href="#' + href + '"' + (on ? ' aria-current="page"' : '') + ' title="' + esc(label) + '">' + ic(icn) + '<span class="nl">' + esc(label) + '</span>' + (extra || '') + '</a>';
+      }
       function render() {
-        var u = ucOf(cur.uc), role = BO.role();
-        var uh = window.BO_UC[cur.uc];
-        var badges = uh && uh.badges ? uh.badges() : {};
-        document.getElementById('ucName').textContent = u.nama;
-        // menu use case
-        document.getElementById('ucMenu').innerHTML = UCS.map(function (x) {
-          return '<button type="button" role="option" class="uc-it' + (x.key === u.key ? ' on' : '') + '" data-uc="' + x.key + '" aria-selected="' + (x.key === u.key) + '">' +
-            '<span class="t">' + esc(x.nama) + (x.status === 'aktif' ? ' <span class="live">Aktif</span>' : ' <span class="soon">Segera</span>') + '</span>' +
-            '<span class="d">' + esc(x.ringkas) + '</span></button>';
-        }).join('');
-        // sidebar
-        var h = '<div class="mrole"><span>Peran simulasi</span><div class="role" role="group" aria-label="Peran simulasi">' +
-          ['analis', 'approver'].map(function (k) { return '<button type="button" data-role="' + k + '" class="' + (role.key === k ? 'on' : '') + '" aria-pressed="' + (role.key === k) + '">' + BO.ROLES[k].peran + '</button>'; }).join('') + '</div></div>';
-        h += '<div class="ucc"><b>' + esc(u.nama) + '</b><span>' + (u.status === 'aktif' ? u.modul + ' modul dashboard · ' + esc(u.ringkas) : 'Belum tersedia di backoffice ini') + '</span></div>';
-        (u.grup || []).forEach(function (g) {
-          h += '<div class="gl">' + esc(g.l) + '</div>';
-          g.items.forEach(function (it) { h += navItem(it, badges[it.k]); });
+        var r = cur.r || route(), role = BO.role();
+        var inWs = r.sec === 'workspace';
+        var rail = collapsed || inWs;
+        side.classList.toggle('rail', rail);
+        var badges = (window.BO_UC.harmonisasi.badges || function () { return {}; })();
+        var nTodo = WS.todo().filter(function (x) { return x.mine; }).length;
+        var nAppr = role.key === 'approver' ? WS.approvals().length : 0;
+        var h = nav('dashboard', 'grid', 'Dashboard', r.sec === 'dashboard', nTodo ? '<span class="nb">' + nTodo + '</span>' : '');
+        h += '<div class="gl">AI Center</div><div class="gap"></div>';
+        h += nav('workspace/harmonisasi', 'rocket', 'Workspace', inWs);
+        h += nav('dashboard-management', 'layout', 'Dashboard Management', r.sec === 'dm');
+        h += nav('approvals', 'check', 'Approvals', r.sec === 'approvals', nAppr ? '<span class="nb">' + nAppr + '</span>' : '');
+        h += '<div class="gl">Operation</div><div class="gap"></div>';
+        var opsOn = r.sec === 'ops';
+        h += '<a class="nav par' + (opsOn ? ' inpath' : '') + (opsOpen ? ' open' : '') + '" href="#harmonisasi/overview" id="opsT" aria-expanded="' + opsOpen + '" title="Harmonisasi">' + ic('list') + '<span class="nl">Harmonisasi</span>' + ic('chev', 'cv') + '</a>';
+        h += '<div class="sub' + (opsOpen ? ' on' : '') + '">';
+        OPS.grup.forEach(function (g) {
+          h += '<div class="sg">' + esc(g.l) + '</div>';
+          g.items.forEach(function (it) { h += subLink(it, badges[it.k], r); });
         });
-        if (u.status !== 'aktif') h += '<div class="gl">Use case</div>' + navItem({ k: 'segera', l: 'Status pengembangan', ic: 'clock' });
-        h += '<div class="gl">Administrasi</div>';
-        SHARED.forEach(function (it) { h += navItem(it, it.k === 'notifikasi' ? BO.unread(cur.uc) : null); });
-        h += '<div class="sfoot">Prototipe · data simulasi per 16 Oktober 2026.<br>Perubahan tersimpan di peramban ini saja.<br><button type="button" class="reset" id="reset">Atur ulang data simulasi</button></div>';
+        h += '<div class="sg">Administrasi</div>';
+        window.BO_SHARED.forEach(function (it) { h += subLink(it, it.k === 'notifikasi' ? BO.unread('harmonisasi') : null, r); });
+        h += '</div>';
+        h += '<div class="gl">User</div><div class="gap"></div>';
+        h += nav('users', 'users', 'User Management', r.sec === 'users');
+        h += nav('roles', 'key', 'Role & Permission', r.sec === 'roles');
+        h += '<div class="sfoot">Prototipe · data simulasi per 16 Oktober 2026. Perubahan tersimpan di peramban ini saja.<br><button type="button" id="reset">Atur ulang data simulasi</button></div>';
         side.innerHTML = h;
-        // peran
-        Array.prototype.forEach.call(document.querySelectorAll('.h .role button'), function (b) {
-          var on = b.getAttribute('data-role') === role.key;
-          b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
-        });
-        document.getElementById('av').textContent = role.ini;
+
+        // kolom workspace
+        wside.classList.toggle('on', inWs);
+        if (inWs) {
+          var u = ucOf(r.ws), act = u.aktif, base = 'workspace/' + r.ws;
+                    var w = '<h2>Usecase</h2><div class="ucsel"><button type="button" id="ucB" aria-haspopup="listbox" aria-expanded="false">' + esc(u.nama) + ic('chev') + '</button><div class="ucm" id="ucM" role="listbox">';
+          var opt = function (x) { return '<button type="button" role="option" data-uc="' + x.key + '" class="' + (x.key === r.ws ? 'on' : '') + '" aria-selected="' + (x.key === r.ws) + '">' + esc(x.nama) + (x.aktif ? '' : '<small>Segera</small>') + '</button>'; };
+          UC_ALL.filter(function (x) { return !x.cat; }).forEach(function (x) { w += opt(x); });
+          KAT.filter(function (k) { return k.sub; }).forEach(function (k) {
+            w += '<div class="cat">' + esc(k.nama) + '</div>';
+            UC_ALL.filter(function (x) { return x.cat === k.nama; }).forEach(function (x) { w += opt(x); });
+          });
+          w += '</div></div>';
+          [['dashboard', 'dash', 'Dashboard'], ['widgets', 'widget', 'Widget'], ['ews', 'alert', 'Early Warning System'], ['data-source', 'db', 'Data Source'], ['assistant', 'spark', 'AI Training Center']].forEach(function (s) {
+            var on = r.wsub === s[0];
+            w += '<a class="wnav' + (on ? ' on' : '') + '" href="#' + base + (s[0] === 'dashboard' ? '' : '/' + s[0]) + '"' + (on ? ' aria-current="page"' : '') + '>' + ic(s[1]) + '<span>' + s[2] + '</span>' + (s[3] ? '<span class="nb">' + s[3] + '</span>' : '') + '</a>';
+          });
+          var chats = []; try { chats = JSON.parse(localStorage.getItem('bo.chat.harmonisasi') || '[]'); } catch (e) {}
+          w += '<div class="obr"><div class="row"><b>Obrolan</b><button type="button" id="newChat" aria-label="Obrolan baru">' + ic('plus') + '</button></div>' +
+            (act && chats.length ? chats.slice(0, 6).map(function (c, i) { return '<a href="#' + base + '/assistant">' + esc(c.q) + '</a>'; }).join('') : '<p>Belum ada percakapan. Mulai dengan tombol +.</p>') + '</div>';
+          wside.innerHTML = w;
+        }
+
+        // header
+        document.getElementById('av').textContent = role.nama.charAt(0);
         document.getElementById('uName').textContent = role.nama;
-        document.getElementById('uUnit').textContent = role.peran + ' · ' + role.unit;
-        var n = BO.unread(cur.uc), bn = document.getElementById('bellN');
-        bn.hidden = !n; bn.textContent = n > 99 ? '99+' : n;
+        document.getElementById('uRole').textContent = role.key === 'approver' ? 'Approver' : 'Analyst';
+        renderUserMenu();
+      }
+      function subLink(it, badge, r) {
+        var on = r.sec === 'ops' && r.ops === it.k;
+        return '<a href="#harmonisasi/' + it.k + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '><span class="nl">' + esc(it.l) + '</span>' + (badge ? '<span class="nb">' + badge + '</span>' : (it.bo ? '<span class="bo">' + it.bo + '</span>' : '')) + '</a>';
+      }
+      function renderUserMenu() {
+        var role = BO.role(), n = BO.unread('harmonisasi'), th = BO.theme();
+        document.getElementById('umenu').innerHTML =
+          '<div class="hd"><b>' + esc(role.nama) + '</b><span>' + esc(role.unit) + '</span></div>' +
+          '<div class="lb">Peran simulasi</div>' +
+          ['analis', 'approver'].map(function (k) { return '<button type="button" role="menuitemradio" aria-checked="' + (role.key === k) + '" data-role="' + k + '">' + ic(k === 'analis' ? 'user' : 'shield') + (k === 'analis' ? 'Analyst' : 'Approver') + (role.key === k ? ic('ok', 'ok') : '') + '</button>'; }).join('') +
+          '<hr><button type="button" role="menuitem" data-go="harmonisasi/notifikasi">' + ic('alertc') + 'Notifikasi' + (n ? '<span class="n">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</button>' +
+          '<button type="button" role="menuitem" data-go="harmonisasi/audit">' + ic('hist') + 'Audit Trail</button>' +
+          '<button type="button" role="menuitem" data-theme-t="1">' + ic(th === 'dark' ? 'eye' : 'eye') + (th === 'dark' ? 'Tema terang' : 'Tema gelap') + '</button>' +
+          '<hr><button type="button" role="menuitem" class="out" data-logout="1">' + ic('lock') + 'Keluar</button>';
       }
 
-      function navItem(it, badge) {
-        var on = it.k === cur.page;
-        return '<a class="nav' + (on ? ' on' : '') + '" href="#' + cur.uc + '/' + it.k + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(it.ic) +
-          '<span class="nl">' + esc(it.l) + (it.bo ? '<span class="bo">' + it.bo + '</span>' : '') + '</span>' +
-          (badge ? '<span class="nb" aria-label="' + badge + ' perlu tindakan">' + badge + '</span>' : '') + '</a>';
-      }
-
-      function closeSide() { side.classList.remove('on'); document.getElementById('scrim').classList.remove('on'); document.getElementById('burger').setAttribute('aria-expanded', 'false'); }
+      // ---------- login ----------
+      function showLogin() { document.getElementById('login').classList.add('on'); setTimeout(function () { document.getElementById('lgU').focus(); }, 30); }
+      document.getElementById('lgF').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var u = document.getElementById('lgU').value.trim(), p = document.getElementById('lgP').value;
+        if (BO.login(u, p)) { document.getElementById('login').classList.remove('on'); document.getElementById('lgE').textContent = ''; load(); }
+        else document.getElementById('lgE').textContent = 'Username atau password salah.';
+      });
 
       // ---------- event ----------
+      function closeMob() { side.classList.remove('mob'); document.getElementById('scrim').classList.remove('on'); }
+      var mq = window.matchMedia('(max-width: 900px)');
       document.getElementById('burger').addEventListener('click', function () {
-        var on = !side.classList.contains('on');
-        side.classList.toggle('on', on); document.getElementById('scrim').classList.toggle('on', on);
-        this.setAttribute('aria-expanded', on);
+        if (mq.matches) { var on = !side.classList.contains('mob'); side.classList.toggle('mob', on); document.getElementById('scrim').classList.toggle('on', on); this.setAttribute('aria-expanded', on); return; }
+        collapsed = !collapsed; try { localStorage.setItem('bo.rail', collapsed ? '1' : '0'); } catch (e) {}
+        this.setAttribute('aria-expanded', !collapsed); render();
       });
-      document.getElementById('scrim').addEventListener('click', closeSide);
-      var ucBtn = document.getElementById('ucBtn'), ucMenu = document.getElementById('ucMenu');
-      ucBtn.addEventListener('click', function (e) { e.stopPropagation(); var on = !ucMenu.classList.contains('on'); ucMenu.classList.toggle('on', on); ucBtn.setAttribute('aria-expanded', on); });
-      ucMenu.addEventListener('click', function (e) {
-        var b = e.target.closest('[data-uc]'); if (!b) return;
-        ucMenu.classList.remove('on'); ucBtn.setAttribute('aria-expanded', 'false');
-        location.hash = b.getAttribute('data-uc');
+      document.getElementById('scrim').addEventListener('click', closeMob);
+      document.getElementById('theme').addEventListener('click', function () { BO.setTheme(BO.theme() === 'dark' ? 'light' : 'dark'); renderUserMenu(); });
+      var ub = document.getElementById('ubtn'), um = document.getElementById('umenu');
+      ub.addEventListener('click', function (e) { e.stopPropagation(); var on = !um.classList.contains('on'); um.classList.toggle('on', on); ub.setAttribute('aria-expanded', on); });
+      um.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var b = e.target.closest('button'); if (!b) return;
+        if (b.dataset.role) BO.setRole(b.dataset.role);
+        if (b.dataset.go) location.hash = b.dataset.go;
+        if (b.dataset.themeT) BO.setTheme(BO.theme() === 'dark' ? 'light' : 'dark');
+        if (b.dataset.logout) { BO.logout(); cur.src = null; frame.removeAttribute('src'); showLogin(); }
+        um.classList.remove('on'); ub.setAttribute('aria-expanded', 'false');
       });
-      document.addEventListener('click', function () { ucMenu.classList.remove('on'); ucBtn.setAttribute('aria-expanded', 'false'); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { ucMenu.classList.remove('on'); closeSide(); } });
-      document.querySelector('.h .role').addEventListener('click', function (e) {
-        var b = e.target.closest('[data-role]'); if (!b) return;
-        BO.setRole(b.getAttribute('data-role'));
-      });
-      document.getElementById('bell').addEventListener('click', function () { location.hash = cur.uc + '/notifikasi'; });
       side.addEventListener('click', function (e) {
-        var rb = e.target.closest('[data-role]');
-        if (rb) { BO.setRole(rb.getAttribute('data-role')); return; }
-        if (e.target.id === 'reset' && confirm('Atur ulang seluruh perubahan simulasi di peramban ini?')) { BO.reset(); frame.contentWindow.location.reload(); }
+        var t = e.target.closest('#opsT');
+        if (t) { var r = cur.r || {}; if (r.sec === 'ops' && !side.classList.contains('rail')) { e.preventDefault(); opsOpen = !opsOpen; render(); } return; }
+        if (e.target.id === 'reset' && confirm('Atur ulang seluruh perubahan simulasi di peramban ini?')) {
+          BO.reset(); try { localStorage.removeItem('bo.chat.harmonisasi'); } catch (x) {} frame.contentWindow.location.reload();
+        }
       });
+      wside.addEventListener('click', function (e) {
+        var b = e.target.closest('#ucB'), m = document.getElementById('ucM');
+        if (b) { e.stopPropagation(); var on = !m.classList.contains('on'); m.classList.toggle('on', on); b.setAttribute('aria-expanded', on); return; }
+        var o = e.target.closest('[data-uc]');
+        if (o) { location.hash = 'workspace/' + o.dataset.uc; return; }
+        if (e.target.closest('#newChat')) { location.hash = 'workspace/' + (cur.r.ws || 'harmonisasi') + '/assistant'; try { frame.contentWindow.postMessage({ type: 'bo:open', id: 'new' }, '*'); } catch (x) {} }
+      });
+      document.addEventListener('click', function () { um.classList.remove('on'); ub.setAttribute('aria-expanded', 'false'); var m = document.getElementById('ucM'); if (m) m.classList.remove('on'); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { um.classList.remove('on'); var m = document.getElementById('ucM'); if (m) m.classList.remove('on'); closeMob(); } });
 
       window.addEventListener('message', function (e) {
         var d = e.data; if (!d || typeof d !== 'object' || e.source !== frame.contentWindow) return;
-        if (d.type === 'bo:nav' && typeof d.path === 'string') { location.hash = d.path; }
-        if (d.type === 'bo:route' && typeof d.path === 'string') {
-          var p = d.path.split('/');
-          cur.id = p[2] || null;
-          if (history.replaceState) history.replaceState(null, '', '#' + d.path);
-        }
+        if (d.type === 'bo:nav' && typeof d.path === 'string') location.hash = d.path;
+        if (d.type === 'bo:route' && typeof d.path === 'string' && history.replaceState) history.replaceState(null, '', '#' + d.path);
+        if (d.type === 'bo:chat') render();
       });
+      // tema ikut ke iframe yang baru dimuat
+      frame.addEventListener('load', function () { try { frame.contentDocument.documentElement.setAttribute('data-theme', BO.theme()); } catch (e) {} });
       window.addEventListener('hashchange', load);
       BO.on(render);
       load();

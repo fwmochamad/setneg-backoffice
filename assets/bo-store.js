@@ -4,6 +4,13 @@
 // Saat integrasi API, ganti fungsi list/get/update/create/log dengan panggilan endpoint.
 (function () {
   'use strict';
+  // ---------- tema (gelap bawaan, sama dengan Backoffice Sitroom) ----------
+  var THEME_KEY = 'bo.theme';
+  function themeNow() { try { return localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark'; } catch (e) { return 'dark'; } }
+  function applyTheme() { document.documentElement.setAttribute('data-theme', themeNow()); }
+  applyTheme();
+  window.addEventListener('storage', function (e) { if (e.key === THEME_KEY || e.key === null) applyTheme(); });
+
   var KEY = 'bo.sim.v1';
   var ROLES = {
     analis: { key: 'analis', nama: 'Analis Harmonisasi', peran: 'Analis', unit: 'Bidang Analisis Regulasi Investasi', ini: 'AH' },
@@ -110,6 +117,18 @@
     unread: function (uc) { return BO.notifs(uc).filter(function (a) { return !S.read[a.id]; }).length; },
     isRead: function (id) { return !!S.read[id]; },
     markRead: function (ids) { ids.forEach(function (id) { S.read[id] = 1; }); save(); },
+
+    // ---------- tema & sesi demo ----------
+    theme: themeNow,
+    setTheme: function (t) {
+      try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+      applyTheme();
+      // iframe satu origin tidak menerima event storage dari jendela yang sama → teruskan manual
+      Array.prototype.forEach.call(document.querySelectorAll('iframe'), function (f) { try { f.contentDocument.documentElement.setAttribute('data-theme', t); } catch (e) {} });
+    },
+    authed: function () { try { return localStorage.getItem('bo.auth') === '1'; } catch (e) { return true; } },
+    login: function (u, p) { if (u === 'admin' && p === 'admin') { try { localStorage.setItem('bo.auth', '1'); } catch (e) {} return true; } return false; },
+    logout: function () { try { localStorage.removeItem('bo.auth'); } catch (e) {} },
 
     reset: function () { try { localStorage.removeItem(KEY); } catch (e) {} S = def(); emit(); },
 

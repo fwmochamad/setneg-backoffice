@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topik pantauan · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  UI.page({
+    state: { baru: false, j: '', k: '' },
+    render: function (s) {
+      var list = WS.topik().filter(function (t) { return !t.hapus; });
+      var h = '<div class="pg">';
+      h += '<div class="crumb"><a href="#" data-nav="workspace/harmonisasi/ews">Early Warning System</a>' + ic('chevr') + '<b>Topik pantauan</b></div>';
+      h += '<div class="ph"><div><h1>Topik pantauan</h1><p class="d">Isu yang dipindai AI di use case Harmonisasi setiap 6 jam (04.00, 10.00, 16.00, 22.00 WIB). EWS hasil deteksi langsung masuk tab Approval untuk direview dan disetujui.</p></div><div class="r"><button type="button" class="btn btn-p" data-on="baru">' + ic('plus') + 'Tambah topik</button></div></div>';
+      if (s.baru) h += '<section class="card pad" style="margin-bottom:16px"><div class="fld"><label for="tj">Topik <span class="req">*</span></label><input class="ip" id="tj" data-in="j" value="' + esc(s.j) + '" placeholder="mis. Perda retribusi perizinan di Jawa Timur"></div><div class="fld"><label for="tk">Konteks untuk AI</label><textarea class="ta" id="tk" data-in="k" style="min-height:70px" placeholder="Apa yang perlu dipantau dan mengapa">' + esc(s.k) + '</textarea></div><div class="row"><button type="button" class="btn" data-on="tutup">Batal</button><button type="button" class="btn btn-p" data-on="simpan">Simpan topik</button></div></section>';
+      h += '<section class="card"><div class="tw"><table class="tb"><thead><tr><th style="width:42%">Topik</th><th>Hasil</th><th class="right">Aksi</th></tr></thead><tbody>';
+      h += list.length ? list.map(function (t) {
+        return '<tr><td><div class="b">' + esc(t.judul) + '</div>' + (t.ket ? '<div class="sm mut" style="margin-top:2px">' + esc(t.ket) + '</div>' : '') + '<div class="xs mut" style="margin-top:6px">' + esc(t.oleh) + ' · ' + UI.d(t.tgl) + (t.lampiran ? ' · ' + ic('clip') + t.lampiran + ' lampiran' : '') + '</div></td>' +
+          '<td class="sm">' + (t.hasil ? '<a class="lnk" href="#" data-nav="workspace/harmonisasi/ews" style="white-space:normal">' + esc(t.hasil) + '</a>' : '<span class="mut">Belum ada sinyal. Data untuk topik ini belum tersedia di dataset Aktif dan Data Knowledge; topik tetap dipindai pada deteksi berkala setiap 6 jam.</span>') + '</td>' +
+          '<td class="right"><button type="button" class="btn btn-s btn-r" data-on="hapus" data-id="' + t.id + '" aria-label="Hapus topik">' + ic('x') + '</button></td></tr>';
+      }).join('') : '<tr><td colspan="3"><div class="empty">Belum ada topik pantauan.</div></td></tr>';
+      h += '</tbody></table></div></section>';
+      return h + '</div>';
+    },
+    on: {
+      baru: function () { this.set({ baru: true }); },
+      tutup: function () { this.set({ baru: false, j: '', k: '' }); },
+      j: function (el) { this.state.j = el.value; },
+      k: function (el) { this.state.k = el.value; },
+      simpan: function () {
+        if (!this.state.j.trim()) { BO.toast('Topik wajib diisi.', 'x'); return; }
+        var id = BO.nextId(UC, 'ws.topik', 'TP-', 1);
+        BO.create(UC, 'ws.topik', { id: id, judul: this.state.j.trim(), ket: this.state.k.trim(), oleh: BO.role().nama, tgl: BO.now().slice(0, 10), lampiran: 0, hasil: null }, { aksi: 'Topik pantauan ditambahkan', sesudah: this.state.j.trim() });
+        BO.toast('Topik ditambahkan. Dipindai pada deteksi berikutnya.', 'ok');
+        this.set({ baru: false, j: '', k: '' });
+      },
+      hapus: function (el) { var t = BO.get(UC, 'ws.topik', el.dataset.id); if (!confirm('Hapus topik "' + t.judul + '"?')) return; BO.update(UC, 'ws.topik', t.id, { hapus: true }, { aksi: 'Topik pantauan dihapus', sebelum: t.judul, sesudah: '—' }); }
+    }
+  });
+})();
+</script>
+</body></html>

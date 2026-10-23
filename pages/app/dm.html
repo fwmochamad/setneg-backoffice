@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Management · Backoffice Sitroom</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS;
+  UI.page({
+    state: { open: {} },
+    render: function (s) {
+      var kat = WS.ws().katalog, vs = WS.versi();
+      var live = vs.filter(function (v) { return v.status === 'live'; }).slice(-1)[0];
+      var next = vs.filter(function (v) { return v.status === 'draft' || v.status === 'approval'; }).slice(-1)[0];
+      var total = 0; kat.forEach(function (k) { total += k.sub ? k.sub.length : 1; });
+      var h = '<div class="pg">';
+      h += '<div class="ph"><div><h1>Dashboard Management</h1><p class="d">Atur tampilan, versi, dan publikasi dashboard tiap use case dan sub use case yang tayang di Dashboard Presiden.</p></div></div>';
+      h += '<section class="card"><div class="tw"><table class="tb" style="min-width:760px"><thead><tr><th style="width:56px">#</th><th>Dashboard</th><th>Sub Usecase</th><th>Versi Aktif</th><th class="right">Aksi</th></tr></thead><tbody>';
+      kat.forEach(function (k, i) {
+        var me = k.aktif, op = s.open[k.key];
+        h += '<tr' + (k.sub ? ' class="clk" data-on="tog" data-k="' + k.key + '"' : me ? ' class="clk" data-nav="dashboard-management/harmonisasi"' : '') + '><td class="mut">' + (i + 1) + '</td>' +
+          '<td><span class="row" style="flex-wrap:nowrap">' + (k.sub ? '<span class="mut" style="display:inline-flex;transform:rotate(' + (op ? 90 : 0) + 'deg);transition:transform .15s">' + ic('chevr') + '</span>' : '<span style="width:16px"></span>') + '<b>' + esc(k.nama) + '</b>' + (me ? '<span class="pl bd-info">Use case Anda</span>' : '') + '</span></td>' +
+          '<td>' + (k.sub ? '<span class="pl bd-warn">' + k.sub.length + ' sub</span>' : '') + '</td>' +
+          '<td>' + (k.sub ? '' : '<span class="live">' + (me && live ? live.id : 'v1.0') + ' Live</span>' + (me && next ? ' <span class="pl ' + (next.status === 'approval' ? 'bd-warn' : 'bd-ter') + '" style="margin-left:6px">' + (next.status === 'approval' ? 'Menunggu ' : 'Draft ') + next.id + '</span>' : '')) + '</td>' +
+          '<td class="right">' + (k.sub ? '' : me ? '<button type="button" class="btn btn-s btn-ic" data-nav="dashboard-management/harmonisasi" aria-label="Kelola">' + ic('eye') + '</button>' : '<span class="mut" title="Dikelola tim use case lain">' + ic('lock') + '</span>') + '</td></tr>';
+        if (k.sub && op) k.sub.forEach(function (x, j) {
+          h += '<tr><td></td><td style="padding-left:56px"><span class="mut">' + (i + 1) + '.' + (j + 1) + '</span>&nbsp; ' + esc(x[1]) + '</td><td></td><td><span class="live">v1.0 Live</span></td><td class="right"><span class="mut" title="Dikelola tim use case lain">' + ic('lock') + '</span></td></tr>';
+        });
+      });
+      h += '</tbody></table></div><div class="pager">Menampilkan ' + total + ' data<span class="sp"></span><button type="button" class="btn btn-s" disabled>Previous</button><span class="pl bd-brand" style="height:28px;padding:0 10px">1</span><button type="button" class="btn btn-s" disabled>Next</button></div></section>';
+      h += '<p class="xs mut sec">Backoffice ini hanya dapat mengubah dashboard Harmonisasi. Dashboard lain ditampilkan sebagai referensi.</p>';
+      return h + '</div>';
+    },
+    on: { tog: function (el) { var o = Object.assign({}, this.state.open); o[el.dataset.k] = !o[el.dataset.k]; this.set({ open: o }); } }
+  });
+})();
+</script>
+</body></html>

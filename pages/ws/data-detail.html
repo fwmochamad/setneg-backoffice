@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detail Data Source · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  var id = BO.param('id');
+  UI.page({
+    state: { q: '', sort: null, dir: 1 },
+    render: function (s) {
+      var d = BO.get(UC, 'ws.dataSource', id);
+      if (!d) return '<div class="pg">' + UI.soon('Data source tidak ditemukan', 'ID ' + id + ' tidak ada di use case Harmonisasi.', 'db') + '</div>';
+      var role = BO.role().key, q = s.q.trim().toLowerCase();
+      var rows = d.rows.map(function (r, i) { return { i: i + 1, r: r }; }).filter(function (x) { return !q || x.r.join(' ').toLowerCase().indexOf(q) >= 0; });
+      if (s.sort != null) rows.sort(function (a, b) { var x = a.r[s.sort], y = b.r[s.sort]; var nx = parseFloat(String(x).replace(/\./g, '').replace(',', '.')), ny = parseFloat(String(y).replace(/\./g, '').replace(',', '.')); if (!isNaN(nx) && !isNaN(ny)) return (nx - ny) * s.dir; return String(x).localeCompare(String(y)) * s.dir; });
+      var dipakai = WS.widgets().filter(function (w) { return (w.sumber || []).indexOf(d.id) >= 0 && w.status !== 'archived'; });
+      var h = '<div class="pg">';
+      h += '<div class="crumb"><a href="#" data-nav="workspace/harmonisasi">Dashboard</a>' + ic('chevr') + '<a href="#" data-nav="workspace/harmonisasi/data-source">Data Source</a>' + ic('chevr') + '<b>' + esc(d.nama) + '</b></div>';
+      h += '<div class="ph"><div><h1>' + esc(d.nama) + '</h1><div class="meta"><span>' + esc(d.penyedia) + '</span><span>•</span><span>' + BO.nf(d.record) + ' record</span><span>•</span><span>Terakhir diperbarui ' + UI.dt(d.diperbarui).replace(',', '') + '</span><span>•</span><span>jadwal ' + esc(d.jadwal) + '</span></div></div>' +
+        '<div class="r">' + (d.status === 'aktif' ? '<button type="button" class="btn btn-p" data-on="sync">' + ic('refresh') + 'Perbarui Data</button>' : '') + '</div></div>';
+      if (d.status === 'aktif' && d.segar !== 'ok') h += '<div class="note ' + (d.segar === 'ganggu' ? 'bad' : 'warn') + '" style="margin-bottom:12px"><b>' + (d.segar === 'ganggu' ? 'Gangguan' : 'Terlambat') + ':</b> ' + esc(d.galat) + '. Widget yang memakai data ini tetap menampilkan data terakhir.</div>';
+      if (d.status === 'menunggu') h += '<div class="note warn" style="margin-bottom:12px">Diunggah ' + esc(d.diunggah || 'analis') + ' pada ' + UI.dt(d.diperbarui) + '. Menunggu persetujuan Approver sebelum bisa dipakai widget.' +
+        (role === 'approver' ? '<div class="row" style="margin-top:10px"><button type="button" class="btn btn-s btn-r" data-on="tolak">' + ic('x') + 'Tolak</button><button type="button" class="btn btn-s btn-g" data-on="setuju">' + ic('ok') + 'Setujui</button></div>' : '') + '</div>';
+      if (d.status === 'archive') h += '<div class="note" style="margin-bottom:12px">Data source diarsipkan dan tidak lagi dipakai widget.</div>';
+      h += '<p class="sm mut" style="margin-bottom:10px">Data mentah dari sumber, hanya baca. Urutan, filter, dan kolom tersembunyi hanya untuk tampilan ini dan tidak mengubah data.</p>';
+      h += '<section class="card"><div class="card-h nb"><label class="srch">' + ic('search') + '<input class="in" id="q" data-in="q" placeholder="Cari di tabel" value="' + esc(s.q) + '" aria-label="Cari di tabel"></label><span class="r xs mut">Menampilkan ' + rows.length + ' baris contoh dari ' + BO.nf(d.record) + ' record</span></div>';
+      h += '<div class="tw"><table class="tb raw" style="min-width:760px"><thead><tr><th>#</th>' + d.kolom.map(function (c, i) { return '<th><button type="button" class="lnk" style="color:var(--ink)" data-on="sort" data-i="' + i + '">' + esc(c[0]) + (s.sort === i ? (s.dir > 0 ? ' ↑' : ' ↓') : '') + '</button><small>' + esc(c[1]) + '</small></th>'; }).join('') + '</tr></thead><tbody>' +
+        rows.map(function (x) { return '<tr><td class="mut">' + x.i + '</td>' + x.r.map(function (v) { return '<td>' + esc(v) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div></section>';
+      h += '<section class="card sec"><div class="card-h"><h3>Dipakai oleh widget</h3><span class="r cnt">' + dipakai.length + '</span></div>' + (dipakai.length ? dipakai.map(function (w) {
+        return '<div class="kvr"><span><b style="font-weight:600">' + esc(w.judul) + '</b> <span class="xs mut">· ' + WS.TIPE[w.tipe] + ' · ' + esc(WS.MODUL[w.modul]) + '</span></span><span class="v"><a href="#" data-nav="workspace/harmonisasi/widgets/' + w.id + '">' + ic('chevr') + '</a></span></div>';
+      }).join('') : '<div class="empty">Belum dipakai widget.</div>') + '</section>';
+      return h + '</div>';
+    },
+    on: {
+      q: function (el) { this.set({ q: el.value }); },
+      sort: function (el) { var i = +el.dataset.i; this.set({ sort: i, dir: this.state.sort === i ? -this.state.dir : 1 }); },
+      sync: function () { var d = BO.get(UC, 'ws.dataSource', id); BO.update(UC, 'ws.dataSource', id, { segar: 'ok', galat: '', diperbarui: BO.now() }, { aksi: 'Data source diperbarui', sebelum: d.segar === 'ok' ? 'Sesuai jadwal' : d.galat, sesudah: 'Sesuai jadwal' }); BO.toast('Data diperbarui dari sumber.', 'ok'); },
+      setuju: function () { BO.update(UC, 'ws.dataSource', id, { status: 'aktif' }, { aksi: 'Data source disetujui', sebelum: 'Menunggu', sesudah: 'Aktif', alasan: 'Sesuai' }); BO.toast('Data source disetujui dan aktif.', 'ok'); },
+      tolak: function () { UI.reason('Tolak data source', 'Alasan penolakan (wajib):', function (r) { BO.update(UC, 'ws.dataSource', id, { status: 'archive' }, { aksi: 'Data source ditolak', sebelum: 'Menunggu', sesudah: 'Archive', alasan: r }); BO.toast('Data source ditolak.', 'x'); }); }
+    }
+  });
+})();
+</script>
+</body></html>

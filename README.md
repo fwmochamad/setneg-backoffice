@@ -1,72 +1,66 @@
-# Backoffice Dashboard Presiden · Harmonisasi Investasi (Vercel)
+# Backoffice Sitroom · Harmonisasi Investasi (Vercel)
 **Badan Teknologi, Data dan Informasi — Kementerian Sekretariat Negara Republik Indonesia**
 
-Prototipe backoffice statis (HTML + JS, tanpa build step) untuk mengelola konten Dashboard Presiden. Satu backoffice menampung beberapa use case, sama seperti dashboard: **Eksekutif**, **Ekonomi**, dan **Harmonisasi Investasi**. Saat ini hanya Harmonisasi Investasi yang dibangun penuh; dua use case lainnya tampil sebagai "Segera".
+Prototipe backoffice statis (HTML + JS, tanpa build step) untuk use case **Harmonisasi Investasi**, mengikuti struktur dan gaya **Backoffice Sitroom** (`sitroom-dashboard-id.vercel.app/backoffice`). Semua use case dibungkus dalam satu backoffice; analis melihat backoffice untuk use case-nya. Di prototipe ini hanya **Harmonisasi** yang berisi; use case lain tampil sebagai daftar (terkunci).
 
-Backoffice ini **tidak terhubung** ke `harmonisasi-investasi-vercel`. Istilah, modul, dan data contohnya diselaraskan dengan dashboard, tetapi seluruh data adalah simulasi.
+Seluruh data adalah **simulasi**. Perubahan tersimpan di `localStorage` peramban.
 
-Acuan isi: **Back Office 2026.html** (indikator operasional BO-01 s.d. BO-15, KAK 2026). Pola antarmuka mengikuti Backoffice Eksekutif.
+**Login demo:** username `admin`, password `admin`.
 
 ---
+
+## 🧭 Struktur Menu (sama dengan Backoffice Sitroom)
+
+| Grup | Menu | Isi untuk Harmonisasi |
+|---|---|---|
+| — | **Dashboard** | Perlu Tindakan (Untuk saya/Semua), Status Pengajuan Saya, Use Case Saya, tabel Dashboard Presiden |
+| AI Center | **Workspace** › Harmonisasi | Sub-menu per use case: |
+| | · Dashboard | Perlu Tindakan, Tayang di Dashboard Presiden, Aktivitas Tim, Kesegaran Data (donut) |
+| | · Widget | 30+ widget dari 5 modul dashboard (KPI, Insight, Peta, Tabel); tab Active/Draft/Approval/Archived; Widget Baru; detail + pratinjau |
+| | · Early Warning System | EWS Kritis/Peringatan/Informasi; review per bagian (4 bagian + daftar periksa); Approval; Topik pantauan |
+| | · Data Source | Regulasi (JDIH), realisasi BKPM, OSS RBA, PDRB, penduduk, pergerakan, migrasi, PIR, temuan; detail tabel mentah; Unggah Data Baru (3 langkah) |
+| | · AI Training Center | Obrolan dengan jawaban simulasi + rujukan; Data Knowledge |
+| | **Dashboard Management** | Daftar dashboard semua use case; Harmonisasi: versi Live/Draft, komposisi widget per modul, ajukan → setujui publikasi |
+| | **Approvals** | Antrean lintas jenis (Dashboard, Widget, Data Source, EWS, Narasi AI) + riwayat keputusan |
+| Operation | **Harmonisasi** | Halaman kerja khusus Harmonisasi (indikator BO-01 s.d. BO-15): Ringkasan, Verifikasi Penilaian, Koleksi Regulasi, Klasifikasi Sektor, Tindak Lanjut, Kurasi Profil Provinsi, Tinjauan Narasi AI, CMS (Master Sektor & Kriteria, Ambang Batas, Lapisan Peta, Penayangan), Audit Trail, Notifikasi |
+| User | **User Management**, **Role & Permission** | Daftar pengguna Harmonisasi; matriks hak Analyst vs Approver |
+
+Menu pengguna (pojok kanan atas): ganti peran **Analyst/Approver**, Notifikasi, Audit Trail, tema, Keluar. Tombol bulan di header mengganti tema **gelap (bawaan) / terang**.
 
 ## 📁 Struktur Proyek
 
 ```
 backoffice-harmonisasi-vercel/
-├── index.html                    # Shell: header, pemilih use case, peran, sidebar, router hash, host iframe
+├── index.html                 # Shell: login, header, sidebar global, kolom Workspace, router hash, host iframe
 ├── assets/
-│   ├── dc-runtime.js, react*.js  # Runtime yang sama dengan dashboard (disalin, bukan ditautkan)
-│   ├── inter.css                 # Tipografi Inter (sama dengan dashboard)
-│   ├── bo-theme.css              # Komponen halaman: kartu KPI, tabel, pill status, tombol, form, timeline
-│   ├── bo-store.js               # State bersama (localStorage): patch data, audit, peran, notifikasi
-│   ├── bo-usecases.js            # Registry use case & menu sidebar
-│   └── uc-harmonisasi.js         # Logika domain + rumus indikator BO-01 s.d. BO-15
+│   ├── bo-theme.css           # Token warna Sitroom (gelap/terang) + komponen; dipakai semua halaman
+│   ├── bo-store.js            # State bersama (localStorage), peran, tema, sesi login demo, audit
+│   ├── bo-ui.js               # Ikon, render ulang halaman, logika Workspace (Perlu Tindakan, approvals, kesegaran)
+│   ├── bo-usecases.js         # Menu Operation › Harmonisasi
+│   ├── uc-harmonisasi.js      # Rumus indikator BO-01 s.d. BO-15, label audit
+│   └── dc-runtime.js, react*  # Runtime halaman Operation (sama dengan dashboard)
 ├── data/
-│   └── harmonisasi-data.js       # Data contoh (mock), siap diganti respons API dengan struktur sama
+│   ├── harmonisasi-data.js    # Data Operation (regulasi, penilaian, klasifikasi, narasi AI, CMS, audit)
+│   └── harmonisasi-ws.js      # Data Workspace (katalog use case, widget, EWS, data source, knowledge, versi)
 └── pages/
-    ├── harmonisasi/              # 11 halaman use case Harmonisasi Investasi
-    └── shared/                   # audit.html, notifikasi.html, segera.html (lintas use case)
+    ├── app/                   # dashboard, dm, dm-detail, approvals, users, roles
+    ├── ws/                    # dashboard, widgets, widget, ews, ews-detail, ews-topik, data-source,
+    │                          # data-detail, unggah, assistant, knowledge, segera (use case lain)
+    ├── harmonisasi/           # 11 halaman Operation › Harmonisasi
+    └── shared/                # audit.html, notifikasi.html
 ```
-
-## 🧭 Menu Harmonisasi ↔ Indikator Back Office 2026
-
-| Grup | Halaman | Indikator | Konten dashboard yang dikelola |
-|---|---|---|---|
-| Ruang Kerja Analis | Ringkasan | semua | Ringkasan antrean & aktivitas |
-| | Verifikasi Penilaian | BO-01, BO-02, BO-03 | Modul 5 · temuan & dasar penilaian |
-| | Koleksi Regulasi | BO-04, BO-05 | Modul 1 · daftar regulasi & metadata resmi |
-| | Klasifikasi Sektor | BO-06, BO-07 | KBLI 2025 untuk grafik sektor |
-| | Tindak Lanjut | BO-08 | Modul 5 · status, PIC, riwayat |
-| | Kurasi Profil Provinsi | BO-09 | Modul 2 & 3 · profil & indikator kesiapan |
-| | Tinjauan Narasi AI | BO-10, BO-11 | Ringkasan, Poin Penting, Dampak, Saran untuk Presiden |
-| CMS Harmonisasi | Master Sektor & Kriteria | BO-12 | Master sektor & kriteria penilaian (berversi) |
-| | Ambang Batas Peringatan | BO-13 | Ambang EWS. Kosong sampai ditetapkan, tanpa angka karangan |
-| | Lapisan Peta & Indikator | BO-14 | Layer peta, sumber, cakupan, periode |
-| | Penayangan Analisis | BO-15 | Status/versi tayang per provinsi & sektor |
-| Administrasi | Audit Trail · Notifikasi | – | Lintas use case |
-
-Nilai awal semua indikator sama dengan kolom "Contoh nilai — ILUSTRASI" pada guideline (20; 80%; 90%; 600; 95%; 15; 85%; 90%; 80%; 12; 100%). Nilai tersebut berubah ketika analis bertindak. Setiap kartu menampilkan rumus dan "cara membaca" dari guideline.
-
-## 🔁 Alur & Peran
-
-- **Peran simulasi** dapat diganti di header: *Analis* atau *Approver*.
-- Narasi AI: **Menunggu tinjauan → Menunggu persetujuan → Tayang → Ditarik**. Hasil asli AI tetap read-only, dan setiap suntingan disimpan sebagai versi baru. Konten hanya tayang bila versi yang disetujui sama dengan versi terkini (BO-11).
-- Hitungan antrean selalu memakai **versi terbaru**. Membuka ulang verifikasi atau kurasi akan menaikkan versi.
-- Setiap aksi tercatat di **Audit Trail** (aktor, peran, waktu, objek, sebelum → sesudah, alasan). Aksi oleh peran lain atau oleh sistem muncul sebagai **Notifikasi**.
-- Perubahan disimpan di `localStorage` peramban (kunci `bo.sim.v1`). Gunakan tombol **Atur ulang data simulasi** di sidebar untuk kembali ke data awal.
 
 ## 🔗 Tautan Langsung (hash)
 
-- `/#harmonisasi/overview`, `/#harmonisasi/verifikasi`, `/#harmonisasi/narasi-ai/AI-001`, dst.
-- Filter dari kartu KPI: `/#harmonisasi/verifikasi/f:menunggu`, `/#harmonisasi/regulasi/f:kurang`
-- Use case lain: `/#eksekutif`, `/#ekonomi`
+- `/#dashboard`, `/#approvals`, `/#dashboard-management/harmonisasi`
+- `/#workspace/harmonisasi`, `/#workspace/harmonisasi/widgets/hrm-sebaran-puu`, `/#workspace/harmonisasi/ews/ews-perda-kudus`, `/#workspace/harmonisasi/data-source/oss`, `/#workspace/harmonisasi/assistant`
+- `/#harmonisasi/verifikasi`, `/#harmonisasi/narasi-ai/AI-001`, `/#harmonisasi/audit`
 
-## ➕ Menambah Use Case
+## 🔁 Alur & Peran
 
-1. Lengkapi entri use case di `assets/bo-usecases.js` (grup menu) dan ubah `status` menjadi `aktif`.
-2. Buat `data/<key>-data.js` yang mengisi `window.BO_DATA.<key>`.
-3. Buat `assets/uc-<key>.js` (label, indikator, badge sidebar) dengan pola `uc-harmonisasi.js`.
-4. Buat halaman di `pages/<key>/`, lalu muat file data/uc tersebut di `index.html` dan di halaman shared.
+- **Analyst**: review EWS (tandai 4 bagian, revisi isi), buat/sunting widget lalu ajukan, unggah data source, buat draft dashboard, kerjakan antrean Operation.
+- **Approver**: setujui/tolak EWS, widget, data source, narasi AI, dan publikasi versi dashboard (alasan wajib saat menolak).
+- Setiap aksi tercatat di **Audit Trail** dan muncul di **Aktivitas Tim**. Tombol **Atur ulang data simulasi** di bawah sidebar mengembalikan data awal.
 
 ## 🛠️ Menjalankan Secara Lokal
 
@@ -76,8 +70,8 @@ python -m http.server 3000
 npx serve .
 ```
 
-Buka `http://localhost:3000`. Halaman perlu dibuka lewat server HTTP, bukan `file://`, agar iframe dan localStorage satu origin.
+Buka `http://localhost:3000` (harus lewat server HTTP, bukan `file://`).
 
 ## 🌐 Deploy di Vercel
 
-Framework Preset **Other**, Build Command kosong, Output Directory `.`. Bisa juga dengan `npx vercel --prod`. `vercel.json` sudah memuat security headers, `noindex`, dan aturan cache.
+Framework Preset **Other**, Build Command kosong, Output Directory `.`. Bisa juga `npx vercel --prod`. `vercel.json` sudah memuat security headers, `noindex`, dan aturan cache.

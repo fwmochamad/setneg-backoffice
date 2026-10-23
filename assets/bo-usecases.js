@@ -1,14 +1,6 @@
-// Registry use case Backoffice Dashboard Presiden.
-// Satu backoffice menampung beberapa use case, seperti dashboard. Untuk menambah use case:
-// 1) tambahkan entri di bawah, 2) buat folder pages/<key>/, 3) siapkan data/<key>-data.js.
-// status: 'aktif' (halaman tersedia) | 'segera' (menampilkan halaman placeholder)
+// Registry menu Operation › Harmonisasi (halaman kerja khusus use case Harmonisasi).
+// Menu AI Center (Workspace, Dashboard Management, Approvals) diatur di index.html dan data/harmonisasi-ws.js.
 window.BO_USECASES = [
-  {
-    key: 'eksekutif', nama: 'Eksekutif', ringkas: 'Ringkasan Nasional, Analisis Sektor, Sentimen, Pengaduan, Arahan Presiden', status: 'segera', modul: 5
-  },
-  {
-    key: 'ekonomi', nama: 'Ekonomi', ringkas: 'Indikator makro, harga pangan, dan kinerja sektor ekonomi', status: 'segera', modul: 0
-  },
   {
     key: 'harmonisasi', nama: 'Harmonisasi Investasi', ringkas: 'Payung Kebijakan, Peluang Daerah, Demografi, Perizinan, Keselarasan Regulasi', status: 'aktif', modul: 5,
     awal: 'overview',

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  UI.page({
+    state: { mine: true, fr: 'ganggu' },
+    render: function (s) {
+      var all = WS.todo(), mine = all.filter(function (x) { return x.mine; }), list = s.mine ? mine : all;
+      var ws = WS.ws(), fr = WS.fresh();
+      var wAct = WS.widgets().filter(function (w) { return w.status === 'active'; }).length;
+      var ea = WS.ews().filter(function (e) { return e.status === 'active'; });
+      var lv = function (l) { return ea.filter(function (e) { return e.level === l; }).length; };
+      var live = WS.versi().filter(function (v) { return v.status === 'live'; }).slice(-1)[0];
+      var act = WS.activity(5);
+      var pct = fr.all.length ? Math.round(fr.ok.length / fr.all.length * 100) : 0;
+      var frList = fr[s.fr];
+
+      var h = '<div class="pg">';
+      h += '<div class="ph"><div><h1>Dashboard</h1><p class="d">Pekerjaan dan kondisi data Harmonisasi</p></div><span class="stamp">Data terakhir masuk ' + UI.dt(ws.dataMasuk) + ' WIB</span></div>';
+      h += '<div class="split2">';
+      h += '<section class="card"><div class="card-h"><h3>Perlu Tindakan</h3><span class="mut" title="Tugas di use case Harmonisasi sesuai peran Anda">' + ic('info') + '</span><div class="r">' +
+        '<button type="button" class="pill' + (s.mine ? ' on' : '') + '" data-on="mine" data-v="1">Untuk saya ' + mine.length + '</button>' +
+        '<button type="button" class="pill' + (!s.mine ? ' on' : '') + '" data-on="mine" data-v="0">Semua ' + all.length + '</button></div></div>' +
+        (list.length ? list.map(UI.todoRow).join('') : '<div class="empty">Tidak ada tindakan untuk peran ini.</div>') + '</section>';
+
+      h += '<div style="display:flex;flex-direction:column;gap:16px">';
+      h += '<section class="card"><div class="card-h nb"><h3>Tayang di Dashboard Presiden</h3></div>' +
+        '<div class="kvr" style="border-top:1px solid var(--line)"><span class="k">Widget</span><span class="v">' + wAct + '<a href="#" data-nav="workspace/harmonisasi/widgets" aria-label="Lihat widget">' + ic('chevr') + '</a></span></div>' +
+        '<div class="kvr"><span class="k">EWS aktif</span><span class="v">' + (lv('crit') ? '<span class="pl bd-err">' + lv('crit') + ' Kritis</span>' : '') + (lv('warn') ? '<span class="pl bd-warn">' + lv('warn') + ' Peringatan</span>' : '') + (lv('info') ? '<span class="pl bd-info">' + lv('info') + ' Informasi</span>' : '') + (ea.length ? '' : '<span class="mut">0</span>') + '<a href="#" data-nav="workspace/harmonisasi/ews" aria-label="Lihat EWS">' + ic('chevr') + '</a></span></div>' +
+        '<div class="kvr"><span class="k">Terakhir dipublikasikan</span><span class="v">' + (live ? live.id + ' · ' + UI.d(live.tgl) : '—') + '<a href="#" data-nav="dashboard-management/harmonisasi" aria-label="Buka Dashboard Management">' + ic('ext') + '</a></span></div></section>';
+      h += '<section class="card" style="flex:1"><div class="card-h nb"><h3>Aktivitas Tim</h3><a class="r lnk" href="#" data-nav="harmonisasi/audit">Semua aktivitas</a></div>' +
+        act.map(function (a) {
+          var ai = a.kind === 'ai';
+          return '<div class="act-i"><span class="ai' + (ai ? ' ai-ai' : '') + '">' + ic(ai ? 'spark' : a.kind === 'sistem' ? 'gear' : 'user') + '</span><div style="min-width:0"><div class="w">' + esc(a.w) + '</div><div class="m">' + (a.by ? esc(a.by) : ai ? 'AI' : a.kind === 'sistem' ? 'Sistem' : 'Analis Harmonisasi') + ' · ' + UI.dt(a.at, false) + '</div></div></div>';
+        }).join('') + '</section>';
+      h += '</div></div>';
+
+      // Kesegaran data
+      var C = { ganggu: 'var(--st-err)', telat: 'var(--st-warn)', ok: 'var(--st-ok)' };
+      h += '<section class="card sec"><div class="card-h nb"><h3>Kesegaran Data</h3></div><div class="split3" style="padding:0 20px 20px;grid-template-columns:minmax(0,1fr) 300px">';
+      h += '<div>' + '<div class="tabs" style="margin:0 0 12px">' + [['ganggu', 'Gangguan'], ['telat', 'Terlambat'], ['ok', 'Sesuai jadwal']].map(function (t) {
+        return '<button type="button" class="tab' + (s.fr === t[0] ? ' on' : '') + '" data-on="fr" data-k="' + t[0] + '"><span class="dot" style="color:' + C[t[0]] + '"></span>' + t[1] + '<span class="cnt">' + fr[t[0]].length + '</span></button>';
+      }).join('') + '</div>';
+      h += frList.length ? frList.map(function (d) {
+        return '<div class="dsrc"><div style="min-width:0"><div class="t">' + esc(d.nama) + '</div><div class="m">' + esc(d.penyedia) + ' · Terakhir masuk ' + UI.d(d.diperbarui, false) + ' · jadwal ' + esc(d.jadwal) + '</div>' +
+          (d.segar !== 'ok' ? '<div class="e' + (d.segar === 'telat' ? ' w' : '') + '">' + esc(d.galat) + '</div>' : '') + '</div>' +
+          '<div class="r">' + (d.segar !== 'ok' ? '<button type="button" class="btn btn-s" data-on="sync" data-id="' + d.id + '">' + ic('sync') + 'Sinkron ulang</button>' : '') + '<a href="#" class="mut" data-nav="workspace/harmonisasi/data-source/' + d.id + '" aria-label="Detail">' + ic('chevr') + '</a></div></div>';
+      }).join('') : '<div class="empty">Tidak ada data source pada status ini.</div>';
+      h += '</div><div style="display:flex;flex-direction:column;align-items:center;gap:12px;border-left:1px solid var(--line);padding-left:20px">' +
+        UI.donut([{ v: fr.ganggu.length, c: C.ganggu }, { v: fr.telat.length, c: C.telat }, { v: fr.ok.length, c: C.ok }], pct + '%', 'sesuai jadwal') +
+        '<div class="legend" style="width:100%">' + [['ganggu', 'Gangguan'], ['telat', 'Terlambat'], ['ok', 'Sesuai jadwal']].map(function (t) {
+          return '<div class="it' + (s.fr === t[0] ? ' on' : '') + '"><span class="dot" style="color:' + C[t[0]] + '"></span>' + t[1] + '<b>' + fr[t[0]].length + '</b></div>';
+        }).join('') + '</div></div></div></section>';
+      return h + '</div>';
+    },
+    on: {
+      mine: function (el) { this.set({ mine: el.dataset.v === '1' }); },
+      fr: function (el) { this.set({ fr: el.dataset.k }); },
+      sync: function (el) {
+        var d = BO.get(UC, 'ws.dataSource', el.dataset.id);
+        BO.update(UC, 'ws.dataSource', d.id, { segar: 'ok', galat: '', diperbarui: BO.now() }, { aksi: 'Sinkron ulang data source', sebelum: d.segar === 'ganggu' ? 'Gangguan' : 'Terlambat', sesudah: 'Sesuai jadwal', alasan: 'Sinkron ulang manual dari Workspace' });
+        BO.toast('Sinkron ulang berhasil: ' + d.nama, 'ok');
+      }
+    }
+  });
+})();
+</script>
+</body></html>

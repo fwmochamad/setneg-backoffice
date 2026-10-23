@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Source · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS;
+  var ST = { aktif: ['Aktif', 'bd-ok'], menunggu: ['Menunggu', 'bd-warn'], archive: ['Archive', 'bd-ter'] };
+  UI.page({
+    state: { f: 'all', q: '' },
+    render: function (s) {
+      var q = s.q.trim().toLowerCase(), all = WS.sources();
+      var list = all.filter(function (d) { return (s.f === 'all' || d.status === s.f) && (!q || (d.nama + ' ' + d.penyedia).toLowerCase().indexOf(q) >= 0); });
+      var h = '<div class="pg">';
+      h += '<div class="ph"><div><h1>Data Source</h1><p class="d">Berikut data source yang dikonsumsi oleh use case Harmonisasi</p></div><div class="r"><button type="button" class="btn" data-nav="workspace/harmonisasi/data-source/unggah">' + ic('plus') + 'Unggah Data Baru</button></div></div>';
+      h += '<div class="row" style="margin:0 -16px 16px;padding:0 16px 16px;border-bottom:1px solid var(--line)"></div>';
+      h += '<div class="row" style="margin-bottom:12px"><label class="srch">' + ic('search') + '<input class="in" id="q" data-in="q" placeholder="Cari nama penyedia atau nama data" value="' + esc(s.q) + '" aria-label="Cari data source"></label><span class="sp"></span>' +
+        UI.chips([{ k: 'all', l: 'Semua' }, { k: 'aktif', l: 'Aktif' }, { k: 'menunggu', l: 'Menunggu' }, { k: 'archive', l: 'Archive' }], s.f, 'f') + '</div>';
+      if (!list.length) h += UI.soon('Tidak ada data source', 'Tidak ada data source yang cocok dengan filter.', 'db');
+      h += '<div class="wgrid two">' + list.map(function (d) {
+        var st = ST[d.status];
+        return '<div class="wcard" data-nav="workspace/harmonisasi/data-source/' + d.id + '" role="link" tabindex="0" style="min-height:100px"><h3 title="' + esc(d.nama) + '" style="padding-right:70px">' + esc(d.nama) + '</h3><div class="d">' + esc(d.penyedia) + ' &nbsp;•&nbsp; ' + BO.nf(d.record) + ' record</div>' +
+          (d.status === 'aktif' && d.segar !== 'ok' ? '<div class="xs" style="color:' + (d.segar === 'ganggu' ? 'var(--st-err)' : 'var(--st-warn)') + ';font-weight:600">' + esc(d.galat) + '</div>' : '') +
+          '<div class="ft">' + ic('clock') + 'Diperbarui ' + UI.dt(d.diperbarui).replace(',', '') + '</div><span class="st pl ' + st[1] + '">' + st[0] + '</span></div>';
+      }).join('') + '</div>';
+      return h + '</div>';
+    },
+    on: {
+      f: function (el) { this.set({ f: el.dataset.k }); },
+      q: function (el) { this.set({ q: el.value }); }
+    }
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('[data-nav]')) BO.nav(e.target.getAttribute('data-nav')); });
+})();
+</script>
+</body></html>

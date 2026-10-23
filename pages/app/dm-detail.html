@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Harmonisasi · Dashboard Management</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+<style>
+  .mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .mw{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .mw:last-child{border-bottom:0}
+  .mw .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vsel{display:flex;gap:6px;flex-wrap:wrap}
+</style>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  var key = BO.param('id');
+  UI.page({
+    state: { v: null },
+    render: function (s) {
+      if (key !== 'harmonisasi') return '<div class="pg">' + UI.soon('Dikelola tim use case lain', 'Backoffice ini hanya dapat mengelola dashboard Harmonisasi.', 'lock') + '</div>';
+      var vs = WS.versi(), role = BO.role().key;
+      var live = vs.filter(function (v) { return v.status === 'live'; }).slice(-1)[0];
+      var cur = s.v ? vs.filter(function (v) { return v.id === s.v; })[0] : (vs.filter(function (v) { return v.status === 'draft' || v.status === 'approval'; }).slice(-1)[0] || live);
+      var isLive = cur.status === 'live', editable = cur.status === 'draft';
+      var ws = WS.widgets();
+      var hidden = cur.hidden || [];
+      var inVer = function (w) { return isLive ? w.status === 'active' : (w.status === 'active' || w.status === 'draft' || w.status === 'approval'); };
+      var h = '<div class="pg">';
+      h += '<div class="crumb"><a href="#" data-nav="dashboard-management">Dashboard Management</a>' + ic('chevr') + '<b>Harmonisasi</b></div>';
+      h += '<div class="verbar"><b style="font-size:15px">Harmonisasi</b>' +
+        '<div class="vsel">' + vs.filter(function (v) { return v.status !== 'arsip'; }).map(function (v) { var on = v.id === cur.id; return '<button type="button" class="pill' + (on ? ' on' : '') + '" data-on="ver" data-k="' + v.id + '">' + v.id + ' · ' + ({ live: 'Live', draft: 'Draft', approval: 'Menunggu' })[v.status] + '</button>'; }).join('') + '</div>' +
+        '<span class="sp"></span>' +
+        (isLive ? '<span class="live">' + cur.id + ' Live</span>' + (vs.some(function (v) { return v.status === 'draft' || v.status === 'approval'; }) ? '' : '<button type="button" class="btn btn-p" data-on="draftBaru">' + ic('plus') + 'Buat Draft Baru</button>') : '') +
+        (cur.status === 'draft' ? '<button type="button" class="btn btn-r" data-on="hapus">Hapus draft</button><button type="button" class="btn btn-p" data-on="ajukan">' + ic('approve') + 'Ajukan publikasi</button>' : '') +
+        (cur.status === 'approval' ? (role === 'approver' ? '<button type="button" class="btn btn-r" data-on="tolak">' + ic('x') + 'Tolak</button><button type="button" class="btn btn-g" data-on="setuju">' + ic('ok') + 'Setujui & publikasikan</button>' : '<span class="pl bd-warn">Menunggu keputusan Approver</span>') : '') + '</div>';
+      h += '<div class="note ' + (isLive ? '' : 'warn') + ' sec">' + (isLive ? 'Ini adalah live version yang sedang aktif sejak ' + UI.dt(cur.tgl) + '. Untuk mengedit konten, buat draft baru terlebih dahulu atau edit draft yang sudah ada.' : cur.status === 'draft' ? 'Draft ' + cur.id + ' oleh ' + esc(cur.oleh) + ': ' + esc(cur.catatan) + '. Atur widget yang tampil per modul, lalu ajukan publikasi.' : 'Draft ' + cur.id + ' menunggu persetujuan Approver untuk dipublikasikan.') + '</div>';
+      // ringkasan EWS
+      var ea = WS.ews().filter(function (e) { return e.status === 'active'; });
+      h += '<section class="card sec"><div class="card-h"><h3>Early Warning System</h3><span class="r cnt">' + ea.length + ' EWS aktif</span></div><div class="card-b" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">' +
+        ea.map(function (e) { return '<div class="ews ' + e.level + '" style="margin:0"><div class="bd" data-nav="workspace/harmonisasi/ews/' + e.id + '"><span class="lv"><span class="dot"></span>' + WS.LV[e.level] + '</span><h3 style="font-size:13px">' + esc(e.judul) + '</h3><div class="q sm">' + esc(e.cepat) + '</div></div></div>'; }).join('') + '</div></section>';
+      // per modul
+      h += '<div class="sec-h sec"><h2>Komposisi dashboard per modul</h2><span class="s">' + (editable ? 'Klik mata untuk menyembunyikan atau menampilkan widget di versi ini.' : 'Hanya baca.') + '</span></div><div class="mods">';
+      Object.keys(WS.MODUL).forEach(function (m, i) {
+        var g = ws.filter(function (w) { return w.modul === m && inVer(w); });
+        h += '<section class="card"><div class="card-h"><div><h3>Modul ' + (i + 1) + '</h3><div class="s">' + esc(BO.data(UC).modul[i][1]) + '</div></div><span class="r cnt">' + g.filter(function (w) { return hidden.indexOf(w.id) < 0; }).length + ' widget</span></div><div class="card-b" style="padding-top:4px">' +
+          g.map(function (w) {
+            var hid = hidden.indexOf(w.id) >= 0, baru = w.status !== 'active';
+            return '<div class="mw" style="' + (hid ? 'opacity:.5' : '') + '"><span class="tag">' + WS.TIPE[w.tipe].replace(' Card', '') + '</span><span class="t" title="' + esc(w.judul) + '">' + esc(w.judul) + '</span>' + (baru ? '<span class="pl bd-info">Baru</span>' : '') +
+              (editable ? '<button type="button" class="btn btn-s btn-ghost btn-ic" data-on="hide" data-id="' + w.id + '" aria-label="' + (hid ? 'Tampilkan' : 'Sembunyikan') + '">' + ic(hid ? 'lock' : 'eye') + '</button>' : '') + '</div>';
+          }).join('') + '</div></section>';
+      });
+      h += '</div>';
+      // riwayat versi
+      h += '<section class="card sec"><div class="card-h"><h3>Riwayat versi</h3></div><div class="tw"><table class="tb" style="min-width:640px"><thead><tr><th>Versi</th><th>Status</th><th>Catatan</th><th>Oleh</th><th>Tanggal</th></tr></thead><tbody>' +
+        vs.slice().reverse().map(function (v) { var st = { live: ['Live', 'bd-ok'], draft: ['Draft', 'bd-ter'], approval: ['Menunggu', 'bd-warn'], arsip: ['Arsip', 'bd-ter'] }[v.status]; return '<tr><td class="b">' + v.id + '</td><td><span class="pl ' + st[1] + '">' + st[0] + '</span></td><td class="sm">' + esc(v.catatan) + '</td><td class="sm">' + esc(v.oleh) + '</td><td class="sm">' + UI.dt(v.tgl) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+      return h + '</div>';
+    },
+    on: {
+      ver: function (el) { this.set({ v: el.dataset.k }); },
+      draftBaru: function () {
+        var vs = WS.versi(), live = vs.filter(function (v) { return v.status === 'live'; }).slice(-1)[0];
+        var n = live.id.replace('v', '').split('.'), id = 'v' + n[0] + '.' + (Number(n[1]) + 1);
+        while (vs.some(function (v) { return v.id === id; })) { var p = id.replace('v', '').split('.'); id = 'v' + p[0] + '.' + (Number(p[1]) + 1); }
+        BO.create(UC, 'ws.versi', { id: id, status: 'draft', tgl: BO.now(), oleh: BO.role().nama, catatan: 'Draft baru dari ' + live.id, hidden: [] }, { aksi: 'Draft dashboard dibuat', sebelum: live.id + ' Live', sesudah: id + ' Draft' });
+        this.set({ v: id }); BO.toast('Draft ' + id + ' dibuat.', 'ok');
+      },
+      hide: function (el) {
+        var cur = curVer(this), h = (cur.hidden || []).slice(), i = h.indexOf(el.dataset.id);
+        if (i >= 0) h.splice(i, 1); else h.push(el.dataset.id);
+        BO.update(UC, 'ws.versi', cur.id, { hidden: h });
+      },
+      ajukan: function () { var c = curVer(this); BO.update(UC, 'ws.versi', c.id, { status: 'approval', tgl: BO.now() }, { aksi: 'Dashboard diajukan untuk publikasi', sebelum: c.id + ' Draft', sesudah: c.id + ' Menunggu' }); BO.toast('Draft diajukan ke Approver.', 'ok'); },
+      hapus: function () { var c = curVer(this); if (!confirm('Hapus draft ' + c.id + '?')) return; BO.update(UC, 'ws.versi', c.id, { status: 'arsip' }, { aksi: 'Draft dashboard dihapus', sebelum: c.id + ' Draft', sesudah: 'Dihapus' }); this.set({ v: null }); },
+      setuju: function () {
+        var c = curVer(this);
+        WS.versi().filter(function (v) { return v.status === 'live'; }).forEach(function (v) { BO.update(UC, 'ws.versi', v.id, { status: 'arsip' }); });
+        BO.update(UC, 'ws.versi', c.id, { status: 'live', tgl: BO.now() }, { aksi: 'Dashboard dipublikasikan', sebelum: c.id + ' Menunggu', sesudah: c.id + ' Live', alasan: 'Disetujui Approver' });
+        this.set({ v: null }); BO.toast('Dashboard ' + c.id + ' dipublikasikan.', 'ok');
+      },
+      tolak: function () { var c = curVer(this), self = this; UI.reason('Tolak publikasi ' + c.id, 'Alasan penolakan (wajib):', function (r) { BO.update(UC, 'ws.versi', c.id, { status: 'draft' }, { aksi: 'Publikasi dashboard ditolak', sebelum: c.id + ' Menunggu', sesudah: c.id + ' Draft', alasan: r }); BO.toast('Dikembalikan ke draft.', 'x'); }); }
+    }
+  });
+  function curVer(self) {
+    var vs = WS.versi();
+    return self.state.v ? vs.filter(function (v) { return v.id === self.state.v; })[0] : (vs.filter(function (v) { return v.status === 'draft' || v.status === 'approval'; }).slice(-1)[0] || vs.filter(function (v) { return v.status === 'live'; }).slice(-1)[0]);
+  }
+})();
+</script>
+</body></html>

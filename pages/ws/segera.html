@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use case lain · Workspace</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var key = BO.param('ws'), nama = key;
+  UI.WS.ws().katalog.forEach(function (k) { if (k.key === key) nama = k.nama; (k.sub || []).forEach(function (s) { if (s[0] === key) nama = s[1]; }); });
+  UI.page({
+    render: function () {
+      return '<div class="pg"><div class="ph"><div><h1>Dashboard</h1><p class="d">Pekerjaan dan kondisi data ' + UI.esc(nama) + '</p></div></div>' +
+        '<section class="card">' + UI.soon('Use case ' + nama + ' belum tersedia di backoffice ini', 'Backoffice ini difokuskan untuk use case Harmonisasi. Use case lain memakai kerangka yang sama (Dashboard, Widget, EWS, Data Source, AI Training Center) dan dikelola tim masing-masing.', 'lock') +
+        '<div class="row" style="justify-content:center;padding-bottom:40px"><button type="button" class="btn btn-p" data-nav="workspace/harmonisasi">Buka Workspace Harmonisasi</button></div></section></div>';
+    }
+  });
+})();
+</script>
+</body></html>

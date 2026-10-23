@@ -149,12 +149,17 @@
       if (ent === 'cms.layer') { r = BO.get(UC, ent, id); return r ? 'Lapisan · ' + r.l : id; }
       if (ent === 'cms.masterSektor' || ent === 'masterSektor') return 'Master sektor ' + id;
       if (ent === 'cms.kriteria' || ent === 'kriteria') return 'Kriteria penilaian ' + id;
+      if (ent === 'ws.ews' || ent === 'ws.widgets' || ent === 'ws.knowledge' || ent === 'ws.topik') { r = BO.get(UC, ent, id); return r ? r.judul : id; }
+      if (ent === 'ws.dataSource') { r = BO.get(UC, ent, id); return r ? r.nama : id; }
+      if (ent === 'ws.versi') return 'Dashboard Harmonisasi ' + id;
       return id;
     },
-    entL: { keluaranAI: 'Keluaran AI', penilaian: 'Hasil penilaian', regulasi: 'Regulasi', klasifikasi: 'Klasifikasi sektor', tindakLanjut: 'Tindak lanjut', provinsi: 'Profil provinsi', 'cms.penayangan': 'Penayangan', penayangan: 'Penayangan', 'cms.ambang': 'Ambang batas', 'cms.layer': 'Lapisan peta', 'cms.masterSektor': 'Master sektor', masterSektor: 'Master sektor', 'cms.kriteria': 'Kriteria penilaian', kriteria: 'Kriteria penilaian' },
+    entL: { keluaranAI: 'Keluaran AI', penilaian: 'Hasil penilaian', regulasi: 'Regulasi', klasifikasi: 'Klasifikasi sektor', tindakLanjut: 'Tindak lanjut', provinsi: 'Profil provinsi', 'cms.penayangan': 'Penayangan', penayangan: 'Penayangan', 'cms.ambang': 'Ambang batas', 'cms.layer': 'Lapisan peta', 'cms.masterSektor': 'Master sektor', masterSektor: 'Master sektor', 'cms.kriteria': 'Kriteria penilaian', kriteria: 'Kriteria penilaian', 'ws.ews': 'Early Warning System', 'ws.widgets': 'Widget', 'ws.dataSource': 'Data Source', 'ws.versi': 'Versi dashboard', 'ws.knowledge': 'Data Knowledge', 'ws.topik': 'Topik pantauan' },
     // halaman tujuan untuk membuka objek dari audit/notifikasi
     objPath: function (ent, id) {
       var m = { keluaranAI: 'narasi-ai', penilaian: 'verifikasi', regulasi: 'regulasi', klasifikasi: 'klasifikasi', tindakLanjut: 'tindak-lanjut', provinsi: 'provinsi', 'cms.penayangan': 'cms-penayangan', penayangan: 'cms-penayangan', 'cms.ambang': 'cms-ambang', 'cms.layer': 'cms-peta', 'cms.masterSektor': 'cms-kriteria', masterSektor: 'cms-kriteria', 'cms.kriteria': 'cms-kriteria', kriteria: 'cms-kriteria' };
+      var wsm = { 'ws.ews': 'workspace/harmonisasi/ews/', 'ws.widgets': 'workspace/harmonisasi/widgets/', 'ws.dataSource': 'workspace/harmonisasi/data-source/', 'ws.versi': 'dashboard-management/harmonisasi', 'ws.knowledge': 'workspace/harmonisasi/assistant/knowledge', 'ws.topik': 'workspace/harmonisasi/ews/topik' };
+      if (wsm[ent]) return wsm[ent] + (/\/$/.test(wsm[ent]) ? id : '');
       var pg = m[ent];
       if (!pg) return null;
       var withId = ['narasi-ai', 'verifikasi', 'regulasi', 'klasifikasi', 'tindak-lanjut', 'provinsi'].indexOf(pg) >= 0;

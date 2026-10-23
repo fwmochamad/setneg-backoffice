@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Training Center · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+<style>.emb{width:72px;height:72px}</style>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS;
+  var KEY = 'bo.chat.harmonisasi';
+  var load = function () { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } };
+  var save = function (a) { try { localStorage.setItem(KEY, JSON.stringify(a.slice(0, 20))); } catch (e) {} try { parent.postMessage({ type: 'bo:chat' }, '*'); } catch (e) {} };
+  // jawaban simulasi berbasis data contoh (tanpa model AI sungguhan)
+  function jawab(q) {
+    var t = q.toLowerCase(), src = WS.sources(), e = WS.ews();
+    if (/widget|kartu/.test(t)) return ['Draft widget bisa dibuat dari menu Widget › Widget Baru. Untuk regulasi tidak selaras per provinsi, gunakan data source "Koleksi Regulasi Investasi" (290 record) dan "Temuan & Tindak Lanjut Keselarasan" (20 record), jenis kartu Tabel atau Peta.', ['Koleksi Regulasi Investasi', 'Temuan & Tindak Lanjut Keselarasan']];
+    if (/realisasi|investasi|tren/.test(t)) return ['Realisasi PMA dan PMDN Tw II 2026 tercatat Rp1.050 triliun (naik 12,4% yoy). Jawa Barat memimpin di sektor industri pengolahan. Ada sinyal penurunan 18% di Sulawesi Tengah pada Tw III yang sedang menunggu persetujuan sebagai EWS Kritis.', ['Realisasi Investasi PMA & PMDN', 'EWS: Realisasi Investasi Sulawesi Tengah Turun 18%']];
+    if (/pkkpr|sla|izin|perizinan/.test(t)) return ['Rata-rata waktu PKKPR 38 hari, melampaui SLA 20 hari di enam provinsi. Penyebab utama: RDTR digital belum terintegrasi OSS di tiga provinsi dan antrean persetujuan lingkungan (42% permohonan tertahan). Catatan: koneksi API OSS RBA sedang gangguan sejak 14 Okt, jadi angka per 14 Okt.', ['Permohonan & Penerbitan Izin (OSS RBA)', 'EWS: PKKPR Melampaui SLA di 6 Provinsi']];
+    if (/perda|selaras|regulasi/.test(t)) return ['13 regulasi berlaku terindikasi tidak selaras; 7 di antaranya hambatan kemudahan berusaha, mayoritas perda yang menambah persyaratan di luar OSS. Kasus terbaru: Perda Kabupaten Kudus No. 1/2026 (EWS Kritis aktif).', ['Koleksi Regulasi Investasi', 'Pedoman Penilaian Keselarasan Regulasi Versi B']];
+    return ['Saya menjawab berdasarkan ' + src.filter(function (s) { return s.status === 'aktif'; }).length + ' dataset Aktif dan ' + WS.knowledge().length + ' dokumen Data Knowledge use case Harmonisasi. Coba tanyakan tentang regulasi tidak selaras, realisasi investasi, perizinan, atau mobilitas penduduk.', ['Data Source Harmonisasi']];
+  }
+  UI.page({
+    state: { chat: null, q: '', view: BO.param('view') },
+    render: function (s) {
+      var all = load(), c = s.chat != null ? all.filter(function (x) { return x.id === s.chat; })[0] : null;
+      var h = '<div class="chat"><div class="tools"><button type="button" class="btn btn-ghost btn-s" data-on="semua">' + ic('hist') + 'Semua obrolan</button><button type="button" class="btn btn-ghost btn-s" data-on="instr">' + ic('book') + 'Instruksi</button><button type="button" class="btn btn-ghost btn-s" data-nav="workspace/harmonisasi/assistant/knowledge">' + ic('lib') + 'Data Knowledge</button></div>';
+      if (s.view === 'semua') {
+        h += '<div class="msgs"><h1 style="font-size:16px">Semua obrolan</h1>' + (all.length ? all.map(function (x) { return '<button type="button" class="li" data-on="buka" data-id="' + x.id + '"><span class="t">' + esc(x.q) + '</span><span class="xs mut">' + esc(x.at) + ' · ' + x.m.length + ' pesan</span></button>'; }).join('') : '<div class="empty">Belum ada percakapan.</div>') + '</div>';
+      } else if (!c) {
+        h += '<div class="hero"><svg class="emb" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#241a06" stroke="#7a5a17" stroke-width="1.5"/><circle cx="24" cy="24" r="18.5" fill="none" stroke="#7a5a17" stroke-width="1" stroke-dasharray="1.5 1.8"/><path d="M24 9.5l3.7 8.8 9.5.7-7.3 6.2 2.3 9.2L24 29.3l-8.2 5.1 2.3-9.2-7.3-6.2 9.5-.7z" fill="#c98a12" stroke="#7a5a17" stroke-width=".8"/></svg><h1>Eksplorasi Usecase Harmonisasi</h1><p>Tanya bebas. Jawaban berdasar dataset &amp; repositori use case ini, lengkap dengan rujukan.</p></div>';
+        h += '<div class="box"><div class="sugg">' + WS.ws().saran.map(function (x) { return '<button type="button" data-on="tanya" data-q="' + esc(x) + '">' + ic('info') + esc(x) + '</button>'; }).join('') + '</div>';
+      } else {
+        h += '<div class="msgs">' + c.m.map(function (m) { return '<div class="msg ' + (m.r === 'u' ? 'me' : 'ai') + '">' + esc(m.t) + (m.src ? '<div class="src">Rujukan: ' + m.src.map(esc).join(' · ') + '</div>' : '') + '</div>'; }).join('') + '</div><div class="box">';
+      }
+      if (s.view !== 'semua') h += '<div class="inp"><textarea id="q" data-in="q" data-enter="kirim" placeholder="Tulis apa yang ingin Anda tanyakan" aria-label="Pertanyaan">' + esc(s.q) + '</textarea><div class="row"><button type="button" class="btn btn-s" data-on="lampir">' + ic('clip') + 'Lampirkan File</button><span class="sp"></span><button type="button" class="btn btn-ghost btn-s btn-ic" aria-label="Rekam suara" data-on="lampir">' + ic('mic') + '</button><button type="button" class="btn btn-p btn-s btn-ic" style="border-radius:50%" data-on="kirim" aria-label="Kirim">' + ic('send') + '</button></div></div><div class="disc">AI dapat keliru. Validasi hasil sebelum digunakan.</div></div>';
+      return h + '</div>';
+    },
+    after: function () { var m = document.querySelector('.msgs'); if (m) window.scrollTo(0, document.body.scrollHeight); },
+    onOpen: function (id) { if (id === 'new') this.set({ chat: null, q: '', view: null }); },
+    on: {
+      q: function (el) { this.state.q = el.value; },
+      tanya: function (el) { this.state.q = el.dataset.q; send(this); },
+      kirim: function (el, ev) { if (ev && ev.type === 'keydown') { if (ev.shiftKey) return; ev.preventDefault(); this.state.q = el.value; } send(this); },
+      semua: function () { this.set({ view: this.state.view === 'semua' ? null : 'semua' }); },
+      buka: function (el) { this.set({ chat: el.dataset.id, view: null }); },
+      instr: function () { alert('Instruksi AI Training Center · Harmonisasi\n\n• Jawab hanya dari dataset Aktif di Data Source dan dokumen Data Knowledge.\n• Sertakan rujukan untuk setiap angka.\n• Bila data tidak tersedia, katakan tidak tersedia, jangan menebak.\n• Gunakan istilah KBLI 2025 dan nomenklatur kementerian terbaru.'); },
+      lampir: function () { BO.toast('Lampiran dan suara belum tersedia di prototipe ini.'); }
+    }
+  });
+  function send(self) {
+    var q = (self.state.q || '').trim(); if (!q) return;
+    var all = load(), id = self.state.chat, c = all.filter(function (x) { return x.id === id; })[0];
+    if (!c) { c = { id: Date.now().toString(36), q: q, at: UI.dt(BO.now()), m: [] }; all.unshift(c); }
+    var a = jawab(q);
+    c.m.push({ r: 'u', t: q }, { r: 'a', t: a[0], src: a[1] });
+    save(all);
+    self.set({ chat: c.id, q: '', view: null });
+  }
+})();
+</script>
+</body></html>

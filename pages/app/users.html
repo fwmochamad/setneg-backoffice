@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User Management · Backoffice Sitroom</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc;
+  var USERS = [
+    ['Analis Harmonisasi', 'analis.harmonisasi', 'Analyst', 'Harmonisasi', 'Aktif'],
+    ['Analis Utama', 'analis.utama', 'Approver', 'Harmonisasi', 'Aktif'],
+    ['admin', 'admin', 'Super Admin', 'Semua use case', 'Aktif']
+  ];
+  UI.page({
+    render: function () {
+      var me = BO.role();
+      return '<div class="pg"><div class="ph"><div><h1>User Management</h1><p class="d">Pengguna backoffice dengan akses ke use case Harmonisasi. Multi-user dan pengelolaan akun belum tersedia di prototipe ini; peran dapat disimulasikan dari menu pengguna.</p></div></div>' +
+        '<section class="card"><div class="tw"><table class="tb" style="min-width:680px"><thead><tr><th>Nama</th><th>Username</th><th>Peran</th><th>Use case</th><th>Status</th></tr></thead><tbody>' +
+        USERS.map(function (u) {
+          var cur = u[0] === me.nama;
+          return '<tr><td><span class="row" style="flex-wrap:nowrap"><span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#a855f7);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">' + esc(u[0].charAt(0).toUpperCase()) + '</span><b>' + esc(u[0]) + '</b>' + (cur ? '<span class="pl bd-info">Anda</span>' : '') + '</span></td><td class="mono">' + esc(u[1]) + '</td><td><span class="pl ' + (u[2] === 'Approver' ? 'bd-warn' : u[2] === 'Super Admin' ? 'bd-ai' : 'bd-info') + '">' + esc(u[2]) + '</span></td><td>' + esc(u[3]) + '</td><td><span class="pl bd-ok">' + esc(u[4]) + '</span></td></tr>';
+        }).join('') + '</tbody></table></div></section></div>';
+    }
+  });
+})();
+</script>
+</body></html>

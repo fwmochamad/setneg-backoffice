@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Widget · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  var ORDER = ['kpi', 'insight', 'peta', 'tabel'];
+  var pg = UI.page({
+    state: { tab: 'active', tipe: 'all', modul: 'all', menu: null, baru: false, f: { judul: '', modul: 'payung', tipe: 'insight', sumber: 'regulasi', desc: '' } },
+    render: function (s) {
+      var all = WS.widgets(), cnt = function (st) { return all.filter(function (w) { return w.status === st; }).length; };
+      var inTab = all.filter(function (w) { return w.status === s.tab; });
+      var list = inTab.filter(function (w) { return (s.tipe === 'all' || w.tipe === s.tipe) && (s.modul === 'all' || w.modul === s.modul); });
+      var nAi = WS.aiReview();
+      var h = '<div class="pg">';
+      h += '<div class="ph"><div><h1>Widget</h1><p class="d">Atur dan buat widget yang akan ditampilkan ke Dashboard Harmonisasi Investasi di Sitroom</p></div><div class="r"><button type="button" class="btn" data-on="baru">' + ic('plus') + 'Widget Baru</button></div></div>';
+      h += UI.tabs([{ k: 'active', l: 'Active', ic: 'okc', n: cnt('active') }, { k: 'draft', l: 'Draft', ic: 'draft', n: cnt('draft') }, { k: 'approval', l: 'Approval', ic: 'approve', n: cnt('approval'), hl: true }, { k: 'archived', l: 'Archived', ic: 'archive', n: cnt('archived') }], s.tab, 'tab').replace('class="tabs"', 'class="tabs" style="margin:0 -16px;padding:0 16px"');
+      h += '<div class="row" style="margin:16px 0 4px">' + UI.chips([{ k: 'all', l: 'Semua' }].concat(ORDER.map(function (k) { return { k: k, l: WS.TIPE[k] }; })), s.tipe, 'tipe') +
+        '<select class="sel" data-ch="modul" aria-label="Filter modul" style="height:30px;min-height:30px;padding-top:2px;padding-bottom:2px"><option value="all">Semua modul</option>' + Object.keys(WS.MODUL).map(function (k, i) { return '<option value="' + k + '"' + (s.modul === k ? ' selected' : '') + '>Modul ' + (i + 1) + ' · ' + WS.MODUL[k] + '</option>'; }).join('') + '</select>' +
+        '<button type="button" class="btn btn-s sp" data-nav="harmonisasi/narasi-ai">' + ic('spark', 'ai-c') + 'Narasi AI belum ditinjau ' + nAi + '</button></div>';
+      if (s.tab === 'approval' && list.length) h += '<div class="note warn" style="margin-top:12px">Widget di tab ini menunggu keputusan Approver sebelum tayang. ' + (BO.role().key === 'approver' ? 'Buka widget untuk menyetujui atau menolak.' : 'Ganti peran ke Approver di menu pengguna untuk memutuskan.') + '</div>';
+      if (!list.length) h += UI.soon('Belum ada widget', s.tab === 'draft' ? 'Buat widget baru untuk mulai menyusun draft.' : 'Tidak ada widget pada tab dan filter ini.', 'widget');
+      ORDER.forEach(function (tp) {
+        var g = list.filter(function (w) { return w.tipe === tp; });
+        if (!g.length) return;
+        h += '<div class="grp">' + WS.TIPE[tp] + '</div><div class="wgrid">';
+        g.forEach(function (w) {
+          h += '<div class="wcard" data-nav="workspace/harmonisasi/widgets/' + w.id + '" role="link" tabindex="0"><h3 title="' + esc(w.judul) + '">' + esc(w.judul) + '</h3><div class="d">' + esc(w.desc) + '</div>' +
+            '<div class="ft">' + ic('clock') + 'Diperbarui ' + UI.dt(w.diperbarui).replace(',', '') + '<span class="tag">' + (w.bawaan ? 'Bawaan' : 'Kustom') + '</span><span class="tag" style="margin-left:4px">M' + (Object.keys(WS.MODUL).indexOf(w.modul) + 1) + '</span></div>' +
+            '<button type="button" class="kb" data-on="menu" data-id="' + w.id + '" aria-label="Tindakan widget">' + ic('more') + '</button>' +
+            (s.menu === w.id ? '<div class="menu" style="right:8px;top:36px">' + menuItems(w) + '</div>' : '') + '</div>';
+        });
+        h += '</div>';
+      });
+      if (s.baru) h += modal(s.f);
+      return h + '</div>';
+    },
+    on: {
+      tab: function (el) { this.set({ tab: el.dataset.k, menu: null }); },
+      tipe: function (el) { this.set({ tipe: el.dataset.k }); },
+      modul: function (el) { this.set({ modul: el.value }); },
+      menu: function (el, ev) { ev.stopPropagation(); this.set({ menu: this.state.menu === el.dataset.id ? null : el.dataset.id }); },
+      act: function (el, ev) {
+        ev.stopPropagation();
+        var w = BO.get(UC, 'ws.widgets', el.dataset.id), a = el.dataset.a, self = this;
+        var MAP = { arsip: ['archived', 'Widget diarsipkan'], aktif: ['active', 'Widget diaktifkan kembali'], ajukan: ['approval', 'Widget diajukan untuk persetujuan'] };
+        var go = function (why) { BO.update(UC, 'ws.widgets', w.id, { status: MAP[a][0], diperbarui: BO.now() }, { aksi: MAP[a][1], sebelum: w.status, sesudah: MAP[a][0], alasan: why || '—' }); BO.toast(MAP[a][1], 'ok'); self.set({ menu: null }); };
+        if (a === 'arsip') UI.reason('Arsipkan widget "' + w.judul + '"', 'Alasan pengarsipan:', go); else go();
+      },
+      baru: function () { this.set({ baru: true }); },
+      tutup: function () { this.set({ baru: false }); },
+      fld: function (el) { var f = Object.assign({}, this.state.f); f[el.dataset.k] = el.value; this.state.f = f; },
+      simpan: function () {
+        var f = this.state.f; if (!f.judul.trim()) { BO.toast('Judul widget wajib diisi.', 'x'); return; }
+        var id = 'hrm-' + Date.now().toString(36);
+        BO.create(UC, 'ws.widgets', { id: id, modul: f.modul, tipe: f.tipe, judul: f.judul.trim(), desc: f.desc.trim() || 'Widget kustom', tooltip: f.desc.trim(), sumber: [f.sumber], status: 'draft', bawaan: false, ver: 1, diperbarui: BO.now(), dibuatOleh: BO.role().nama },
+          { aksi: 'Widget baru dibuat (draft)', sebelum: '—', sesudah: 'Draft v1', alasan: 'Dibuat dari Workspace' });
+        BO.toast('Draft widget dibuat.', 'ok');
+        this.set({ baru: false, tab: 'draft', f: { judul: '', modul: 'payung', tipe: 'insight', sumber: 'regulasi', desc: '' } });
+      }
+    },
+    after: function () {}
+  });
+  document.addEventListener('click', function (e) { if (pg.state.menu && !e.target.closest('.menu') && !e.target.closest('.kb')) pg.set({ menu: null }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('.wcard')) BO.nav(e.target.getAttribute('data-nav')); });
+  function menuItems(w) {
+    var b = [];
+    b.push('<button type="button" data-nav="workspace/harmonisasi/widgets/' + w.id + '">' + UI.icon('eye') + 'Buka detail</button>');
+    if (w.status === 'draft') b.push('<button type="button" data-on="act" data-a="ajukan" data-id="' + w.id + '">' + UI.icon('approve') + 'Ajukan persetujuan</button>');
+    if (w.status === 'archived') b.push('<button type="button" data-on="act" data-a="aktif" data-id="' + w.id + '">' + UI.icon('refresh') + 'Aktifkan kembali</button>');
+    if (w.status === 'active' || w.status === 'draft') b.push('<button type="button" class="r" data-on="act" data-a="arsip" data-id="' + w.id + '">' + UI.icon('archive') + 'Arsipkan</button>');
+    return b.join('');
+  }
+  function modal(f) {
+    var src = WS.sources().filter(function (s) { return s.status === 'aktif'; });
+    return '<div class="mdl" role="dialog" aria-modal="true" aria-labelledby="mT"><div class="mdl-b"><div class="mdl-h"><h3 id="mT">Widget Baru</h3><button type="button" class="btn btn-s btn-ghost sp" data-on="tutup" aria-label="Tutup">' + UI.icon('x') + '</button></div><div class="mdl-c">' +
+      '<div class="fld"><label for="fJ">Judul <span class="req">*</span></label><input class="ip" id="fJ" data-in="fld" data-k="judul" value="' + UI.esc(f.judul) + '" placeholder="mis. Regulasi tidak selaras per provinsi"></div>' +
+      '<div class="g2"><div class="fld"><label for="fM">Modul dashboard</label><select class="sel" id="fM" style="width:100%" data-ch="fld" data-k="modul">' + Object.keys(WS.MODUL).map(function (k, i) { return '<option value="' + k + '"' + (f.modul === k ? ' selected' : '') + '>Modul ' + (i + 1) + ' · ' + WS.MODUL[k] + '</option>'; }).join('') + '</select></div>' +
+      '<div class="fld"><label for="fT">Jenis kartu</label><select class="sel" id="fT" style="width:100%" data-ch="fld" data-k="tipe">' + Object.keys(WS.TIPE).map(function (k) { return '<option value="' + k + '"' + (f.tipe === k ? ' selected' : '') + '>' + WS.TIPE[k] + '</option>'; }).join('') + '</select></div></div>' +
+      '<div class="fld"><label for="fS">Data source</label><select class="sel" id="fS" style="width:100%" data-ch="fld" data-k="sumber">' + src.map(function (s) { return '<option value="' + s.id + '"' + (f.sumber === s.id ? ' selected' : '') + '>' + UI.esc(s.nama) + ' · ' + UI.esc(s.penyedia) + '</option>'; }).join('') + '</select><span class="hint">Hanya dataset berstatus Aktif yang bisa dipakai widget.</span></div>' +
+      '<div class="fld"><label for="fD">Deskripsi / tooltip</label><textarea class="ta" id="fD" data-in="fld" data-k="desc" style="min-height:72px">' + UI.esc(f.desc) + '</textarea></div>' +
+      '</div><div class="mdl-f"><button type="button" class="btn" data-on="tutup">Batal</button><button type="button" class="btn btn-p" data-on="simpan">Simpan sebagai draft</button></div></div></div>';
+  }
+})();
+</script>
+</body></html>

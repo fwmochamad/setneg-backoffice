@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Early Warning System · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  var RANK = { crit: 0, warn: 1, info: 2 }, BIG = { crit: 'alert', warn: 'alertc', info: 'info' };
+  var pg = UI.page({
+    state: { tab: 'active', q: '', sort: 'prio', menu: null },
+    render: function (s) {
+      var all = WS.ews(), cnt = function (st) { return all.filter(function (e) { return e.status === st; }).length; };
+      var q = s.q.trim().toLowerCase();
+      var list = all.filter(function (e) { return e.status === s.tab && (!q || (e.judul + ' ' + WS.MODUL[e.modul] + ' ' + WS.LV[e.level]).toLowerCase().indexOf(q) >= 0); });
+      list.sort(function (a, b) { return s.sort === 'prio' ? (RANK[a.level] - RANK[b.level]) || (a.diperbarui < b.diperbarui ? 1 : -1) : (a.diperbarui < b.diperbarui ? 1 : -1); });
+      var role = BO.role().key;
+      var h = '<div class="pg">';
+      h += '<div class="ph" style="flex-wrap:nowrap"><div><h1>Early Warning System</h1><p class="d" style="max-width:720px">Dideteksi dan diperbarui otomatis oleh sistem setiap 6 jam (04.00, 10.00, 16.00, 22.00 WIB) dari regulasi, perizinan, realisasi investasi, dan data kependudukan. Disetujui Approver sebelum tayang di Dashboard Presiden, lalu direview analis. Deteksi terakhir hari ini, 04.00 WIB.</p></div>' +
+        '<div class="r" style="flex-wrap:nowrap"><button type="button" class="btn btn-ghost" data-on="instr">' + ic('book') + 'Instruksi</button><button type="button" class="btn btn-ghost" data-nav="workspace/harmonisasi/assistant/knowledge">' + ic('lib') + 'Data Knowledge</button><button type="button" class="btn btn-ghost" data-nav="workspace/harmonisasi/ews/topik">' + ic('target') + 'Topik pantauan</button></div></div>';
+      h += UI.tabs([{ k: 'active', l: 'Active', ic: 'okc', n: cnt('active') }, { k: 'approval', l: 'Approval', ic: 'approve', n: cnt('approval'), hl: true }, { k: 'archived', l: 'Archived', ic: 'archive', n: cnt('archived') }], s.tab, 'tab').replace('class="tabs"', 'class="tabs" style="margin:0 -16px;padding:0 16px"');
+      h += '<div class="row" style="margin:16px 0"><label class="srch">' + ic('search') + '<input class="in" id="q" data-in="q" placeholder="Cari judul atau kategori isu" value="' + esc(s.q) + '" aria-label="Cari EWS"></label><span class="sp sm mut">Urutkan</span><select class="sel" data-ch="sort" aria-label="Urutkan"><option value="prio"' + (s.sort === 'prio' ? ' selected' : '') + '>Prioritas (tingkat, lalu terbaru)</option><option value="baru"' + (s.sort === 'baru' ? ' selected' : '') + '>Terbaru diperbarui</option></select></div>';
+      if (s.tab === 'approval' && list.length) h += '<div class="note warn" style="margin-bottom:12px">EWS hasil deteksi AI menunggu keputusan Approver. ' + (role === 'approver' ? 'Setujui agar tayang di Dashboard Presiden, atau tolak dengan alasan.' : 'Ganti peran ke Approver di menu pengguna untuk memutuskan.') + '</div>';
+      if (!list.length) h += UI.soon('Tidak ada EWS', q ? 'Tidak ada EWS yang cocok dengan pencarian.' : 'Belum ada EWS pada tab ini.', 'alert');
+      list.forEach(function (e) {
+        var rv = WS.reviewed(e);
+        h += '<div class="ews ' + e.level + '"><div class="bd" data-nav="workspace/harmonisasi/ews/' + e.id + '" role="link" tabindex="0">' +
+          '<span class="lv"><span class="dot"></span>' + WS.LV[e.level] + '</span><h3>' + esc(e.judul) + '</h3><div class="q">' + esc(e.cepat) + '</div>' +
+          '<div class="flags"><span class="' + (rv ? 'ok-c' : '') + '">' + ic('okc') + (e.status === 'approval' ? 'Menunggu keputusan Approver' : rv ? 'Sudah direview analis' : 'Belum direview analis') + '</span><span class="brand-c">' + ic('target') + 'Tingkat Akurasi: ' + esc(e.akurasi) + '</span><span>' + ic('layout') + esc(WS.MODUL[e.modul]) + '</span></div>' +
+          '<span class="big">' + ic(BIG[e.level]) + '</span></div>' +
+          '<button type="button" class="kb" data-on="menu" data-id="' + e.id + '" aria-label="Tindakan EWS">' + ic('more') + '</button>' +
+          (s.menu === e.id ? '<div class="menu" style="right:8px;top:34px">' + menuItems(e, role) + '</div>' : '') +
+          '<div class="ft">Diperbarui ' + UI.dt(e.diperbarui, 2) + (e.status === 'active' && !rv ? ' <span class="pl bd-warn">Perlu direview analis</span>' : '') + (e.status === 'archived' && e.alasanArsip ? ' · ' + esc(e.alasanArsip) : '') + (e.status === 'approval' ? ' · diajukan ' + UI.dt(e.diajukan || e.terdeteksi, false) + ' oleh Sistem AI' : '') + '</div></div>';
+      });
+      return h + '</div>';
+    },
+    on: {
+      tab: function (el) { this.set({ tab: el.dataset.k, menu: null }); },
+      q: function (el) { this.set({ q: el.value }); },
+      sort: function (el) { this.set({ sort: el.value }); },
+      menu: function (el, ev) { ev.stopPropagation(); this.set({ menu: this.state.menu === el.dataset.id ? null : el.dataset.id }); },
+      instr: function () { alert('Instruksi deteksi EWS Harmonisasi:\n\n1. Pindai regulasi baru, data perizinan OSS, realisasi investasi, dan pergerakan penduduk setiap 6 jam.\n2. Tingkat Kritis bila menahan investasi atau melanggar peraturan lebih tinggi; Peringatan bila melewati tenggat/target; Informasi untuk tren yang perlu dipantau.\n3. Setiap fakta wajib merujuk sumber bernomor.\n4. Judul maks 2 baris, langkah cepat maks 1 baris.'); },
+      act: function (el, ev) {
+        ev.stopPropagation();
+        var e = BO.get(UC, 'ws.ews', el.dataset.id), a = el.dataset.a, self = this;
+        if (a === 'setuju') { BO.update(UC, 'ws.ews', e.id, { status: 'active', diperbarui: BO.now() }, { aksi: 'EWS disetujui dan tayang', sebelum: 'Approval', sesudah: 'Active', alasan: 'Sesuai' }); BO.toast('EWS disetujui dan tayang di Dashboard Presiden.', 'ok'); }
+        if (a === 'tolak') UI.reason('Tolak EWS', 'Alasan penolakan (wajib):', function (r) { BO.update(UC, 'ws.ews', e.id, { status: 'archived', alasanArsip: 'Ditolak Approver: ' + r }, { aksi: 'EWS ditolak', sebelum: 'Approval', sesudah: 'Archived', alasan: r }); BO.toast('EWS ditolak dan diarsipkan.', 'x'); });
+        if (a === 'arsip') UI.reason('Arsipkan EWS', 'Alasan pengarsipan (wajib):', function (r) { BO.update(UC, 'ws.ews', e.id, { status: 'archived', alasanArsip: r }, { aksi: 'EWS diarsipkan', sebelum: 'Active', sesudah: 'Archived', alasan: r }); BO.toast('EWS diarsipkan.', 'ok'); });
+        self.set({ menu: null });
+      }
+    }
+  });
+  function menuItems(e, role) {
+    var b = ['<button type="button" data-nav="workspace/harmonisasi/ews/' + e.id + '">' + ic('eye') + 'Buka detail</button>'];
+    if (e.status === 'approval' && role === 'approver') b.push('<button type="button" data-on="act" data-a="setuju" data-id="' + e.id + '">' + ic('ok') + 'Setujui & tayangkan</button>', '<button type="button" class="r" data-on="act" data-a="tolak" data-id="' + e.id + '">' + ic('x') + 'Tolak</button>');
+    if (e.status === 'active') b.push('<button type="button" class="r" data-on="act" data-a="arsip" data-id="' + e.id + '">' + ic('archive') + 'Arsipkan</button>');
+    return b.join('');
+  }
+  document.addEventListener('click', function (e) { if (pg.state.menu && !e.target.closest('.menu') && !e.target.closest('.kb')) pg.set({ menu: null }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('[data-nav]')) BO.nav(e.target.getAttribute('data-nav')); });
+})();
+</script>
+</body></html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unggah Data Baru · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, UC = 'harmonisasi';
+  UI.page({
+    state: { step: 1, file: null, nama: '', penyedia: '', jadwal: 'manual', kolom: [], rows: [] },
+    render: function (s) {
+      var h = '<div class="pg" style="max-width:920px">';
+      h += '<div class="crumb"><a href="#" data-nav="workspace/harmonisasi">Dashboard</a>' + ic('chevr') + '<a href="#" data-nav="workspace/harmonisasi/data-source">Data Source</a>' + ic('chevr') + '<b>Unggah Data Baru</b></div>';
+      h += '<div class="ph"><div><h1>Unggah Data Baru</h1><p class="d">Data yang sudah diolah (CSV, Excel, JSON) diekstraksi, ditinjau, lalu diajukan untuk persetujuan sebelum bisa dipakai widget.</p></div></div>';
+      h += '<div class="steps">' + [[1, 'Unggah'], [2, 'Ekstraksi'], [3, 'Pratinjau']].map(function (x, i) { return (i ? '<span class="ln"></span>' : '') + '<span class="s' + (s.step >= x[0] ? ' on' : '') + '"><i>' + x[0] + '</i>' + x[1] + '</span>'; }).join('') + '</div>';
+      if (s.step === 1) {
+        h += '<section class="card pad"><h3 style="font-size:14px;margin-bottom:10px">File data</h3>' +
+          '<label class="drop" for="fl">' + ic('upload') + '<b>' + (s.file ? esc(s.file.name) + ' · ' + Math.max(1, Math.round(s.file.size / 1024)) + ' KB' : 'Seret file ke sini atau pilih dari komputer') + '</b><span>CSV, TSV, Excel (.xlsx), atau JSON. Maksimal 20 MB dan 500.000 baris.</span><span class="btn btn-s" style="margin-top:6px">Pilih file</span></label><input type="file" id="fl" accept=".csv,.tsv,.xlsx,.json" style="display:none" data-ch="file">' +
+          '<h3 style="font-size:14px;margin:20px 0 10px">Metadata</h3>' +
+          '<div class="fld"><label for="mn">Nama dataset <span class="req">*</span></label><input class="ip" id="mn" data-in="v" data-k="nama" value="' + esc(s.nama) + '" placeholder="mis. Daftar Perda Penanaman Modal 2026"></div>' +
+          '<div class="g2"><div class="fld"><label for="mp">Penyedia <span class="req">*</span></label><input class="ip" id="mp" data-in="v" data-k="penyedia" value="' + esc(s.penyedia) + '"><span class="hint">Instansi pemilik data, mis. BPS, Kementerian Investasi/BKPM.</span></div>' +
+          '<div class="fld"><label for="mj">Jadwal pembaruan</label><select class="sel" id="mj" style="width:100%" data-ch="v" data-k="jadwal">' + ['manual', 'harian', 'mingguan', 'bulanan', 'triwulanan', 'tahunan'].map(function (j) { return '<option' + (s.jadwal === j ? ' selected' : '') + '>' + j + '</option>'; }).join('') + '</select></div></div>' +
+          '<div class="fld"><span class="lb">Use case pemakai</span><div class="row"><span class="pl bd-brand">Harmonisasi</span><span class="xs mut">Dataset di backoffice ini hanya dipakai use case Harmonisasi.</span></div></div>' +
+          '<div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-nav="workspace/harmonisasi/data-source">Batal</button><button type="button" class="btn btn-p" data-on="ekstrak">Lanjut ekstraksi</button></div></section>';
+      } else if (s.step === 2) {
+        h += '<section class="card pad"><h3 style="font-size:14px">Ekstraksi kolom</h3><p class="sm mut" style="margin:4px 0 14px">Periksa nama dan tipe kolom hasil deteksi otomatis.</p>' +
+          '<div class="tw"><table class="tb" style="min-width:0"><thead><tr><th>Kolom</th><th>Tipe terdeteksi</th></tr></thead><tbody>' + s.kolom.map(function (c) { return '<tr><td class="b">' + esc(c[0]) + '</td><td>' + esc(c[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+          '<div class="row" style="justify-content:flex-end;margin-top:14px"><button type="button" class="btn" data-on="step" data-n="1">Kembali</button><button type="button" class="btn btn-p" data-on="step" data-n="3">Lanjut pratinjau</button></div></section>';
+      } else {
+        h += '<section class="card"><div class="card-h"><h3>Pratinjau ' + esc(s.nama) + '</h3><span class="r xs mut">' + s.rows.length + ' baris contoh</span></div><div class="tw"><table class="tb raw" style="min-width:0"><thead><tr><th>#</th>' + s.kolom.map(function (c) { return '<th>' + esc(c[0]) + '<small>' + esc(c[1]) + '</small></th>'; }).join('') + '</tr></thead><tbody>' +
+          s.rows.map(function (r, i) { return '<tr><td class="mut">' + (i + 1) + '</td>' + r.map(function (v) { return '<td>' + esc(v) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>' +
+          '<div class="act" style="margin:0;position:static;border-radius:0 0 8px 8px"><span class="info">Setelah diajukan, dataset berstatus Menunggu sampai disetujui Approver.</span><button type="button" class="btn" data-on="step" data-n="2">Kembali</button><button type="button" class="btn btn-p" data-on="ajukan">' + ic('approve') + 'Ajukan persetujuan</button></div></section>';
+      }
+      return h + '</div>';
+    },
+    on: {
+      v: function (el) { this.state[el.dataset.k] = el.value; },
+      file: function (el) {
+        var f = el.files && el.files[0], self = this; if (!f) return;
+        var nm = f.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ');
+        self.set({ file: { name: f.name, size: f.size }, nama: self.state.nama || nm });
+        if (/\.(csv|tsv)$/i.test(f.name)) { var rd = new FileReader(); rd.onload = function () { self.state.raw = String(rd.result).slice(0, 20000); }; rd.readAsText(f); }
+      },
+      ekstrak: function () {
+        var s = this.state;
+        if (!s.file) { BO.toast('Pilih file data terlebih dahulu.', 'x'); return; }
+        if (!s.nama.trim() || !s.penyedia.trim()) { BO.toast('Nama dataset dan penyedia wajib diisi.', 'x'); return; }
+        var kolom = [['kolom_1', 'teks'], ['kolom_2', 'teks'], ['nilai', 'angka']], rows = [['—', '—', '—']];
+        if (s.raw) {
+          var sep = s.raw.indexOf('\t') >= 0 ? '\t' : s.raw.indexOf(';') >= 0 && s.raw.indexOf(',') < 0 ? ';' : ',';
+          var lines = s.raw.split(/\r?\n/).filter(Boolean).slice(0, 9).map(function (l) { return l.split(sep).map(function (x) { return x.replace(/^"|"$/g, '').trim(); }); });
+          if (lines.length) { rows = lines.slice(1); kolom = lines[0].map(function (c, i) { var num = rows.length && rows.every(function (r) { return r[i] !== undefined && /^-?[\d.,]+$/.test(r[i]); }); return [c || 'kolom_' + (i + 1), num ? 'angka' : /tahun|bulan|tanggal|periode/i.test(c) ? 'waktu' : 'teks']; }); }
+        }
+        this.set({ step: 2, kolom: kolom, rows: rows.length ? rows : [['—']] });
+      },
+      step: function (el) { this.set({ step: +el.dataset.n }); },
+      ajukan: function () {
+        var s = this.state, id = 'up-' + Date.now().toString(36);
+        BO.create(UC, 'ws.dataSource', { id: id, nama: s.nama.trim(), penyedia: s.penyedia.trim(), record: s.rows.length, diperbarui: BO.now(), status: 'menunggu', segar: 'ok', jadwal: s.jadwal, diunggah: BO.role().nama, kolom: s.kolom, rows: s.rows },
+          { aksi: 'Data source diunggah, menunggu persetujuan', sebelum: '—', sesudah: 'Menunggu', alasan: s.file.name });
+        BO.toast('Dataset diajukan untuk persetujuan.', 'ok');
+        BO.nav('workspace/harmonisasi/data-source/' + id);
+      }
+    }
+  });
+})();
+</script>
+</body></html>

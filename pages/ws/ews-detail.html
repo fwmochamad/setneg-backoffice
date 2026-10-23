@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detail EWS · Workspace Harmonisasi</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/uc-harmonisasi.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+<style>
+  .urg{display:inline-flex;height:18px;align-items:center;padding:0 6px;border-radius:4px;font-size:11px;font-weight:700;margin-right:6px;vertical-align:1px}
+  .urg.s{background:var(--b-err-bg);color:var(--b-err)}.urg.d7{background:var(--b-warn-bg);color:var(--b-warn)}.urg.d30{background:var(--background-elevated);color:var(--content-secondary)}
+  .pel{color:var(--content-secondary)}
+  .srcrow{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .srcrow:last-child{border-bottom:0}
+</style>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon, esc = UI.esc, WS = UI.WS, UC = 'harmonisasi';
+  var id = BO.param('id');
+  var URG = { segera: ['s', 'Segera'], '7': ['d7', '7 hari'], '30': ['d30', '30 hari'] };
+  var refs = function (r) { return (r || []).map(function (n) { return '<span class="ref">' + n + '</span>'; }).join(''); };
+  UI.page({
+    state: { tab: 'konten', edit: null, txt: '' },
+    render: function (s) {
+      var e = BO.get(UC, 'ws.ews', id);
+      if (!e) return '<div class="pg">' + UI.soon('EWS tidak ditemukan', 'EWS dengan ID ' + id + ' tidak ada.', 'alert') + '</div>';
+      var role = BO.role().key, rv = WS.reviewed(e), n = WS.reviewN(e);
+      var stL = e.status === 'approval' ? ['Menunggu persetujuan tayang', 'var(--st-warn)'] : e.status === 'active' ? ['Tayang di Dashboard Presiden', 'var(--st-ok)'] : ['Diarsipkan', 'var(--content-tertiary)'];
+      var sisa = Math.max(0, Math.round((new Date(e.berakhir) - new Date('2026-10-23')) / 864e5));
+      var h = '<div class="pg">';
+      h += '<div class="crumb"><a href="#" data-nav="workspace/harmonisasi">Dashboard</a>' + ic('chevr') + '<a href="#" data-nav="workspace/harmonisasi/ews">Early Warning System</a>' + ic('chevr') + '<b>Detail</b></div>';
+      h += '<div class="dh"><div style="flex:1;min-width:0"><h1>' + esc(e.judul) + ' <span class="mut" title="Judul maks 2 baris">' + ic('info') + '</span></h1>' +
+        '<div class="meta"><span style="color:var(--ink);font-weight:600"><span class="dot" style="color:' + stL[1] + '"></span>' + stL[0] + '</span><span class="' + (rv ? 'ok-c' : '') + '">' + ic('okc') + (rv ? 'Sudah direview analis' : 'Belum direview analis · ' + n + '/4') + '</span><span class="brand-c">' + ic('target') + 'Tingkat Akurasi: ' + esc(e.akurasi) + '</span></div>' +
+        '<div class="meta"><span>' + ic('clock') + 'Terdeteksi ' + UI.d(e.terdeteksi, false) + '</span><span>' + ic('sync') + 'Diperbarui ' + UI.d(e.diperbarui, false) + '</span><span>' + ic('hour') + 'Berakhir ' + UI.d(e.berakhir, false) + ' · ' + sisa + ' hari lagi</span><span>' + ic('layout') + esc(WS.MODUL[e.modul]) + '</span></div></div></div>';
+      if (e.status === 'approval') h += '<div class="note warn sec">Menunggu keputusan Approver sejak ' + UI.dt(e.diajukan || e.terdeteksi) + ' WIB. Setelah disetujui dan aktif, review isinya lalu tandai sudah direview.</div>';
+      if (e.status === 'archived') h += '<div class="note sec">Diarsipkan' + (e.alasanArsip ? ': ' + esc(e.alasanArsip) : '') + '.</div>';
+      h += UI.tabs([{ k: 'konten', l: 'Konten', ic: 'file' }, { k: 'sumber', l: 'Sumber dan Kevalidan', ic: 'shield' }, { k: 'riwayat', l: 'Riwayat', ic: 'hist' }], s.tab, 'tab');
+      var canRev = e.status === 'active';
+      h += '<div class="split3 sec">';
+      h += '<div>';
+      if (s.tab === 'konten') {
+        var sec = [
+          [1, 'Tingkat, judul, dan langkah cepat', '<span class="lvl ' + e.level + '">' + WS.LV[e.level] + '</span><h3 style="font-size:14px;margin:8px 0 4px">' + esc(e.judul) + '</h3><div class="mut">' + esc(e.cepat) + '</div><p class="xs mut" style="margin-top:10px">Teks kartu. Tingkat peringatan bisa dikoreksi dengan alasan; judul maks 2 baris, langkah cepat maks 1 baris.</p>'],
+          [2, 'Masalah', '<ul>' + e.masalah.map(function (m) { return '<li>' + esc(m[0]) + refs(m[1]) + '</li>'; }).join('') + '</ul>'],
+          [3, 'Dampak', '<ul>' + e.dampak.map(function (m) { return '<li>' + esc(m[0]) + refs(m[1]) + '</li>'; }).join('') + '</ul>'],
+          [4, 'Langkah yang perlu diambil', '<ol>' + e.langkah.map(function (m) { var u = URG[m[0]]; return '<li><span class="urg ' + u[0] + '">' + u[1] + '</span><b>' + esc(m[1]) + '</b> <span class="pel">Pelaksana: ' + esc(m[2]) + '</span>' + refs(m[3]) + '</li>'; }).join('') + '</ol>']
+        ];
+        sec.forEach(function (x) {
+          var ok = e.review && e.review[x[0]], editing = s.edit === x[0];
+          h += '<section class="sect"><div class="sect-h"><span class="no">' + x[0] + '</span><h3>' + x[1] + '</h3>' + (canRev ? '<span class="r ' + (ok ? 'ok-c' : 'mut') + '">' + ic(ok ? 'ok' : 'clock') + (ok ? 'Sudah direview' : 'Belum direview') + '</span>' : '') + '</div>' +
+            '<div class="sect-b">' + (editing ? '<textarea class="ta" id="tx" data-in="txt">' + esc(s.txt) + '</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn btn-s" data-on="batal">Batal</button><button type="button" class="btn btn-s btn-p" data-on="simpanEdit" data-k="' + x[0] + '">Simpan revisi</button><span class="xs mut">Revisi pada EWS aktif langsung diterapkan dan tercatat di Riwayat.</span></div>' : x[2]) + '</div>' +
+            (canRev && !editing ? '<div class="sect-f"><button type="button" class="btn btn-s" data-on="edit" data-k="' + x[0] + '">' + ic('edit') + 'Edit</button><button type="button" class="sp" data-on="rev" data-k="' + x[0] + '">' + ic('okc') + (ok ? 'Tandai belum direview' : 'Tandai sudah direview') + '</button></div>' : '') + '</section>';
+        });
+      } else if (s.tab === 'sumber') {
+        h += '<section class="sect"><div class="sect-h"><h3>Sumber rujukan</h3><span class="r mut">' + e.sumber.length + ' sumber</span></div>' + (e.sumber.length ? e.sumber.map(function (x) {
+          return '<div class="srcrow"><span class="ref" style="margin:0;height:20px;min-width:20px;font-size:11px">' + x[0] + '</span><div><div class="b">' + esc(x[1]) + '</div><div class="sm mut">' + esc(x[2]) + '</div></div><span class="pl ' + (x[3] === 'Valid' ? 'bd-ok' : 'bd-warn') + '">' + esc(x[3]) + '</span></div>';
+        }).join('') : '<div class="empty">Tidak ada sumber tercatat.</div>') + '</section>';
+      } else {
+        var au = BO.audit(UC).filter(function (a) { return a.ent === 'ws.ews' && a.obj === e.id; });
+        h += '<section class="sect"><div class="sect-h"><h3>Riwayat</h3></div><div class="sect-b"><ul class="tl">' + au.map(function (a) {
+          return '<li class="' + (/setuju|tayang/i.test(a.aksi) ? 'ok' : /tolak|arsip/i.test(a.aksi) ? 'x' : '') + '"><div class="w">' + esc(a.aksi) + '</div><div class="m">' + esc(a.aktor) + ' · ' + BO.dt(a.at) + '</div>' + (a.alasan && a.alasan !== '—' ? '<div class="m">' + esc(a.alasan) + '</div>' : '') + '</li>';
+        }).join('') + (e.diajukan ? '<li class="ai"><div class="w">Diajukan ke Approval oleh sistem</div><div class="m">Sistem AI · ' + BO.dt(e.diajukan) + '</div></li>' : '') + '<li class="ai"><div class="w">Terdeteksi oleh AI</div><div class="m">Sistem AI · ' + BO.dt(e.terdeteksi) + '</div></li></ul></div></section>';
+      }
+      h += '</div>';
+      // checklist
+      var cl = [
+        [true, 'Judul maks 2 baris, langkah cepat maks 1 baris'],
+        [rv, 'Keempat bagian sudah direview'],
+        [!!(e.review && e.review[1]), 'Klaim judul sudah direview'],
+        [e.sumber.every(function (x) { return x[3] === 'Valid'; }), 'Tidak ada selisih sumber'],
+        [e.masalah.every(function (m) { return m[1] && m[1].length; }), 'Fakta di judul didukung sumber']
+      ];
+      var done = cl.filter(function (c) { return c[0]; }).length;
+      h += '<aside class="sticky"><div class="chkl' + (done === cl.length ? '' : ' no') + '"><h3>Daftar Periksa Review<span style="' + (done === cl.length ? '' : 'color:var(--content-secondary)') + '">' + done + ' dari ' + cl.length + ' terpenuhi</span></h3><ul>' +
+        cl.map(function (c) { return '<li class="' + (c[0] ? '' : 'x') + '">' + ic(c[0] ? 'okc' : 'alertc') + esc(c[1]) + '</li>'; }).join('') + '</ul></div>';
+      if (e.status === 'approval') h += '<div class="card pad sec"><h3 style="font-size:14px">Keputusan Approver</h3><p class="sm mut" style="margin:6px 0 12px">' + (role === 'approver' ? 'Setujui agar EWS tayang di Dashboard Presiden.' : 'Hanya Approver yang dapat memutuskan. Ganti peran di menu pengguna.') + '</p>' +
+        (role === 'approver' ? '<div class="row"><button type="button" class="btn btn-r" data-on="tolak">' + ic('x') + 'Tolak</button><button type="button" class="btn btn-g" data-on="setuju">' + ic('ok') + 'Setujui & tayangkan</button></div>' : '') + '</div>';
+      if (e.status === 'active') h += '<div class="row sec"><button type="button" class="btn btn-r" data-on="arsip">' + ic('archive') + 'Arsipkan</button><button type="button" class="btn" data-on="semua"' + (rv ? ' disabled' : '') + '>' + ic('okc') + 'Tandai semua sudah direview</button></div>';
+      h += '</aside></div>';
+      return h + '</div>';
+    },
+    on: {
+      tab: function (el) { this.set({ tab: el.dataset.k }); },
+      rev: function (el) {
+        var e = BO.get(UC, 'ws.ews', id), k = el.dataset.k, r = Object.assign({}, e.review); r[k] = !r[k];
+        BO.update(UC, 'ws.ews', id, { review: r }, { aksi: r[k] ? 'Bagian ' + k + ' ditandai sudah direview' : 'Bagian ' + k + ' ditandai belum direview', sebelum: (e.review[k] ? 'Sudah' : 'Belum') + ' direview', sesudah: (r[k] ? 'Sudah' : 'Belum') + ' direview' });
+        if (WS.reviewed(Object.assign({}, e, { review: r }))) BO.toast('Keempat bagian sudah direview.', 'ok');
+      },
+      semua: function () { var e = BO.get(UC, 'ws.ews', id); BO.update(UC, 'ws.ews', id, { review: { 1: true, 2: true, 3: true, 4: true } }, { aksi: 'Seluruh bagian ditandai sudah direview', sebelum: WS.reviewN(e) + '/4', sesudah: '4/4' }); BO.toast('EWS ditandai sudah direview analis.', 'ok'); },
+      edit: function (el) {
+        var e = BO.get(UC, 'ws.ews', id), k = +el.dataset.k;
+        var t = k === 1 ? e.judul + '\n' + e.cepat : (k === 2 ? e.masalah : k === 3 ? e.dampak : e.langkah).map(function (m) { return k === 4 ? m[1] : m[0]; }).join('\n');
+        this.set({ edit: k, txt: t });
+      },
+      txt: function (el) { this.state.txt = el.value; },
+      batal: function () { this.set({ edit: null }); },
+      simpanEdit: function (el) {
+        var e = BO.get(UC, 'ws.ews', id), k = +el.dataset.k, lines = this.state.txt.split('\n').map(function (x) { return x.trim(); }).filter(Boolean), p = {};
+        if (k === 1) { p.judul = lines[0] || e.judul; p.cepat = lines[1] || e.cepat; }
+        else { var key = k === 2 ? 'masalah' : k === 3 ? 'dampak' : 'langkah'; p[key] = lines.map(function (l, i) { var o = e[key][i]; return k === 4 ? [o ? o[0] : '30', l, o ? o[2] : '—', o ? o[3] : []] : [l, o ? o[1] : []]; }); }
+        p.diperbarui = BO.now();
+        BO.update(UC, 'ws.ews', id, p, { aksi: 'Revisi diterapkan langsung: bagian ' + k, sebelum: 'Versi sebelumnya', sesudah: 'Direvisi analis', alasan: 'Penyuntingan isi EWS' });
+        this.set({ edit: null }); BO.toast('Revisi disimpan.', 'ok');
+      },
+      setuju: function () { BO.update(UC, 'ws.ews', id, { status: 'active', diperbarui: BO.now() }, { aksi: 'EWS disetujui dan tayang', sebelum: 'Approval', sesudah: 'Active', alasan: 'Sesuai' }); BO.toast('EWS disetujui dan tayang di Dashboard Presiden.', 'ok'); },
+      tolak: function () { UI.reason('Tolak EWS', 'Alasan penolakan (wajib):', function (r) { BO.update(UC, 'ws.ews', id, { status: 'archived', alasanArsip: 'Ditolak Approver: ' + r }, { aksi: 'EWS ditolak', sebelum: 'Approval', sesudah: 'Archived', alasan: r }); BO.toast('EWS ditolak dan diarsipkan.', 'x'); }); },
+      arsip: function () { UI.reason('Arsipkan EWS', 'Alasan pengarsipan (wajib):', function (r) { BO.update(UC, 'ws.ews', id, { status: 'archived', alasanArsip: r }, { aksi: 'EWS diarsipkan', sebelum: 'Active', sesudah: 'Archived', alasan: r }); BO.toast('EWS diarsipkan.', 'ok'); }); }
+    }
+  });
+})();
+</script>
+</body></html>

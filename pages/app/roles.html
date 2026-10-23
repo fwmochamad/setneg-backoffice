@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Role &amp; Permission · Backoffice Sitroom</title>
+<link rel="stylesheet" href="../../assets/inter.css">
+<link rel="stylesheet" href="../../assets/bo-theme.css?v=20261023-1">
+<script src="../../data/harmonisasi-data.js?v=20261023-1"></script>
+<script src="../../data/harmonisasi-ws.js?v=20261023-1"></script>
+<script src="../../assets/bo-store.js?v=20261023-1"></script>
+<script src="../../assets/bo-ui.js?v=20261023-1"></script>
+</head><body><div id="app"></div>
+<script>
+(function () {
+  var ic = UI.icon;
+  var HAK = [
+    ['Melihat Workspace, Dashboard Management, Approvals', 1, 1],
+    ['Membuat & menyunting widget (draft)', 1, 1],
+    ['Review EWS (tandai bagian, revisi isi)', 1, 1],
+    ['Unggah data source & dokumen knowledge', 1, 1],
+    ['Verifikasi penilaian, kurasi, tindak lanjut (Operation)', 1, 0],
+    ['Menyetujui/menolak widget, EWS, data source', 0, 1],
+    ['Menyetujui narasi AI & penayangan analisis', 0, 1],
+    ['Menetapkan master sektor, kriteria, ambang batas', 0, 1],
+    ['Mempublikasikan versi dashboard', 0, 1]
+  ];
+  UI.page({
+    render: function () {
+      var y = '<span class="ok-c">' + ic('ok') + '</span>', n = '<span class="mut">—</span>';
+      return '<div class="pg"><div class="ph"><div><h1>Role &amp; Permission</h1><p class="d">Matriks hak akses peran backoffice untuk use case Harmonisasi. Pengaturan peran granular masih dalam pengembangan, seiring fitur multi-user.</p></div></div>' +
+        '<section class="card"><div class="tw"><table class="tb" style="min-width:620px"><thead><tr><th>Hak akses</th><th style="text-align:center">Analyst</th><th style="text-align:center">Approver</th></tr></thead><tbody>' +
+        HAK.map(function (r) { return '<tr><td>' + r[0] + '</td><td style="text-align:center">' + (r[1] ? y : n) + '</td><td style="text-align:center">' + (r[2] ? y : n) + '</td></tr>'; }).join('') + '</tbody></table></div></section></div>';
+    }
+  });
+})();
+</script>
+</body></html>
